@@ -72,7 +72,7 @@ def load_dataset(split="train"):
     return loader, dataset
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-# TODO: PRATIK IMPLEMENT THIS    
+# TODO: PRATIK IMPLEMENT THIS - MODEL ARCHITECTURE
 class Generator_DCGAN(nn.Module):
     def __init__(self):
         super(Generator_DCGAN, self).__init__()
@@ -105,7 +105,7 @@ class DCGAN(torch.nn.Module):
         return self.discriminator(x)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-# TODO: JOSH IMPLEMENT THIS
+# TODO: JOSH IMPLEMENT THIS - MODEL ARCHITECTURE
 class Generator_WGAN(nn.Module):
     def __init__(self):
         super(Generator_WGAN, self).__init__()
@@ -140,7 +140,7 @@ class WGAN_GP(torch.nn.Module):
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-# TODO: JEONGWON IMPLEMENT THIS
+# TODO: JEONGWON IMPLEMENT THIS SECTION - MODEL ARCHITECTURE
 class Generator_ProGAN(nn.Module):
     def __init__(self):
         super(Generator_ProGAN, self).__init__()
@@ -176,12 +176,11 @@ class ProGAN(torch.nn.Module):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
     # TODO: PRATIK IMPLEMENT THIS
-    # pass
     return {}, DCGAN()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader):
-    # pass
+    # TODO: JOSH IMPLEMENT THIS
     return {}, WGAN_GP()
 
 def tune_progan(train_loader, val_loader):
@@ -196,7 +195,6 @@ def tune_progan(train_loader, val_loader):
         model: The model initialized with the best hyperparameter configuration
     """
     # TODO: JEONGWON IMPLEMENT THIS
-    # pass
     return {}, ProGAN()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -339,6 +337,7 @@ def main():
     wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir)
     progan_fid = compute_fid(real_test_dir, progan_fake_dir)
 
+    # Prints below used AI
     print(f"DCGAN FID: {dcgan_fid:.4f}")
     print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     print(f"ProGAN FID: {progan_fid:.4f}")

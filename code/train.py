@@ -347,3 +347,17 @@ if __name__ == "__main__":
     main()
 
 
+
+# NOTES:
+#  - when you are tuning and training each model, be sure to save checkpoints throughout training
+#  - all checkpoints saved during training should overwrite each other to allow for less memory usage
+#  - in the end, we will all have 2 models each, one for 64 pixel resolution, another for 128 pixel resolution
+#  - store all models and data locally, don't commit them, we will find another way to share them
+#  - be sure to name your saved models in a way that clearly indicates the model architecture and resolution
+#       - for example: dcgan_model_64.pt, progan_model_64.pt, wgan_gp_model_128.pt, etc.
+#  - IMPORTANT: DO NOT CHANGE THE PREPROCESSING PIPELINE UNLESS YOU TALK TO US ALL FIRST
+#       - the purpose of the experiment is to compare architectures when given the same input
+#  - You can use any AI or existing tools, but make sure to do the following:
+#       - 1. make sure you can explain what your code does in detail - he will ask
+#       - 2. make sure to leave a comment next to sections of code you didn't write yourself
+#           - this is just because he wants us to calculate what percentage of code we wrote on our own

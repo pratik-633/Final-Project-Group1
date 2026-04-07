@@ -210,9 +210,9 @@ def train_progan(train_loader, model, params):
 def main():
     
     # load data
-    train_loader, train_dataset = load_dataset("train")
-    val_loader, val_dataset = load_dataset("valid")
-    test_loader, test_dataset  = load_dataset("test")
+    train_loader, train_dataset = load_dataset("train",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    val_loader, val_dataset = load_dataset("valid",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    test_loader, test_dataset  = load_dataset("test",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
 
     # define models
     dcgan = DCGAN() # TODO: Pratik's model
@@ -233,14 +233,14 @@ def main():
     # generate fake images from each model
     real_test_dir = os.path.join(DATA_ROOT, "test", "real")
     num_test = len(test_dataset)
-    dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes")
-    wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, "output/wgan_gp_fakes")
-    progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes")
+    dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+    wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, "output/wgan_gp_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+    progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
 
     # evaluate models using FID score
-    dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir)
-    wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir)
-    progan_fid = compute_fid(real_test_dir, progan_fake_dir)
+    dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
+    wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
+    progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
 
     # Prints below used AI
     print(f"DCGAN FID: {dcgan_fid:.4f}")

@@ -63,38 +63,100 @@ class DCGAN(torch.nn.Module):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JOSH IMPLEMENT THIS - MODEL ARCHITECTURE
-class Generator_WGAN(nn.Module):
-    def __init__(self):
-        super(Generator_WGAN, self).__init__()
+class Generator_WGAN_GP(nn.Module):
+    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
+        super(Generator_WGAN_GP, self).__init__()
         # define generator layers here
-        pass
+        self.network = nn.Sequential(
+            nn.ConvTranspose2d(in_channels=latent_dim, out_channels=feature_maps * 8, # scale the output
+                               kernel_size=4, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(feature_maps * 8), # batch norm should be fine in generator, just not critic - WGAN-GP paper
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=feature_maps * 8, out_channels=feature_maps * 4, # previous output is the size of the input
+                               kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 4),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=feature_maps * 4, out_channels=feature_maps * 2,
+                               kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 2),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=feature_maps * 2, out_channels=feature_maps,
+                               kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps),
+            nn.ReLU(True),
+            nn.ConvTranspose2d(in_channels=feature_maps, out_channels=channels, # output must be the number of channels (3)
+                               kernel_size=4, stride=2, padding=1, bias=False),
+            nn.Tanh() # output function Tanh as per the DCGAN paper
+        )
+
 
     def forward(self, x):
-        pass
+        return self.network(x)
 
-class Discriminator_WGAN(nn.Module):
-    def __init__(self):
-        super(Discriminator_WGAN, self).__init__()
+class Critic_WGAN_GP(nn.Module):
+    def __init__(self, channels=CHANNELS, feature_maps=64):
+        super(Critic_WGAN_GP, self).__init__()
         # define discriminator layers here
-        pass
+
+        self.network = nn.Sequential(
+            nn.Conv2d(in_channels=channels, out_channels=feature_maps,
+                      kernel_size=4, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=feature_maps, out_channels=feature_maps * 2,
+                      kernel_size=4, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(feature_maps * 2), # InstanceNorm as per WGAN-GP paper for critic - no Batch normalization
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=feature_maps * 2, out_channels=feature_maps * 4,
+                      kernel_size=4, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(feature_maps * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=feature_maps * 4, out_channels=feature_maps * 8,
+                      kernel_size=4, stride=2, padding=1, bias=False),
+            nn.InstanceNorm2d(feature_maps * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(in_channels=feature_maps * 8, out_channels=1,
+                      kernel_size=4, stride=1, padding=0, bias=False)
+            # For WGAN, Output is scalar - continuous
+        )
 
     def forward(self, x):
-        pass
+        return self.network(x)
 
 
 class WGAN_GP(torch.nn.Module):
-    def __init__(self):
+    """WGAN architecture with gradient penalty rather than weight clipping
+
+    Args:
+        torch (_type_): _description_
+    """
+    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
         super(WGAN_GP, self).__init__()
         # define generator and discriminator here
-        self.generator = Generator_WGAN()
-        self.discriminator = Discriminator_WGAN()
-    
-    def generator(self, x):
-        return self.generator(x)
+        self.generator = Generator_WGAN_GP(latent_dim=latent_dim, channels=channels, feature_maps=feature_maps)
+        self.critic = Critic_WGAN_GP(channels=channels, feature_maps=feature_maps)
 
-    def discriminator(self, x):
-        return self.discriminator(x)
 
+def gradient_penalty(critic, real_samples, fake_samples, device=DEVICE):
+    batch_size = real_samples.size(0)
+    epsilon = torch.rand(batch_size, 1, 1, 1, device=device)
+    interpolates = epsilon * real_samples + (1 - epsilon) * fake_samples
+    interpolates.requires_grad_(True)
+
+    critic_interpolates = critic(interpolates)
+
+    gradients = torch.autograd.grad(
+        outputs=critic_interpolates,
+        inputs=interpolates,
+        grad_outputs=torch.ones_like(critic_interpolates),
+        create_graph=True,
+        retain_graph=True,
+        only_inputs=True
+    )[0]
+
+    gradients = gradients.view(batch_size, -1)
+    gradient_norm = gradients.norm(2, dim=1)    
+    penalty = ((gradient_norm - 1) ** 2).mean()
+    return penalty
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JEONGWON IMPLEMENT THIS SECTION - MODEL ARCHITECTURE
@@ -138,6 +200,9 @@ def tune_dcgan(train_loader, val_loader):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader):
     # TODO: JOSH IMPLEMENT THIS
+
+    # NOTE: THINGS TO TUNE SO FAR:
+    # feature_maps, latent_dim, channels
     return {}, WGAN_GP()
 
 def tune_progan(train_loader, val_loader):
@@ -207,6 +272,7 @@ def train_progan(train_loader, model, params):
 
 
 #-----------------------------------------------------------------------------------------------------------------------------------------
+# main function
 def main():
     
     # load data

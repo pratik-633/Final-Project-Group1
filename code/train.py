@@ -64,6 +64,11 @@ class DCGAN(torch.nn.Module):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JOSH IMPLEMENT THIS - MODEL ARCHITECTURE
 class Generator_WGAN_GP(nn.Module):
+    """Generator class for WGAN_GP model. Should basically mirror a simple DCGAN generator architecture.
+
+    Args:
+        nn (_type_): _description_
+    """
     def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
         super(Generator_WGAN_GP, self).__init__()
         # define generator layers here
@@ -94,6 +99,16 @@ class Generator_WGAN_GP(nn.Module):
         return self.network(x)
 
 class Critic_WGAN_GP(nn.Module):
+    """Critic class for WGAN_GP model. This is basically the WGAN version of the discriminator. Instead of outputting a probability,
+    which is what DCGAN discriminators output, it outputs a scalar value representing the "realness" of the input. The critic's output
+    is a continuous scalar value that estimates the Wasserstein distance between the real and generated data distributions.
+
+    The Wasserstein distance, conceptually, is a measure of the difference between the real and generated data distributions. This was the key
+    difference between the traditional GANs and WGANs.
+
+    Args:
+        nn (_type_): _description_
+    """
     def __init__(self, channels=CHANNELS, feature_maps=64):
         super(Critic_WGAN_GP, self).__init__()
         # define discriminator layers here
@@ -124,7 +139,17 @@ class Critic_WGAN_GP(nn.Module):
 
 
 class WGAN_GP(torch.nn.Module):
-    """WGAN architecture with gradient penalty rather than weight clipping
+    """WGAN-GP architecture class. Note, that the key difference here between a standard WGAN and WGAN-GP is the use of a gradient penalty
+    instead of weight clipping to enforce the Lipschitz constraint.
+
+    The Lipschitz constraint is a key requirement for the critic in WGANs. In the standard WGAN, weight clipping (or bounding as I think of it) 
+    was the method used to enforce this, which led to capacity underuse and exploding or vanishing gradients. WGAN-GP improved this by using a
+    gradient penalty instead of weight clipping, which penalizes the norm of the gradient of the critic's output with respect to its input,
+    encouraging the gradient norm to be close to 1. In short, gradient penalty simply penalizes the critic if its gradients norms deviate (are not equal to)
+    the 1.
+
+    The idea behind WGAN-GP is to provide a more stable and reliable training process for WGANs by ensuring that the critic satisfies the 
+    Lipschitz constraint without the drawbacks of weight clipping.
 
     Args:
         torch (_type_): _description_

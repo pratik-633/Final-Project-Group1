@@ -81,13 +81,14 @@ def compute_fid(real_dir, fake_dir, batch_size, device):
 def weights_init(m):
     """Initialize the weights of convolutional and normalization layers."""
     classname = m.__class__.__name__
-    if 'Conv' in classname:
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif 'BatchNorm' in classname:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
-    elif 'GroupNorm' in classname:
-        if m.weight is not None:
+    with torch.no_grad():
+        if 'Conv' in classname:
+            nn.init.normal_(m.weight.data, 0.0, 0.02)
+        elif 'BatchNorm' in classname:
             nn.init.normal_(m.weight.data, 1.0, 0.02)
-        if m.bias is not None:
             nn.init.constant_(m.bias.data, 0)
+        elif 'GroupNorm' in classname:
+            if m.weight is not None:
+                nn.init.normal_(m.weight.data, 1.0, 0.02)
+            if m.bias is not None:
+                nn.init.constant_(m.bias.data, 0)

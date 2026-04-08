@@ -152,8 +152,9 @@ class Critic_WGAN_GP(nn.Module):
                                           out_channels=feature_maps * (2 ** i), 
                                           kernel_size=4, stride=2, padding=1, bias=False))
             
-            # NOTE: LayerNorm was suggested by WGAN-GP paper for critic - no Batch normalization
-            # Pytorch doesn't seem to have LayerNorm, it was suggested by AI to use GroupNorm with 1 group as an alternative
+
+            # NOTE: WGAN-GP recommends avoiding BatchNorm in the critic because normalization should not couple samples within a batch
+            # PyTorch does provide nn.LayerNorm GroupNorm(1, num_channels) is used here as a LayerNorm-like choice for NCHW conv features
             self.network.append(nn.GroupNorm(1, feature_maps * (2 ** i)))
 
             self.network.append(nn.LeakyReLU(0.2, inplace=True))
@@ -269,7 +270,6 @@ def tune_dcgan(train_loader, val_loader):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
-
     # NOTE: THINGS TO CONSIDER TUNING:
     # - Learning rate -> 12-4, 2e-4, 5e-5
     # - n_critic -> 3, 5, 7
@@ -285,10 +285,8 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
             'feature_maps': 64
     }
     
-
     # NOTE: FOR TRAIN TESTING PURPOSES, THIS IS HARDCODED FOR NOW
     wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
-
 
     return params, wgan_gp
 
@@ -332,12 +330,12 @@ def train_dcgan(train_loader, model, params):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
-    """Training loop for 
+    """Training loop for WGAN-GP
 
     Args:
-        train_loader (DataLoader): _description_
-        model (WGAN_GP): _description_
-        params (dict): _description_
+        train_loader (DataLoader): DataLoader for training data
+        model (WGAN_GP): WGAN-GP model instance
+        params (dict): Hyperparameter configuration
         img_size (int, optional): Image resolution, used for checkpoint naming. Defaults to IMAGE_SIZE.
     """
 
@@ -367,7 +365,9 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
             # sample real data, latent var (z), and a random number
             x_real = real_data_batch[0].to(DEVICE) # real data batch (x in WGAN-GP paper)
             z = torch.randn(x_real.size(0), LATENT_DIM, 1, 1, device=DEVICE) # latent variable (z) as labeled by paper
-            x_fake: torch.Tensor = model.generator(z)
+            # Generate fake data with no gradient tracking to save memory and computation
+            with torch.no_grad():
+                x_fake: torch.Tensor = model.generator(z)
 
             # CRITIC SECTION
             critic_out_real: torch.Tensor = model.critic(x_real)
@@ -472,7 +472,7 @@ def main():
     elif model_choice == "wgan_gp":
         # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
         wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size) # TODO: Josh's hyperparameter tuning function - current fixed params
-        train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size) # TODO: Josh's training function
+        train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size)
     elif model_choice == "progan":
         progan = ProGAN() # TODO: Jeongwon's model
         progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function

@@ -331,7 +331,7 @@ def main():
 
     # define models
     dcgan = DCGAN() # TODO: Pratik's model
-    wgan_gp = WGAN_GP() # TODO: Josh's model
+    wgan_gp = WGAN_GP(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Josh's model
     progan = ProGAN() # TODO: Jeongwon's model
 
     dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function

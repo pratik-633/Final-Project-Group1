@@ -23,7 +23,7 @@ notes/          Project notes
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/acivate
+source .venv/bin/activate
 ```
 
 2. Install all dependencies

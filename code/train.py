@@ -66,11 +66,18 @@ class DCGAN(torch.nn.Module):
 # TODO: JOSH IMPLEMENT THIS - MODEL ARCHITECTURE
 class Generator_WGAN_GP(nn.Module):
     """Generator class for WGAN_GP model. Should basically mirror a simple DCGAN generator architecture.
-
     Args:
         nn (_type_): _description_
     """
     def __init__(self, img_size=IMAGE_SIZE, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
+        """Generator_WGAN_GP constructor.
+
+        Args:
+            img_size (int, optional): Size of the input images. Defaults to IMAGE_SIZE.
+            latent_dim (int, optional): Dimensionality of the latent vector. Defaults to LATENT_DIM.
+            channels (int, optional): Number of output channels. Defaults to CHANNELS.
+            feature_maps (int, optional): Number of feature maps in the first layer. Defaults to 64.
+        """
         super(Generator_WGAN_GP, self).__init__()
 
         n_stages = int(np.log2(img_size) - 2) # relationship of image size to upsampling in stages
@@ -79,7 +86,6 @@ class Generator_WGAN_GP(nn.Module):
 
         # first layer: 4x4
         # inchannels is latent dims
-        # out_channels = feature_maps * (2 ** (n_stages -1))
 
         self.network = nn.Sequential(
             nn.ConvTranspose2d(in_channels=latent_dim,
@@ -120,6 +126,13 @@ class Critic_WGAN_GP(nn.Module):
         nn (_type_): _description_
     """
     def __init__(self, img_size=IMAGE_SIZE, channels=CHANNELS, feature_maps=64):
+        """Critic_WGAN_GP constructor.
+
+        Args:
+            img_size (int, optional): Size of the input images. Defaults to IMAGE_SIZE.
+            channels (int, optional): Number of input channels. Defaults to CHANNELS.
+            feature_maps (int, optional): Number of feature maps in the first layer. Defaults to 64.
+        """
         super(Critic_WGAN_GP, self).__init__()
 
         n_stages = int(np.log2(img_size) - 2) # relationship of image size to upsampling in stages
@@ -340,11 +353,11 @@ def main():
     # add argparses for model to run and image size
     parser = argparse.ArgumentParser(description="Train GAN models")
     parser.add_argument("--model", type=str, choices=["dcgan", "wgan_gp", "progan"], required=True, help="Model to train")
-    parser.add_argument("--img_size", type=int, default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
+    parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
     args = parser.parse_args()
 
     # when running training, the commandline tells us which model to do for now
-    img_size = args.img_size
+    img_size = args.size
     model_choice = args.model
     
     # load data
@@ -353,22 +366,21 @@ def main():
     test_loader, test_dataset  = load_dataset("test",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
 
     # define models
-    dcgan = DCGAN() # TODO: Pratik's model
-    wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Josh's model
-    progan = ProGAN() # TODO: Jeongwon's model
+    dcgan = None
+    wgan_gp = None
+    progan = None
 
     if model_choice == "dcgan":
+        dcgan = DCGAN() # TODO: Pratik's model
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
-    elif model_choice == "wgan_gp":
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader) # TODO: Josh's hyperparameter tuning function
-    elif model_choice == "progan":
-        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
-
-    if model_choice == "dcgan":
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
+        wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader) # TODO: Josh's hyperparameter tuning function
         train_wgan_gp(train_loader, wgan_gp, wgan_params) # TODO: Josh's training function
     elif model_choice == "progan":
+        progan = ProGAN() # TODO: Jeongwon's model
+        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
         train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
 
     # TESTING BELOW
@@ -376,19 +388,18 @@ def main():
     # generate fake images from each model
     real_test_dir = os.path.join(DATA_ROOT, "test", "real")
     num_test = len(test_dataset)
-    dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
-    wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, "output/wgan_gp_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
-    progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
-
-    # evaluate models using FID score
-    dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
-    wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
-    progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
-
-    # Prints below used AI
-    print(f"DCGAN FID: {dcgan_fid:.4f}")
-    print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
-    print(f"ProGAN FID: {progan_fid:.4f}")
+    if dcgan is not None:
+        dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
+        print(f"DCGAN FID: {dcgan_fid:.4f}")
+    elif wgan_gp is not None:
+        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, "output/wgan_gp_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
+        print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
+    elif progan is not None:
+        progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
+        print(f"ProGAN FID: {progan_fid:.4f}")
 
 
 if __name__ == "__main__":

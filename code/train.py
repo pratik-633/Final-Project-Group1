@@ -271,7 +271,7 @@ def tune_dcgan(train_loader, val_loader):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
     # NOTE: THINGS TO CONSIDER TUNING:
-    # - Learning rate -> 12-4, 2e-4, 5e-5
+    # - Learning rate -> 1e-4, 2e-4, 5e-5
     # - n_critic -> 3, 5, 7
     # - feature maps -> 32, 64, 128
 
@@ -381,6 +381,10 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
 
             # NOTE: AI SUGGESTED THIS IF CONDITION TO REPLACE THE NESTED FOR LOOP
             if (i + 1) % params['n_critic'] == 0: # this block is only entered every n_critic steps -> this replaced the third loop
+                # AI SUGGESTION: Freeze critic params to skip unnecessary gradient computation - saves time and computation
+                for p in model.critic.parameters():
+                    p.requires_grad_(False)
+
                 # GENERATOR TRAINING
                 z = torch.randn(params['batch_size'], LATENT_DIM, 1, 1, device=DEVICE)
                 x_fake: torch.Tensor = model.generator(z)
@@ -393,6 +397,10 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
                 generator_optimizer.zero_grad()
                 generator_loss.backward()
                 generator_optimizer.step()
+
+                # Unfreeze critic params for next critic update
+                for p in model.critic.parameters():
+                    p.requires_grad_(True)
 
         print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {generator_loss.item():.4f}")
 

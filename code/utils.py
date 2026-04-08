@@ -1,5 +1,6 @@
 import os
 import torch
+from torch import nn
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torchvision.utils import save_image
@@ -37,7 +38,7 @@ def load_dataset(split, data_root, image_size, channels, batch_size, num_workers
         shuffle=shuffle,
         num_workers=num_workers,
         pin_memory=True,
-        drop_last=(split == "train"),
+        drop_last=(split == "train"), # drops last to ensure all batches are full during training
     )
     print(f"[{split}] Loaded {len(dataset)} real images  |  batches: {len(loader)}")
     return loader, dataset
@@ -74,3 +75,19 @@ def compute_fid(real_dir, fake_dir, batch_size, device):
     )
     print(f"FID: {fid_value:.4f}")
     return fid_value
+
+
+# NOTE: USED AI FOR THIS FUNCTION
+def weights_init(m):
+    """Initialize the weights of convolutional and normalization layers."""
+    classname = m.__class__.__name__
+    if 'Conv' in classname:
+        nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif 'BatchNorm' in classname:
+        nn.init.normal_(m.weight.data, 1.0, 0.02)
+        nn.init.constant_(m.bias.data, 0)
+    elif 'GroupNorm' in classname:
+        if m.weight is not None:
+            nn.init.normal_(m.weight.data, 1.0, 0.02)
+        if m.bias is not None:
+            nn.init.constant_(m.bias.data, 0)

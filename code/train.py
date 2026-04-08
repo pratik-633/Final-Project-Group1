@@ -1,4 +1,5 @@
 import os
+import argparse
 import numpy as np
 import pandas as pd
 import torch
@@ -69,31 +70,40 @@ class Generator_WGAN_GP(nn.Module):
     Args:
         nn (_type_): _description_
     """
-    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
+    def __init__(self, img_size=IMAGE_SIZE, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
         super(Generator_WGAN_GP, self).__init__()
-        # define generator layers here
+
+        n_stages = int(np.log2(img_size) - 2) # relationship of image size to upsampling in stages
+
+        # layers=[]
+
+        # first layer: 4x4
+        # inchannels is latent dims
+        # out_channels = feature_maps * (2 ** (n_stages -1))
+
         self.network = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=latent_dim, out_channels=feature_maps * 8, # scale the output
+            nn.ConvTranspose2d(in_channels=latent_dim,
+                               out_channels=feature_maps * (2 ** (n_stages - 1)), # scale the output
                                kernel_size=4, stride=1, padding=0, bias=False),
-            nn.BatchNorm2d(feature_maps * 8), # batch norm should be fine in generator, just not critic - WGAN-GP paper
-            nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=feature_maps * 8, out_channels=feature_maps * 4, # previous output is the size of the input
-                               kernel_size=4, stride=2, padding=1, bias=False),
-            nn.BatchNorm2d(feature_maps * 4),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=feature_maps * 4, out_channels=feature_maps * 2,
-                               kernel_size=4, stride=2, padding=1, bias=False),
-            nn.BatchNorm2d(feature_maps * 2),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=feature_maps * 2, out_channels=feature_maps,
-                               kernel_size=4, stride=2, padding=1, bias=False),
-            nn.BatchNorm2d(feature_maps),
-            nn.ReLU(True),
-            nn.ConvTranspose2d(in_channels=feature_maps, out_channels=channels, # output must be the number of channels (3)
-                               kernel_size=4, stride=2, padding=1, bias=False),
-            nn.Tanh() # output function Tanh as per the DCGAN paper
+            nn.BatchNorm2d(num_features=feature_maps * (2 ** (n_stages - 1))), # batch norm should be fine in generator, just not critic - WGAN-GP paper
+            nn.ReLU(True)
         )
 
+        # middle downsampling layers - this will get us. the exact number of layers needed based on image size (64 vs 128)
+        # This for loop below was debugged with AI assistance -> originally was hardcoded for 64x64 img size, but wanted flexibility to allow for 128x128
+        # self.network = nn.ModuleList([self.network])
+        for i in range(n_stages - 1, 0, -1):
+            self.network.append(nn.ConvTranspose2d(in_channels=feature_maps * (2 ** i),
+                                                   out_channels=feature_maps * (2 ** (i - 1)),
+                                                   kernel_size=4, stride=2, padding=1, bias=False))
+            self.network.append(nn.BatchNorm2d(num_features=feature_maps * (2 ** (i - 1))))
+            self.network.append(nn.ReLU(True))
+            
+        # final layer:
+        self.network.append(nn.ConvTranspose2d(in_channels=feature_maps,
+                                               out_channels=channels,
+                                               kernel_size=4, stride=2, padding=1, bias=False))
+        self.network.append(nn.Tanh()) # output function Tanh as per the DCGAN paper
 
     def forward(self, x):
         return self.network(x)
@@ -109,30 +119,32 @@ class Critic_WGAN_GP(nn.Module):
     Args:
         nn (_type_): _description_
     """
-    def __init__(self, channels=CHANNELS, feature_maps=64):
+    def __init__(self, img_size=IMAGE_SIZE, channels=CHANNELS, feature_maps=64):
         super(Critic_WGAN_GP, self).__init__()
-        # define discriminator layers here
 
+        n_stages = int(np.log2(img_size) - 2) # relationship of image size to upsampling in stages
+
+        # first layer
         self.network = nn.Sequential(
-            nn.Conv2d(in_channels=channels, out_channels=feature_maps,
+            nn.Conv2d(in_channels=channels,
+                      out_channels=feature_maps,
                       kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=feature_maps, out_channels=feature_maps * 2,
-                      kernel_size=4, stride=2, padding=1, bias=False),
-            nn.InstanceNorm2d(feature_maps * 2), # InstanceNorm as per WGAN-GP paper for critic - no Batch normalization
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=feature_maps * 2, out_channels=feature_maps * 4,
-                      kernel_size=4, stride=2, padding=1, bias=False),
-            nn.InstanceNorm2d(feature_maps * 4),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=feature_maps * 4, out_channels=feature_maps * 8,
-                      kernel_size=4, stride=2, padding=1, bias=False),
-            nn.InstanceNorm2d(feature_maps * 8),
-            nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(in_channels=feature_maps * 8, out_channels=1,
-                      kernel_size=4, stride=1, padding=0, bias=False)
-            # For WGAN, Output is scalar - continuous
         )
+
+        # middle downsampling layers - this will get us. the exact number of layers needed based on image size (64 vs 128)
+        # This for loop below was debugged with AI assistance -> originally was hardcoded for 64x64 img size, but wanted flexibility to allow for 128x128
+        for i in range(1, n_stages):
+            self.network.append(nn.Conv2d(in_channels=feature_maps * (2 ** (i - 1)),
+                                          out_channels=feature_maps * (2 ** i), 
+                                          kernel_size=4, stride=2, padding=1, bias=False))
+            self.network.append(nn.InstanceNorm2d(feature_maps * (2 ** i)))  # NOTE: InstanceNorm as per WGAN-GP paper for critic - no Batch normalization
+            self.network.append(nn.LeakyReLU(0.2, inplace=True))
+
+
+        # final layer
+        self.network.append(nn.Conv2d(in_channels=feature_maps * (2 ** (n_stages - 1)), # For WGAN, Output is scalar - continuous
+                                      out_channels=1, kernel_size=4, stride=1, padding=0, bias=False))
 
     def forward(self, x):
         output = self.network(x)
@@ -157,11 +169,11 @@ class WGAN_GP(torch.nn.Module):
         channels (int): Number of input channels for the generator and critic.
         feature_maps (int): Number of feature maps for the generator and critic.
     """
-    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
+    def __init__(self, img_size=IMAGE_SIZE, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
         super(WGAN_GP, self).__init__()
         # define generator and discriminator here
-        self.generator = Generator_WGAN_GP(latent_dim=latent_dim, channels=channels, feature_maps=feature_maps)
-        self.critic = Critic_WGAN_GP(channels=channels, feature_maps=feature_maps)
+        self.generator = Generator_WGAN_GP(img_size=img_size, latent_dim=latent_dim, channels=channels, feature_maps=feature_maps)
+        self.critic = Critic_WGAN_GP(img_size=img_size, channels=channels, feature_maps=feature_maps)
 
 
 def gradient_penalty(critic, real_samples, fake_samples):
@@ -324,25 +336,40 @@ def train_progan(train_loader, model, params):
 #-----------------------------------------------------------------------------------------------------------------------------------------
 # main function
 def main():
+
+    # add argparses for model to run and image size
+    parser = argparse.ArgumentParser(description="Train GAN models")
+    parser.add_argument("--model", type=str, choices=["dcgan", "wgan_gp", "progan"], required=True, help="Model to train")
+    parser.add_argument("--img_size", type=int, default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
+    args = parser.parse_args()
+
+    # when running training, the commandline tells us which model to do for now
+    img_size = args.img_size
+    model_choice = args.model
     
     # load data
-    train_loader, train_dataset = load_dataset("train",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
-    val_loader, val_dataset = load_dataset("valid",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
-    test_loader, test_dataset  = load_dataset("test",DATA_ROOT, IMAGE_SIZE, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    train_loader, train_dataset = load_dataset("train",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    val_loader, val_dataset = load_dataset("valid",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    test_loader, test_dataset  = load_dataset("test",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
 
     # define models
     dcgan = DCGAN() # TODO: Pratik's model
-    wgan_gp = WGAN_GP(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Josh's model
+    wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Josh's model
     progan = ProGAN() # TODO: Jeongwon's model
 
-    dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
-    wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader) # TODO: Josh's hyperparameter tuning function
-    progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
+    if model_choice == "dcgan":
+        dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
+    elif model_choice == "wgan_gp":
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader) # TODO: Josh's hyperparameter tuning function
+    elif model_choice == "progan":
+        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
 
-
-    train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
-    train_wgan_gp(train_loader, wgan_gp, wgan_params) # TODO: Josh's training function
-    train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
+    if model_choice == "dcgan":
+        train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
+    elif model_choice == "wgan_gp":
+        train_wgan_gp(train_loader, wgan_gp, wgan_params) # TODO: Josh's training function
+    elif model_choice == "progan":
+        train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
 
     # TESTING BELOW
 

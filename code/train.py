@@ -268,21 +268,29 @@ def tune_dcgan(train_loader, val_loader):
     return {}, DCGAN()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-def tune_wgan_gp(train_loader, val_loader):
-    # TODO: JOSH IMPLEMENT THIS
+def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
 
-    # NOTE: THINGS TO TUNE SO FAR:
-    # feature_maps, latent_dim, channels
+    # NOTE: THINGS TO CONSIDER TUNING:
+    # - Learning rate -> 12-4, 2e-4, 5e-5
+    # - n_critic -> 3, 5, 7
+    # - feature maps -> 32, 64, 128
 
-    # NOTE: FOR TRAIN TESTING PURPOSES, THIS IS HARDCODED FOR NOW
-    return {
+    params = {
             'num_epochs': 2,
             'lr': 0.0001,
             'adam_b1': 0.0,
             'adam_b2': 0.9,
             'batch_size': BATCH_SIZE,
-            'n_critic': 5 # number of of times critic is trained for everytime generator is trained
-        }
+            'n_critic': 5, # number of of times critic is trained for everytime generator is trained
+            'feature_maps': 64
+    }
+    
+
+    # NOTE: FOR TRAIN TESTING PURPOSES, THIS IS HARDCODED FOR NOW
+    wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+
+
+    return params, wgan_gp
 
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
@@ -342,6 +350,10 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
                                            betas=(params['adam_b1'], params['adam_b2']))
     
     best_gen_loss = float('inf')
+
+    model.to(DEVICE)
+    model.apply(weights_init)
+    model.train()
     
 
     for epoch in range(params['num_epochs']):
@@ -458,11 +470,8 @@ def main():
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
-        wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-        wgan_gp.to(DEVICE)
-        wgan_gp.apply(weights_init)
-        wgan_gp.train() # put model into training mode
-        wgan_params = tune_wgan_gp(train_loader, val_loader) # TODO: Josh's hyperparameter tuning function - current fixed params
+        # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size) # TODO: Josh's hyperparameter tuning function - current fixed params
         train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size) # TODO: Josh's training function
     elif model_choice == "progan":
         progan = ProGAN() # TODO: Jeongwon's model

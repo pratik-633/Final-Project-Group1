@@ -206,7 +206,7 @@ class WGAN_GP(torch.nn.Module):
             torch.Tensor: The gradient penalty.
         """
         # sample real data, latent var (z), and a random number
-        epsilon = torch.rand(x_real.size(0), 1, 1, 1, device=x_real.device) # random number between 0 and 1, and it is used as the interpolation coefficient
+        epsilon = torch.rand(x_real.size(0), 1, 1, 1, device=x_real.device, dtype=x_real.dtype) # random number between 0 and 1, and it is used as the interpolation coefficient
         x_interpolated = epsilon * x_real + (1 - epsilon) * x_fake.detach() # interpolation between real and fake date - picking a point on the line between the 2 points
         x_interpolated.requires_grad_(True)
 
@@ -415,9 +415,9 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
                 'generator_optimizer_state_dict': generator_optimizer.state_dict(),
                 'critic_optimizer_state_dict': critic_optimizer.state_dict(),
                 'critic_loss': critic_loss.item(),
-            'generator_loss': avg_gen_loss,
-            'params': params,
-            }, model_path)
+                'generator_loss': avg_gen_loss,
+                'params': params,
+                }, model_path)
             print(f"New best model - {model_path}, with generator loss: {avg_gen_loss:.4f}")
         else:
             print(f"No improvement in generator loss - {avg_gen_loss:.4f} over best {best_gen_loss:.4f}")

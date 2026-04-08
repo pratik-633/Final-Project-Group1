@@ -152,7 +152,7 @@ class WGAN_GP(torch.nn.Module):
     Lipschitz constraint without the drawbacks of weight clipping.
 
     Args:
-        latent_dim (int): Dimension of the input noise vectore for the generator.
+        latent_dim (int): Dimension of the input noise vector for the generator.
         channels (int): Number of input channels for the generator and critic.
         feature_maps (int): Number of feature maps for the generator and critic.
     """
@@ -203,7 +203,7 @@ def gradient_penalty(critic, real_samples, fake_samples):
         only_inputs=True
     )[0]
 
-    gradients = gradients.view(batch_size, -1) # flatten gradients to a single vector per sample
+    gradients = gradients.reshape(batch_size, -1) # flatten gradients to a single vector per sample
     gradient_norm = gradients.norm(2, dim=1) # norm of function
     penalty = ((gradient_norm - 1) ** 2).mean() # gradient penalty -> gradient norm deviation
     return penalty

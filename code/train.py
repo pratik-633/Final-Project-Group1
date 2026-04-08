@@ -135,7 +135,8 @@ class Critic_WGAN_GP(nn.Module):
         )
 
     def forward(self, x):
-        return self.network(x)
+        output = self.network(x)
+        return output.view(output.size(0), -1) # flatten output to a single scalar per sample
 
 
 class WGAN_GP(torch.nn.Module):
@@ -200,7 +201,6 @@ def gradient_penalty(critic, real_samples, fake_samples):
         inputs=interpolates,
         grad_outputs=torch.ones_like(critic_interpolates),
         create_graph=True,
-        only_inputs=True
     )[0]
 
     gradients = gradients.reshape(batch_size, -1) # flatten gradients to a single vector per sample

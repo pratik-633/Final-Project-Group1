@@ -5,6 +5,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init
+from sklearn.model_selection import ParameterSampler, ParameterGrid
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -315,26 +316,87 @@ def tune_dcgan(train_loader, val_loader):
     return {}, DCGAN()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
+def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     # NOTE: THINGS TO CONSIDER TUNING:
     # - Learning rate -> 1e-4, 2e-4, 5e-5
     # - n_critic -> 3, 5, 7
     # - feature maps -> 32, 64, 128
 
-    params = {
-            'num_epochs': 2,
+    if not tuning:
+        params = {
+            'num_epochs': 100,
             'lr': 0.0001,
             'adam_b1': 0.0,
             'adam_b2': 0.9,
             'batch_size': BATCH_SIZE,
             'n_critic': 5, # number of of times critic is trained for everytime generator is trained
-            'feature_maps': 64
-    }
-    
-    # NOTE: FOR TRAIN TESTING PURPOSES, THIS IS HARDCODED FOR NOW
-    wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+            'feature_maps': 64,
+            'start_epoch': 0
+            }
+        return params, WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                                      channels=CHANNELS, feature_maps=64)
 
-    return params, wgan_gp
+    # reaches here if tuning is True
+    search_params = {
+        'lr': [1e-4, 2e-4, 5e-5],
+        'n_critic': [3, 5, 7],
+        'feature_maps': [32, 64, 128]
+    }
+
+    fixed_params = {
+        'adam_b1': 0.0,
+        'adam_b2': 0.9,
+        'batch_size': BATCH_SIZE
+    }
+
+    tune_epochs = 20  # short runs per config
+
+    # param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
+    param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
+
+    best_fid = float('inf')
+    best_params = None
+
+    real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+
+    for idx, config in enumerate(param_configs):
+        params = {**fixed_params, **config, 'num_epochs': tune_epochs}
+        print(f"\n--- Tuning config {idx+1}/{len(param_configs)}: {config} ---")
+
+        # build fresh model per config because of feature_maps
+        model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                        channels=CHANNELS, feature_maps=config['feature_maps'])
+
+        # train_wgan_gp handles .to(DEVICE), weights_init, .train() internally
+        train_wgan_gp(train_loader, model, params, img_size=img_size)
+
+        # evaluate with FID on validation set
+        model.eval()
+        fake_dir = generate_images(model.generator, len(val_loader.dataset),
+                                   "output/tune_wgan_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
+        fid = compute_fid(real_val_dir, fake_dir, BATCH_SIZE, DEVICE)
+        print(f"Config FID: {fid:.4f}")
+
+        if fid < best_fid:
+            best_fid = fid
+            best_params = params
+
+    print(f"\nBest config: {best_params}, FID: {best_fid:.4f}")
+
+    # rebuild fresh model with best feature_maps for full training
+    if best_params is not None:
+        best_params['num_epochs'] = 100  # set full training epochs
+        best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                             channels=CHANNELS, feature_maps=best_params['feature_maps'])
+    else:
+        best_params = fixed_params
+        best_params['num_epochs'] = 100
+        best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                             channels=CHANNELS, feature_maps=64)
+    
+
+    best_params['start_epoch'] = tune_epochs
+    return best_params, best_model
 
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
@@ -385,7 +447,6 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
         img_size (int, optional): Image resolution, used for checkpoint naming. Defaults to IMAGE_SIZE.
     """
 
-    # checkpoint_path = f"wgan_gp_checkpoint_{img_size}.pt"
     model_path = f"models/wgan_gp_model_{img_size}.pt"
 
     critic_optimizer = torch.optim.Adam(model.critic.parameters(), lr=params['lr'],
@@ -400,7 +461,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
     model.train()
     
 
-    for epoch in range(params['num_epochs']):
+    for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
         gen_loss_sum = 0.0
         gen_loss_count = 0
         print(f"Epoch {epoch+1}/{params['num_epochs']}")
@@ -525,7 +586,7 @@ def main():
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
         # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size) # TODO: Josh's hyperparameter tuning function - current fixed params
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=True) # TODO: Josh's hyperparameter tuning function - current fixed params
         train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size)
     elif model_choice == "progan":
         progan = ProGAN() # TODO: Jeongwon's model

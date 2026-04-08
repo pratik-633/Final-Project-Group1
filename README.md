@@ -57,6 +57,15 @@ python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128> 2>&1 | tee 
 tmux attach -t train # reattach later if you want
 ```
 
+## Training Long Jobs with log outputs:
+
+```bash
+tmux new -s train
+python code/train.py --model <dcgan|wgan_gp|progan> --size <64|128> 2>&1 | tee train_dcgan_64.log
+# Ctrl+b then d
+tmux attach -t train # reattach later if you want
+```
+
 ### Test
 
 ```bash

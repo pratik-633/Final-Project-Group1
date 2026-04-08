@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
@@ -44,7 +45,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         val_loader: Data loader for the validation dataset used to evaluate candidate configurations.
         img_size (int, optional): Image size for the model/configuration to tune or load. Defaults to IMAGE_SIZE.
         tuning (bool, optional): If True, perform hyperparameter tuning; otherwise, load saved parameters from the WGAN-GP config file. Defaults to True.
-    
+
     Returns:
         tuple: A tuple containing the selected hyperparameter dictionary and an initialized WGAN_GP model.
     """
@@ -131,13 +132,13 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         best_model.critic.load_state_dict(checkpoint['critic_state_dict'])
         best_params['critic_optimizer_state'] = checkpoint['critic_optimizer_state_dict']
         best_params['generator_optimizer_state'] = checkpoint['generator_optimizer_state_dict']
-    
+
         # Save best config for future runs without tuning
         save_best_tuned_params(best_params, img_size, file_name="wgan_gp_config.json")
-        
+
         best_params['start_epoch'] = tune_epochs
 
-    # CLEANUP - remove the directories that were made during training 
+    # CLEANUP - remove the directories that were made during training
     if os.path.isdir("checkpoints"):
         shutil.rmtree("checkpoints")
     if os.path.isdir("output/wgan_gp/tune_wgan_temp"):
@@ -155,9 +156,25 @@ def tune_progan(train_loader, val_loader):
     Returns:
         dict: The best hyperparameter configuration found during tuning
         model: The model initialized with the best hyperparameter configuration
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
+    ProGAN paper uses these defaults
     """
     # TODO: JEONGWON IMPLEMENT THIS
-    return {}, ProGAN()
+    params = {
+        'num_epochs_per_step':8,
+        'lr': 0.001,
+        'adam_b1': 0.0,
+        'adam_b2': 0.99,
+        'batch_size': BATCH_SIZE,
+        'feature_maps': 512,
+        'fade_in_epochs':3,
+        'max_step_64':4,
+        'max_step_128':5
+    }
+
+    progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+    return params, progan
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -204,14 +221,14 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                                         betas=(params['adam_b1'], params['adam_b2']))
     generator_optimizer = torch.optim.Adam(model.generator.parameters(), lr=params['lr'],
                                            betas=(params['adam_b1'], params['adam_b2']))
-    
+
     model.to(DEVICE)
 
     if 'critic_optimizer_state' in params:
         critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
     if 'generator_optimizer_state' in params:
         generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
-    
+
     # if we are starting from scratch, load weight distribution recommended by paper
     # otherwise keep the weights from loaded model
     if params.get('start_epoch', 0) == 0:
@@ -282,13 +299,13 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             'params': {k: v for k, v in params.items() # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
                        if k not in ('critic_optimizer_state', 'generator_optimizer_state')},
         }
-        
+
         if not use_val:
             # tuning: always save latest weights so checkpoint matches in-memory model
             checkpoint['critic_loss'] = critic_loss.item()
             checkpoint['generator_loss'] = avg_gen_loss
             torch.save(checkpoint, model_path)
-            
+
         elif is_eval_epoch:
             # full training: FID-based checkpointing every 10 epochs or on final epoch
             model.eval()
@@ -311,24 +328,137 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(train_loader, model, params):
+def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
         train_loader (_type_): _description_
         model (_type_): _description_
         params (_type_): _description_
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
     """
     # TODO: JEONGWON IMPLEMENT THIS
 
     # TODO: UPDATE PARAMS BASED ON WHAT MODEL NEEDS, AND WHAT TUNING SAYS IS BEST
-    params = {'learning_rate': 0.0002,
-              'beta1': 0.5,
-              'beta2': 0.999,
-              'batch_size': 64,
-              'num_epochs': 100}
+    model_path = f'models/progan_model_{img_size}.pt'
 
-    pass
+    # determine max step based on image size
+    # step 0=4x4, 1=8x8, 2=16x16, 3=32x32, 4=64x64, 5=128x128
+    if img_size ==64:
+        max_step = 4
+    elif img_size ==128:
+        max_step = 5
+    else:
+        raise ValueError(f'Unsupported image size: {img_size}')
+
+    gen_optimizer = torch.optim.Adam(
+        model.gen.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+    disc_optimizer = torch.optim.Adam(
+        model.disc.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+
+    model.to(DEVICE)
+    model.apply(weights_init)
+    model.train()
+
+    best_gen_loss = float('inf')
+
+    # progressive training: step through each resolution
+    for step in range(max_step + 1):
+        current_res = 4 * (2 ** step)
+        print(f"\n--- Step {step}: training at {current_res}x{current_res} ---")
+
+        # need to reload data at current resolution
+        step_loader, _ = load_dataset(
+            "train", DATA_ROOT, current_res, CHANNELS,
+            params['batch_size'], NUM_WORKERS
+        )
+
+        for epoch in range(params['num_epochs_per_step']):
+            # alpha: fade-in during first few epochs, then 1.0
+            if epoch < params['fade_in_epochs'] and step > 0:
+                alpha = epoch / params['fade_in_epochs']
+            else:
+                alpha = 1.0
+
+            gen_loss_sum = 0.0
+            disc_loss_sum = 0.0
+            num_batches = 0
+
+            for i, batch_data in enumerate(step_loader):
+                x_real = batch_data[0].to(DEVICE)
+                batch_size = x_real.size(0)
+
+                # ---- Train Discriminator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                with torch.no_grad():
+                    x_fake = model.gen(z, step=step, alpha=alpha)
+
+                disc_real = model.disc(x_real, step=step, alpha=alpha)
+                disc_fake = model.disc(x_fake.detach(), step=step, alpha=alpha)
+
+                # WGAN-style loss (no sigmoid, raw scores)
+                disc_loss = torch.mean(disc_fake) - torch.mean(disc_real)
+
+                # gradient penalty (same idea as WGAN-GP)
+                epsilon = torch.rand(batch_size, 1, 1, 1, device=DEVICE)
+                x_interp = (epsilon * x_real + (1 - epsilon) * x_fake.detach()).requires_grad_(True)
+                disc_interp = model.disc(x_interp, step=step, alpha=alpha)
+                gradients = torch.autograd.grad(
+                    outputs=disc_interp,
+                    inputs=x_interp,
+                    grad_outputs=torch.ones_like(disc_interp),
+                    create_graph=True
+                )[0]
+                gp = 10 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
+                disc_loss = disc_loss + gp
+
+                disc_optimizer.zero_grad()
+                disc_loss.backward()
+                disc_optimizer.step()
+
+                # ---- Train Generator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                x_fake = model.gen(z, step=step, alpha=alpha)
+                gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
+
+                gen_optimizer.zero_grad()
+                gen_loss.backward()
+                gen_optimizer.step()
+
+                gen_loss_sum += gen_loss.item()
+                disc_loss_sum += disc_loss.item()
+                num_batches += 1
+
+            avg_gen = gen_loss_sum / num_batches
+            avg_disc = disc_loss_sum / num_batches
+            print(f"  Epoch {epoch + 1}/{params['num_epochs_per_step']} | "
+                  f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+
+            # save best model
+            if avg_gen < best_gen_loss:
+                best_gen_loss = avg_gen
+                torch.save({
+                    'step': step,
+                    'alpha': alpha,
+                    'epoch': epoch,
+                    'generator_state_dict': model.gen.state_dict(),
+                    'discriminator_state_dict': model.disc.state_dict(),
+                    'gen_optimizer_state_dict': gen_optimizer.state_dict(),
+                    'disc_optimizer_state_dict': disc_optimizer.state_dict(),
+                    'gen_loss': avg_gen,
+                    'disc_loss': avg_disc,
+                    'params': params,
+                }, model_path)
+                print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
+
+    print(f"\nTraining complete! Best gen loss: {best_gen_loss:.4f}")
 
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -369,7 +499,7 @@ def main():
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)      
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)
 
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)

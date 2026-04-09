@@ -42,6 +42,8 @@ python3 data/pull_data.py
 
 ### Train
 
+Run train script from root directory
+
 ```bash
 python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```

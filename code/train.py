@@ -465,16 +465,16 @@ def tune_dcgan(train_loader, val_loader):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
-    """Hyperparameter tuning function for WGAP-GP.
+    """Hyperparameter tuning function for WGAN-GP.
 
     Args:
-        train_loader (_type_): _description_
-        val_loader (_type_): _description_
-        img_size (_type_, optional): _description_. Defaults to IMAGE_SIZE.
-        tuning (bool, optional): _description_. Defaults to True.
-
+        train_loader: Data loader for the training dataset used during tuning.
+        val_loader: Data loader for the validation dataset used to evaluate candidate configurations.
+        img_size (int, optional): Image size for the model/configuration to tune or load. Defaults to IMAGE_SIZE.
+        tuning (bool, optional): If True, perform hyperparameter tuning; otherwise, load saved parameters from the WGAN-GP config file. Defaults to True.
+    
     Returns:
-        _type_: _description_
+        tuple: A tuple containing the selected hyperparameter dictionary and an initialized WGAN_GP model.
     """
     # NOTE: THINGS TO CONSIDER TUNING:
     # - Learning rate -> 1e-4, 2e-4, 5e-5

@@ -324,7 +324,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     if not tuning:
         params = {
-            'num_epochs': 100,
+            'num_epochs': 150,
             'lr': 0.0001,
             'adam_b1': 0.0,
             'adam_b2': 0.9,
@@ -385,12 +385,12 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     # rebuild fresh model with best feature_maps for full training
     if best_params is not None:
-        best_params['num_epochs'] = 100  # set full training epochs
+        best_params['num_epochs'] = 150  # set full training epochs
         best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
                              channels=CHANNELS, feature_maps=best_params['feature_maps'])
     else:
         best_params = fixed_params
-        best_params['num_epochs'] = 100
+        best_params['num_epochs'] = 150
         best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
                              channels=CHANNELS, feature_maps=64)
     

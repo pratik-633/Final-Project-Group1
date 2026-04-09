@@ -9,6 +9,22 @@ from torch.utils.data import DataLoader
 from pytorch_fid import fid_score
 import numpy as np
 
+from dataclasses import dataclass
+
+@dataclass
+class Config:
+    image_size: list = None
+    channels: int = 3
+    batch_size: int = 64
+    latent_dim: int =100
+    num_workers: int = 4
+    data_root: str = './data'
+    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    def __post_init__(self):
+        if self.image_size is None:
+            self.image_size = [64, 128]
+
 
 # NOTE: USED AI FOR THIS FUNCTION
 def get_transforms(image_size, channels):
@@ -47,15 +63,18 @@ def load_dataset(split, data_root, image_size, channels, batch_size, num_workers
 
 
 # NOTE: USED AI FOR THIS FUNCTION
-def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device):
-    """Generate fake images from a trained generator and save them to disk."""
+def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device, flatten_noise=False):
     os.makedirs(save_dir, exist_ok=True)
+    """Generate fake images from a trained generator and save them to disk."""
     generator.eval()
     count = 0
     with torch.no_grad():
         while count < num_images:
             batch = min(batch_size, num_images - count)
-            noise = torch.randn(batch, latent_dim, 1, 1, device=device)
+            if flatten_noise:
+                noise = torch.randn(batch, laten_dim, device=device)
+            else:
+                noise = torch.randn(batch, latent_dim, 1, 1, device=device)
             fake_imgs = generator(noise)
             fake_imgs = (fake_imgs + 1) / 2
             for img in fake_imgs:
@@ -119,3 +138,22 @@ def save_best_tuned_params(best_params, img_size, file_name):
     all_configs[f"img_size_{img_size}"] = save_params
     with open(config_path, "w") as f:
         json.dump(all_configs, f, indent=4)
+
+        
+# test code
+
+if __name__ == "__main__":
+    # Config check
+    config = Config()
+    print(config)
+    print(f"image_sizes: {config.image_size}")
+    print(f"device: {config.device}")
+
+    # weights_init check
+    linear = nn.Linear(100, 256)
+    weights_init(linear)
+    print(f"Linear weight mean: {linear.weight.data.mean():.4f}")
+
+    # noise shape check
+    print(f"DCGAN noise: {torch.randn(1, config.latent_dim, 1, 1).shape}")
+    print(f"ProGAN noise: {torch.randn(1, config.latent_dim).shape}")

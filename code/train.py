@@ -146,6 +146,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     return best_params, best_model
 
+#-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 

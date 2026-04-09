@@ -555,7 +555,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             'critic_state_dict': model.critic.state_dict(),
             'generator_optimizer_state_dict': generator_optimizer.state_dict(),
             'critic_optimizer_state_dict': critic_optimizer.state_dict(),
-            'params': params,
+            'params': {k: v for k, v in params.items() # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
+                       if k not in ('critic_optimizer_state', 'generator_optimizer_state')},
         }
         
         if not use_val:

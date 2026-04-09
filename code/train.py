@@ -1,10 +1,13 @@
+import json
+import shutil
 import os
 import argparse
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
-from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init
+from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
+from sklearn.model_selection import ParameterSampler, ParameterGrid
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -32,35 +35,81 @@ LATENT_DIM = 100
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: PRATIK IMPLEMENT THIS - MODEL ARCHITECTURE
 class Generator_DCGAN(nn.Module):
-    def __init__(self):
+    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64):
         super(Generator_DCGAN, self).__init__()
-        # define generator layers here
-        pass
+
+        self.network = nn.Sequential(
+            # Input: (batch, latent_dim, 1, 1)
+
+            # 1x1 -> 4x4
+            nn.ConvTranspose2d(latent_dim, feature_maps * 8, kernel_size=4, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(feature_maps * 8),
+            nn.ReLU(True),
+
+            # 4x4 -> 8x8
+            nn.ConvTranspose2d(feature_maps * 8, feature_maps * 4, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 4),
+            nn.ReLU(True),
+
+            # 8x8 -> 16x16
+            nn.ConvTranspose2d(feature_maps * 4, feature_maps * 2, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 2),
+            nn.ReLU(True),
+
+            # 16x16 -> 32x32
+            nn.ConvTranspose2d(feature_maps * 2, feature_maps, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps),
+            nn.ReLU(True),
+
+            # 32x32 -> 64x64
+            nn.ConvTranspose2d(feature_maps, channels, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.Tanh()
+        )
 
     def forward(self, x):
-        pass
+        return self.network(x)
+
 
 class Discriminator_DCGAN(nn.Module):
-    def __init__(self):
+    def __init__(self, channels=CHANNELS, feature_maps=64):
         super(Discriminator_DCGAN, self).__init__()
-        # define discriminator layers here
-        pass
+
+        self.network = nn.Sequential(
+            # Input: (batch, channels, 64, 64)
+
+            # 64x64 -> 32x32
+            nn.Conv2d(channels, feature_maps, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # 32x32 -> 16x16
+            nn.Conv2d(feature_maps, feature_maps * 2, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 2),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # 16x16 -> 8x8
+            nn.Conv2d(feature_maps * 2, feature_maps * 4, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 4),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # 8x8 -> 4x4
+            nn.Conv2d(feature_maps * 4, feature_maps * 8, kernel_size=4, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(feature_maps * 8),
+            nn.LeakyReLU(0.2, inplace=True),
+
+            # 4x4 -> 1x1
+            nn.Conv2d(feature_maps * 8, 1, kernel_size=4, stride=1, padding=0, bias=False),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
-        pass
+        return self.network(x).view(-1, 1)
+
 
 class DCGAN(torch.nn.Module):
     def __init__(self):
         super(DCGAN, self).__init__()
-        # define generator and discriminator here
         self.generator = Generator_DCGAN()
         self.discriminator = Discriminator_DCGAN()
-
-    def generator(self, x):
-        return self.generator(x)
-
-    def discriminator(self, x):
-        return self.discriminator(x)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JOSH IMPLEMENT THIS - MODEL ARCHITECTURE
@@ -269,26 +318,109 @@ def tune_dcgan(train_loader, val_loader):
     return {}, DCGAN()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
-def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
+def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
+    """Hyperparameter tuning function for WGAN-GP.
+
+    Args:
+        train_loader: Data loader for the training dataset used during tuning.
+        val_loader: Data loader for the validation dataset used to evaluate candidate configurations.
+        img_size (int, optional): Image size for the model/configuration to tune or load. Defaults to IMAGE_SIZE.
+        tuning (bool, optional): If True, perform hyperparameter tuning; otherwise, load saved parameters from the WGAN-GP config file. Defaults to True.
+    
+    Returns:
+        tuple: A tuple containing the selected hyperparameter dictionary and an initialized WGAN_GP model.
+    """
     # NOTE: THINGS TO CONSIDER TUNING:
     # - Learning rate -> 1e-4, 2e-4, 5e-5
     # - n_critic -> 3, 5, 7
     # - feature maps -> 32, 64, 128
 
-    params = {
-            'num_epochs': 2,
-            'lr': 0.0001,
-            'adam_b1': 0.0,
-            'adam_b2': 0.9,
-            'batch_size': BATCH_SIZE,
-            'n_critic': 5, # number of of times critic is trained for everytime generator is trained
-            'feature_maps': 64
-    }
-    
-    # NOTE: FOR TRAIN TESTING PURPOSES, THIS IS HARDCODED FOR NOW
-    wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+    if not tuning:
+        with open(os.path.join("configs", "wgan_gp_config.json"), "r") as f:
+            # params = json.load(f)
+            all_configs = json.load(f)
+            params = all_configs[f"img_size_{img_size}"]
+        return params, WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                                      channels=CHANNELS, feature_maps=params['feature_maps'])
 
-    return params, wgan_gp
+    # reaches here if tuning is True
+    search_params = {
+        'lr': [1e-4, 2e-4, 5e-5],
+        'n_critic': [3, 5, 7],
+        'feature_maps': [32, 64, 128]
+    }
+
+    fixed_params = {
+        'adam_b1': 0.0,
+        'adam_b2': 0.9,
+        'batch_size': BATCH_SIZE
+    }
+
+    tune_epochs = 20  # short runs per config
+
+    # param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
+    param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
+    real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+
+    best_checkpoint_path = ""
+    best_fid = float('inf')
+    best_params = None
+    best_model = WGAN_GP()
+
+    os.makedirs("checkpoints", exist_ok=True)
+    os.makedirs("output/wgan_gp/tune_wgan_temp", exist_ok=True)
+
+    for idx, config in enumerate(param_configs):
+        params = {**fixed_params, **config, 'num_epochs': tune_epochs}
+        print(f"\n--- Tuning config {idx+1}/{len(param_configs)}: {config} ---")
+
+        tune_model_path = f"checkpoints/wgan_gp_tune_{idx+1}_{img_size}.pt"
+
+        # build fresh model per config because of feature_maps
+        model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                        channels=CHANNELS, feature_maps=config['feature_maps'])
+
+        # train_wgan_gp handles .to(DEVICE), weights_init, .train() internally
+        train_wgan_gp(train_loader, model, params, img_size=img_size, model_path=tune_model_path)
+
+        # evaluate with FID on validation set
+        model.eval()
+        fake_dir = generate_images(model.generator, len(val_loader.dataset),
+                                   "output/wgan_gp/tune_wgan_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
+        fid = compute_fid(real_val_dir, fake_dir, BATCH_SIZE, DEVICE)
+        print(f"Config FID: {fid:.4f}")
+
+        if fid < best_fid:
+            best_fid = fid
+            best_params = params
+            best_model = model
+            best_checkpoint_path = tune_model_path
+
+    print(f"\nBest config: {best_params}, FID: {best_fid:.4f}")
+
+    # rebuild fresh model with best feature_maps for full training
+    if best_params is not None:
+        best_params['num_epochs'] = 150  # set full training epochs
+        best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
+                             channels=CHANNELS, feature_maps=best_params['feature_maps'])
+        checkpoint = torch.load(best_checkpoint_path, map_location=DEVICE)
+        best_model.generator.load_state_dict(checkpoint['generator_state_dict'])
+        best_model.critic.load_state_dict(checkpoint['critic_state_dict'])
+        best_params['critic_optimizer_state'] = checkpoint['critic_optimizer_state_dict']
+        best_params['generator_optimizer_state'] = checkpoint['generator_optimizer_state_dict']
+    
+        # Save best config for future runs without tuning
+        save_best_tuned_params(best_params, img_size, file_name="wgan_gp_config.json")
+        
+        best_params['start_epoch'] = tune_epochs
+
+    # CLEANUP - remove the directories that were made during training 
+    if os.path.isdir("checkpoints"):
+        shutil.rmtree("checkpoints")
+    if os.path.isdir("output/wgan_gp/tune_wgan_temp"):
+        shutil.rmtree("output/wgan_gp/tune_wgan_temp")
+
+    return best_params, best_model
 
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
@@ -329,7 +461,7 @@ def train_dcgan(train_loader, model, params):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
+def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val_dir=None, num_val_samples=None, model_path=None):
     """Training loop for WGAN-GP
 
     Args:
@@ -337,24 +469,33 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
         model (WGAN_GP): WGAN-GP model instance
         params (dict): Hyperparameter configuration
         img_size (int, optional): Image resolution, used for checkpoint naming. Defaults to IMAGE_SIZE.
+        val_dir (str, optional): Directory containing validation images for FID calculation. Defaults to None.
+        num_val_samples (int, optional): Number of validation samples to generate for FID calculation. Defaults to None.
+        model_path (str, optional): Path to save the model checkpoint. Defaults to None.
     """
 
-    # checkpoint_path = f"wgan_gp_checkpoint_{img_size}.pt"
-    model_path = f"models/wgan_gp_model_{img_size}.pt"
+    if model_path is None:
+        model_path = f"models/wgan_gp_model_{img_size}.pt"
 
     critic_optimizer = torch.optim.Adam(model.critic.parameters(), lr=params['lr'],
                                         betas=(params['adam_b1'], params['adam_b2']))
     generator_optimizer = torch.optim.Adam(model.generator.parameters(), lr=params['lr'],
                                            betas=(params['adam_b1'], params['adam_b2']))
     
-    best_gen_loss = float('inf')
-
+    if 'critic_optimizer_state' in params:
+        critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
+    if 'generator_optimizer_state' in params:
+        generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
+    
     model.to(DEVICE)
-    model.apply(weights_init)
+    # if we are starting from scratch, load weight distribution recommended by paper
+    # otherwise keep the weights from loaded model
+    if params.get('start_epoch', 0) == 0:
+        model.apply(weights_init)
     model.train()
     
-
-    for epoch in range(params['num_epochs']):
+    best_fid = float('inf')
+    for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
         gen_loss_sum = 0.0
         gen_loss_count = 0
         print(f"Epoch {epoch+1}/{params['num_epochs']}")
@@ -381,7 +522,6 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
 
             # NOTE: AI SUGGESTED THIS IF CONDITION TO REPLACE THE NESTED FOR LOOP
             if (i + 1) % params['n_critic'] == 0: # this block is only entered every n_critic steps -> this replaced the third loop
-                # AI SUGGESTION: Freeze critic params to skip unnecessary gradient computation - saves time and computation
                 for p in model.critic.parameters():
                     p.requires_grad_(False)
 
@@ -402,25 +542,48 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
                 for p in model.critic.parameters():
                     p.requires_grad_(True)
 
-        print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {generator_loss.item():.4f}")
-
-        # only save the best
         avg_gen_loss = gen_loss_sum / gen_loss_count if gen_loss_count > 0 else float('inf')
-        if avg_gen_loss < best_gen_loss:
-            best_gen_loss = avg_gen_loss
-            torch.save({
-                'epoch': epoch,
-                'generator_state_dict': model.generator.state_dict(),
-                'critic_state_dict': model.critic.state_dict(),
-                'generator_optimizer_state_dict': generator_optimizer.state_dict(),
-                'critic_optimizer_state_dict': critic_optimizer.state_dict(),
-                'critic_loss': critic_loss.item(),
-                'generator_loss': avg_gen_loss,
-                'params': params,
-                }, model_path)
-            print(f"New best model - {model_path}, with generator loss: {avg_gen_loss:.4f}")
-        else:
-            print(f"No improvement in generator loss - {avg_gen_loss:.4f} over best {best_gen_loss:.4f}")
+        print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {avg_gen_loss:.4f}")
+
+        # CHECKPOINTING - AI ASSISTED WITH THIS LOGIC
+        use_val = (val_dir is not None) and (num_val_samples is not None)
+        is_eval_epoch = use_val and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs'])
+
+        checkpoint = {
+            'epoch': epoch,
+            'generator_state_dict': model.generator.state_dict(),
+            'critic_state_dict': model.critic.state_dict(),
+            'generator_optimizer_state_dict': generator_optimizer.state_dict(),
+            'critic_optimizer_state_dict': critic_optimizer.state_dict(),
+            'params': {k: v for k, v in params.items() # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
+                       if k not in ('critic_optimizer_state', 'generator_optimizer_state')},
+        }
+        
+        if not use_val:
+            # tuning: always save latest weights so checkpoint matches in-memory model
+            checkpoint['critic_loss'] = critic_loss.item()
+            checkpoint['generator_loss'] = avg_gen_loss
+            torch.save(checkpoint, model_path)
+            
+        elif is_eval_epoch:
+            # full training: FID-based checkpointing every 10 epochs or on final epoch
+            model.eval()
+            fake_dir = generate_images(model.generator, num_val_samples,
+                                        "output/wgan_gp/fid_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
+            fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
+            checkpoint['fid'] = fid
+
+            if os.path.isdir(fake_dir):
+                shutil.rmtree(fake_dir)
+
+            print(f"Validation FID: {fid:.4f}")
+            if fid < best_fid:
+                best_fid = fid
+                torch.save(checkpoint, model_path)
+                print(f"New best model - {model_path}, with FID: {fid:.4f}")
+            else:
+                print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
+            model.train()
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -479,14 +642,19 @@ def main():
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
         # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size) # TODO: Josh's hyperparameter tuning function - current fixed params
-        train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size)
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=True) # TODO: Josh's hyperparameter tuning function - current fixed params        
+
+        real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)
+
+        train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size,
+                      val_dir=real_val_dir, num_val_samples=len(val_dataset))
+        if os.path.isdir("output/wgan_gp/fid_temp"):
+            shutil.rmtree("output/wgan_gp/fid_temp")
     elif model_choice == "progan":
         progan = ProGAN() # TODO: Jeongwon's model
         progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
         train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
-
-
 
     # FOR LOADING EXISTING MODELS
     """
@@ -517,8 +685,12 @@ def main():
         dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"DCGAN FID: {dcgan_fid:.4f}")
     elif wgan_gp is not None:
+        checkpoint = torch.load(f"models/wgan_gp_model_{img_size}.pt", map_location=DEVICE)
+        wgan_gp.generator.load_state_dict(checkpoint['generator_state_dict'])
+        wgan_gp.critic.load_state_dict(checkpoint['critic_state_dict'])
+
         wgan_gp.eval()
-        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, "output/wgan_gp_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, f"output/wgan_gp_{img_size}", BATCH_SIZE, LATENT_DIM, DEVICE)
         wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     elif progan is not None:

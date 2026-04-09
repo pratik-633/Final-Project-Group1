@@ -48,7 +48,7 @@ Run train script from root directory
 python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```
 
-## Training Long Jobs with log outputs:
+### Training Long Jobs with log outputs:
 
 ```bash
 tmux new -s train

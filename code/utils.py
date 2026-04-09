@@ -1,4 +1,5 @@
 import os
+import json
 import torch
 from torch import nn
 import torchvision.transforms as transforms
@@ -6,6 +7,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 from pytorch_fid import fid_score
+import numpy as np
 
 
 # NOTE: USED AI FOR THIS FUNCTION
@@ -91,3 +93,30 @@ def weights_init(m):
             nn.init.normal_(m.weight.data, 1.0, 0.02)
         if m.bias is not None:
             nn.init.constant_(m.bias.data, 0)
+
+# NOTE: AI ASSISTED WITH THIS FUNCTION
+def save_best_tuned_params(best_params, img_size, file_name):
+    # Save best config for future runs without tuning
+    os.makedirs("configs", exist_ok=True)
+    config_path = os.path.join("configs", file_name)
+    save_params = {}
+    for k, v in best_params.items():
+        if k in ('critic_optimizer_state', 'generator_optimizer_state'):
+            continue
+        if isinstance(v, (np.integer,)):
+            v = int(v)
+        elif isinstance(v, (np.floating,)):
+            v = float(v)
+        save_params[k] = v
+
+    # Load existing config to preserve other image size entries
+    if os.path.isfile(config_path):
+        with open(config_path, "r") as f:
+            all_configs = json.load(f)
+    else:
+        all_configs = {}
+
+    all_configs[f"img_size_{img_size}"] = save_params
+    with open(config_path, "w") as f:
+        json.dump(all_configs, f, indent=4)
+    pass

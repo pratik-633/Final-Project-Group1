@@ -119,4 +119,3 @@ def save_best_tuned_params(best_params, img_size, file_name):
     all_configs[f"img_size_{img_size}"] = save_params
     with open(config_path, "w") as f:
         json.dump(all_configs, f, indent=4)
-    pass

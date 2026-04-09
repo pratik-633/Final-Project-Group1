@@ -483,9 +483,9 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                                            betas=(params['adam_b1'], params['adam_b2']))
     
     if 'critic_optimizer_state' in params:
-        critic_optimizer.load_state_dict(params.pop('critic_optimizer_state'))
+        critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
     if 'generator_optimizer_state' in params:
-        generator_optimizer.load_state_dict(params.pop('generator_optimizer_state'))
+        generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
     
     model.to(DEVICE)
     # if we are starting from scratch, load weight distribution recommended by paper
@@ -546,7 +546,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
         print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {avg_gen_loss:.4f}")
 
         # CHECKPOINTING - AI ASSISTED WITH THIS LOGIC
-        use_val = val_dir and num_val_samples
+        use_val = (val_dir is not None) and (num_val_samples is not None)
         is_eval_epoch = use_val and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs'])
 
         checkpoint = {

@@ -231,36 +231,182 @@ class WGAN_GP(torch.nn.Module):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JEONGWON IMPLEMENT THIS SECTION - MODEL ARCHITECTURE
+"""ProGAN Generator - progressively grows from 4x4 to target resolution.
+    Based on: https://arxiv.org/abs/1710.10196
+    
+    NOTE: AI ASSISTED WITH THIS ARCHITECTURE
+"""
 class Generator_ProGAN(nn.Module):
-    def __init__(self):
+    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=512):
         super(Generator_ProGAN, self).__init__()
-        # define generator layers here
-        pass
 
-    def forward(self, x):
-        pass
+        # initial block: latent_dim(length of noise vector) -> 4x4
+        self.initial = nn.Sequential(
+            nn.ConvTranspose2d(latent_dim, feature_maps, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(feature_maps),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv2d(feature_maps, feature_maps, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(feature_maps),
+            nn.LeakyReLU(0.2, inplace=True)
+        )
+
+        # progressive blocks: each doubles resolution
+        # 4->8, 8->16, 16->32, 32->64, (64-> 128)
+        self.blocks = nn.ModuleList()
+        self.to_rgb_layers = nn.ModuleList()
+
+        # to_rgb for initial 4x4
+        self.to_rgb_initial = nn.Conv2d(feature_maps, channels, 1, 1, 0)
+
+        in_ch = feature_maps
+
+        # each step has the feature maps
+        # # 4->8: 512->256, 8->16: 256->128, 16->32: 128->64, 32->64: 64->32, 64->128: 32->16
+        for i in range(5):
+            out_ch = in_ch // 2
+            self.blocks.append(nn.Sequential(
+                nn.Upsample(scale_factor=2, mode='nearest'),
+                nn.Conv2d(in_ch, out_ch, 3, 1, 1, bias=False),
+                nn.BatchNorm2d(out_ch),
+                nn.LeakyReLU(0.2, inplace=True),
+                nn.Conv2d(out_ch, out_ch, 3, 1, 1, bias=False),
+                nn.BatchNorm2d(out_ch),
+                nn.LeakyReLU(0.2, inplace=True),
+            ))
+            self.to_rgb_layers.append(nn.Conv2d(out_ch, channels, 1, 1, 0))
+            in_ch = out_ch
+
+    def forward(self, x, step, alpha=1.0):
+        """
+        Args:
+        x: noise tensor (batch, latent_dim, 1, 1)
+        step: current growth step (0=4x4, 1=8x8, ..., 4=64x64, 5=128x128)
+        alpha: fade-in factor (0.0 to 1.0) for smooth transition
+        """
+        out = self.initial(x)
+
+        if step==0:
+            return torch.tanh(self.to_rgb_initial(out))
+        for i in range(step):
+            if i == step - 1:
+                # keeps previous output for fade-in
+                upsampled = nn.functional.interpolate(out, scale_factor=2, mode='nearest')
+                if i == 0:
+                    old_rgb = self.to_rgb_initial(upsampled)
+                else:
+                    old_rgb = self.to_rgb_layers[i - 1](upsampled)
+
+            out = self.blocks[i](out)
+
+        new_rgb = self.to_rgb_layers[step - 1](out)
+        # alpha blend: smooth transition from old resolution to new
+        return torch.tanh(alpha * new_rgb + (1 - alpha) * old_rgb)
 
 class Discriminator_ProGAN(nn.Module):
-    def __init__(self):
+    """
+    ProGAN Discriminator - mirrors generator structure in reverse.
+    Based on: https://arxiv.org/abs/1710.10196
+    """
+    def __init__(self, channels=CHANNELS, feature_maps=512):
         super(Discriminator_ProGAN, self).__init__()
-        # define discriminator layers here
-        pass
+        # from_rbg layers: converts image to feature maps at each resolution
+        self.from_rgb_layers = nn.ModuleList()
+        self.blocks = nn.ModuleList()
 
-    def forward(self, x):
-        pass
+        in_ch = feature_maps
+        # build in reverse order(mirrors generator)
+        ch_list=[]
+        temp = feature_maps
+        for i in range(5):
+            out_ch = temp // 2
+            ch_list.append((out_ch,temp))
+            temp = out_ch
+        # reverse so index 0 = highest resolution block
+        ch_list = ch_list[::-1]
+
+        for (c_in, c_out) in ch_list:
+            self.from_rgb_layers.append(nn.Sequential(
+                nn.Conv2d(channels, c_in, 1, 1, 0),
+                nn.LeakyReLU(0.2, inplace=True),
+            ))
+            self.blocks.append(nn.Sequential(
+                nn.Conv2d(c_in, c_in, 3, 1, 1, bias=False),
+                nn.LeakyReLU(0.2, inplace=True),
+                nn.Conv2d(c_in, c_out, 3, 1, 1, bias=False),
+                nn.LeakyReLU(0.2, inplace=True),
+                nn.AvgPool2d(2)
+            ))
+
+        # from_rgb for the initial 4x4 resolution
+        self.from_rgb_initial = nn.Sequential(
+            nn.Conv2d(channels, feature_maps, 1, 1, 0),
+            nn.LeakyReLU(0.2, inplace=True)
+        )
+
+        self.final = nn.Sequential(
+            nn.Conv2d(feature_maps, feature_maps, 3, 1, 1),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.AdaptiveAvgPool2d(1),
+            nn.Flatten(),
+            nn.Linear(feature_maps, 1),
+        )
+
+    def forward(self, x, step, alpha=1.0):
+        """
+        Args:
+        x: image tensor
+        step: current growth step (0=4x4, 1=8x8, ..., 4=64x64, 5=128x128)
+        lpha: fade-in factor for smooth transition
+        """
+
+        if step == 0:
+            out = self.from_rgb_initial(x)
+            return self.final(out)
+
+        # highest resolution block index
+        block_idx = len(self.blocks) - 1
+
+        # new path: from_rgb -> block
+        out = self.from_rgb_layers[block_idx](x)
+        out = self.blocks[block_idx](out)
+
+        # old path: downsample -> from_rgb(for fade-in)
+        downsampled = nn.functional.avg_pool2d(x, 2)
+        if block_idx + 1 < len(self.from_rgb_layers):
+            old_out = self.from_rgb_layers[block_idx + 1](downsampled)
+        else:
+            old_out = self.from_rgb_initial(downsampled)
+
+        # alpha blend
+        out = alpha * out + (1 - alpha) * old_out
+
+        # remaining blocks
+        for i in range(block_idx+1, len(self.blocks)):
+            out = self.blocks[i](out)
+
+        return self.final(out)
+
 
 class ProGAN(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=512):
         super(ProGAN, self).__init__()
-        # define generator and discriminator here
-        self.generator = Generator_ProGAN()
-        self.discriminator = Discriminator_ProGAN()
 
-    def generator(self, x):
-        return self.generator(x)
+        self.gen = Generator_ProGAN(latent_dim, channels, feature_maps)
+        self.disc = Discriminator_ProGAN(channels, feature_maps)
 
-    def discriminator(self, x):
-        return self.discriminator(x)
+        # step/alpha tracked here for convenience
+        self.step = 0
+        self.alpha = 1.0
+
+    # generator/discriminator properties for main() can call progan.generator
+
+    @property
+    def generator(self):
+        return self.gen
+
+    @property
+    def discriminator(self):
+        return self.disc
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -290,6 +436,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE):
 
     return params, wgan_gp
 
+#-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
@@ -300,9 +447,25 @@ def tune_progan(train_loader, val_loader):
     Returns:
         dict: The best hyperparameter configuration found during tuning
         model: The model initialized with the best hyperparameter configuration
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
+    ProGAN paper uses these defaults
     """
     # TODO: JEONGWON IMPLEMENT THIS
-    return {}, ProGAN()
+    params = {
+        'num_epochs_per_step':10,
+        'lr': 0.001,
+        'adam_b1': 0.0,
+        'adam_b2': 0.99,
+        'batch_size': BATCH_SIZE,
+        'feature_maps': 512,
+        'fade_in_epochs':5,
+        'max_step_64':4,
+        'max_step_128':5
+    }
+
+    progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+    return params, progan
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -424,24 +587,137 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(train_loader, model, params):
+def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
         train_loader (_type_): _description_
         model (_type_): _description_
         params (_type_): _description_
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
     """
     # TODO: JEONGWON IMPLEMENT THIS
 
     # TODO: UPDATE PARAMS BASED ON WHAT MODEL NEEDS, AND WHAT TUNING SAYS IS BEST
-    params = {'learning_rate': 0.0002,
-              'beta1': 0.5,
-              'beta2': 0.999,
-              'batch_size': 64,
-              'num_epochs': 100}
+    model_path = f'models/progan_model_{img_size}.pt'
 
-    pass
+    # determine max step based on image size
+    # step 0=4x4, 1=8x8, 2=16x16, 3=32x32, 4=64x64, 5=128x128
+    if img_size ==64:
+        max_step = 4
+    elif img_size ==128:
+        max_step = 5
+    else:
+        raise ValueError(f'Unsupported image size: {img_size}')
+
+    gen_optimizer = torch.optim.Adam(
+        model.gen.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+    disc_optimizer = torch.optim.Adam(
+        model.disc.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+
+    model.to(DEVICE)
+    model.apply(weights_init)
+    model.train()
+
+    best_gen_loss = float('inf')
+
+    # progressive training: step through each resolution
+    for step in range(max_step + 1):
+        current_res = 4 * (2 ** step)
+        print(f"\n--- Step {step}: training at {current_res}x{current_res} ---")
+
+        # need to reload data at current resolution
+        step_loader, _ = load_dataset(
+            "train", DATA_ROOT, current_res, CHANNELS,
+            params['batch_size'], NUM_WORKERS
+        )
+
+        for epoch in range(params['num_epochs_per_step']):
+            # alpha: fade-in during first few epochs, then 1.0
+            if epoch < params['fade_in_epochs'] and step > 0:
+                alpha = epoch / params['fade_in_epochs']
+            else:
+                alpha = 1.0
+
+            gen_loss_sum = 0.0
+            disc_loss_sum = 0.0
+            num_batches = 0
+
+            for i, batch_data in enumerate(step_loader):
+                x_real = batch_data[0].to(DEVICE)
+                batch_size = x_real.size(0)
+
+                # ---- Train Discriminator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                with torch.no_grad():
+                    x_fake = model.gen(z, step=step, alpha=alpha)
+
+                disc_real = model.disc(x_real, step=step, alpha=alpha)
+                disc_fake = model.disc(x_fake.detach(), step=step, alpha=alpha)
+
+                # WGAN-style loss (no sigmoid, raw scores)
+                disc_loss = torch.mean(disc_fake) - torch.mean(disc_real)
+
+                # gradient penalty (same idea as WGAN-GP)
+                epsilon = torch.rand(batch_size, 1, 1, 1, device=DEVICE)
+                x_interp = (epsilon * x_real + (1 - epsilon) * x_fake.detach()).requires_grad_(True)
+                disc_interp = model.disc(x_interp, step=step, alpha=alpha)
+                gradients = torch.autograd.grad(
+                    outputs=disc_interp,
+                    inputs=x_interp,
+                    grad_outputs=torch.ones_like(disc_interp),
+                    create_graph=True
+                )[0]
+                gp = 10 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
+                disc_loss = disc_loss + gp
+
+                disc_optimizer.zero_grad()
+                disc_loss.backward()
+                disc_optimizer.step()
+
+                # ---- Train Generator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                x_fake = model.gen(z, step=step, alpha=alpha)
+                gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
+
+                gen_optimizer.zero_grad()
+                gen_loss.backward()
+                gen_optimizer.step()
+
+                gen_loss_sum += gen_loss.item()
+                disc_loss_sum += disc_loss.item()
+                num_batches += 1
+
+            avg_gen = gen_loss_sum / num_batches
+            avg_disc = disc_loss_sum / num_batches
+            print(f"  Epoch {epoch + 1}/{params['num_epochs_per_step']} | "
+                  f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+
+            # save best model
+            if avg_gen < best_gen_loss:
+                best_gen_loss = avg_gen
+                torch.save({
+                    'step': step,
+                    'alpha': alpha,
+                    'epoch': epoch,
+                    'generator_state_dict': model.gen.state_dict(),
+                    'discriminator_state_dict': model.disc.state_dict(),
+                    'gen_optimizer_state_dict': gen_optimizer.state_dict(),
+                    'disc_optimizer_state_dict': disc_optimizer.state_dict(),
+                    'gen_loss': avg_gen,
+                    'disc_loss': avg_disc,
+                    'params': params,
+                }, model_path)
+                print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
+
+    print(f"\nTraining complete! Best gen loss: {best_gen_loss:.4f}")
 
 #-----------------------------------------------------------------------------------------------------------------------------------------
 

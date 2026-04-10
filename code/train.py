@@ -5,10 +5,11 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
-
+from model_definitions.dcgan_model import DCGAN
+from model_definitions.wgan_gp_model import WGAN_GP
+from model_definitions.progan_model import ProGAN
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "../data", "real_vs_fake")
@@ -461,7 +462,7 @@ class ProGAN(torch.nn.Module):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
     # TODO: PRATIK IMPLEMENT THIS
-    return {}, DCGAN()
+    return {}, DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
@@ -511,7 +512,12 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     best_checkpoint_path = ""
     best_fid = float('inf')
     best_params = None
-    best_model = WGAN_GP()
+    best_model = WGAN_GP(
+    img_size=img_size,
+    latent_dim=LATENT_DIM,
+    channels=CHANNELS,
+    feature_maps=64
+)
 
     os.makedirs("checkpoints", exist_ok=True)
     os.makedirs("output/wgan_gp/tune_wgan_temp", exist_ok=True)
@@ -913,7 +919,7 @@ def main():
     os.makedirs("models", exist_ok=True)
 
     if model_choice == "dcgan":
-        dcgan = DCGAN() # TODO: Pratik's model
+        dcgan = DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Pratik's model
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":

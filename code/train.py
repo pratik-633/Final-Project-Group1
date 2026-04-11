@@ -5,13 +5,13 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
 from model_definitions.wgan_gp_model import WGAN_GP
 from model_definitions.progan_model import ProGAN
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------------------------------------------------
 
 DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "real_vs_fake")
 
@@ -31,12 +31,14 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 NUM_WORKERS = 4
 LATENT_DIM = 100
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
     # TODO: PRATIK IMPLEMENT THIS
     return {}, DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     """Hyperparameter tuning function for WGAN-GP.
 
@@ -60,7 +62,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
             all_configs = json.load(f)
             params = all_configs[f"img_size_{img_size}"]
         return params, WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
-                                      channels=CHANNELS, feature_maps=params['feature_maps'])
+                               channels=CHANNELS, feature_maps=params['feature_maps'])
 
     # reaches here if tuning is True
     search_params = {
@@ -85,10 +87,10 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     best_fid = float('inf')
     best_params = None
     best_model = WGAN_GP(
-       img_size=img_size,
-       latent_dim=LATENT_DIM,
-       channels=CHANNELS,
-       feature_maps=64
+        img_size=img_size,
+        latent_dim=LATENT_DIM,
+        channels=CHANNELS,
+        feature_maps=64
     )
 
     os.makedirs("checkpoints", exist_ok=True)
@@ -96,9 +98,9 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     for idx, config in enumerate(param_configs):
         params = {**fixed_params, **config, 'num_epochs': tune_epochs}
-        print(f"\n--- Tuning config {idx+1}/{len(param_configs)}: {config} ---")
+        print(f"\n--- Tuning config {idx + 1}/{len(param_configs)}: {config} ---")
 
-        tune_model_path = f"checkpoints/wgan_gp_tune_{idx+1}_{img_size}.pt"
+        tune_model_path = f"checkpoints/wgan_gp_tune_{idx + 1}_{img_size}.pt"
 
         # build fresh model per config because of feature_maps
         model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
@@ -145,9 +147,10 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         shutil.rmtree("output/wgan_gp/tune_wgan_temp")
 
     return best_params, best_model
-#-----------------------------------------------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------------------------------------------
+
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
@@ -162,23 +165,23 @@ def tune_progan(train_loader, val_loader):
     NOTE: AI ASSISTED WITH THIS FUNCTION
     ProGAN paper uses these defaults
     """
-    # TODO: JEONGWON IMPLEMENT THIS
     params = {
-        'num_epochs_per_step':8,
+        'num_epochs_per_step': 8,
         'lr': 0.001,
         'adam_b1': 0.0,
         'adam_b2': 0.99,
         'batch_size': BATCH_SIZE,
         'feature_maps': 512,
-        'fade_in_epochs':3,
-        'max_step_64':4,
-        'max_step_128':5
+        'fade_in_epochs': 3,
+        'max_step_64': 4,
+        'max_step_128': 5
     }
 
     progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
     return params, progan
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------------------------------------------------
 
 
 def train_dcgan(train_loader, model, params):
@@ -201,9 +204,11 @@ def train_dcgan(train_loader, model, params):
               'num_epochs': 100}
     pass
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val_dir=None, num_val_samples=None, model_path=None):
+# -------------------------------------------------------------------------------------------------------------------------------------------
+
+def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val_dir=None, num_val_samples=None,
+                  model_path=None):
     """Training loop for WGAN-GP
 
     Args:
@@ -236,19 +241,19 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
     if params.get('start_epoch', 0) == 0:
         model.apply(weights_init)
     model.train()
-    
+
     best_fid = float('inf')
     for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
         gen_loss_sum = 0.0
         gen_loss_count = 0
-        print(f"Epoch {epoch+1}/{params['num_epochs']}")
-        critic_loss = torch.tensor(0.0) # initialize for print later
-        generator_loss = torch.tensor(0.0) # initialize for print later
+        print(f"Epoch {epoch + 1}/{params['num_epochs']}")
+        critic_loss = torch.tensor(0.0)  # initialize for print later
+        generator_loss = torch.tensor(0.0)  # initialize for print later
         for i, real_data_batch in enumerate(train_loader):
             # CRITIC TRAINING
             # sample real data, latent var (z), and a random number
-            x_real = real_data_batch[0].to(DEVICE) # real data batch (x in WGAN-GP paper)
-            z = torch.randn(x_real.size(0), LATENT_DIM, 1, 1, device=DEVICE) # latent variable (z) as labeled by paper
+            x_real = real_data_batch[0].to(DEVICE)  # real data batch (x in WGAN-GP paper)
+            z = torch.randn(x_real.size(0), LATENT_DIM, 1, 1, device=DEVICE)  # latent variable (z) as labeled by paper
             # Generate fake data with no gradient tracking to save memory and computation
             with torch.no_grad():
                 x_fake: torch.Tensor = model.generator(z)
@@ -256,7 +261,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             # CRITIC SECTION
             critic_out_real: torch.Tensor = model.critic(x_real)
             critic_out_fake: torch.Tensor = model.critic(x_fake.detach())
-            critic_loss = (torch.mean(critic_out_fake) - torch.mean(critic_out_real)) + model.calculate_gradient_penalty(x_fake, x_real)
+            critic_loss = (torch.mean(critic_out_fake) - torch.mean(
+                critic_out_real)) + model.calculate_gradient_penalty(x_fake, x_real)
 
             # UPDATE CRITIC WEIGHTS
             critic_optimizer.zero_grad()
@@ -264,7 +270,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             critic_optimizer.step()
 
             # NOTE: AI SUGGESTED THIS IF CONDITION TO REPLACE THE NESTED FOR LOOP
-            if (i + 1) % params['n_critic'] == 0: # this block is only entered every n_critic steps -> this replaced the third loop
+            if (i + 1) % params[
+                'n_critic'] == 0:  # this block is only entered every n_critic steps -> this replaced the third loop
                 for p in model.critic.parameters():
                     p.requires_grad_(False)
 
@@ -298,7 +305,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             'critic_state_dict': model.critic.state_dict(),
             'generator_optimizer_state_dict': generator_optimizer.state_dict(),
             'critic_optimizer_state_dict': critic_optimizer.state_dict(),
-            'params': {k: v for k, v in params.items() # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
+            'params': {k: v for k, v in params.items()
+                       # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
                        if k not in ('critic_optimizer_state', 'generator_optimizer_state')},
         }
 
@@ -312,7 +320,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             # full training: FID-based checkpointing every 10 epochs or on final epoch
             model.eval()
             fake_dir = generate_images(model.generator, num_val_samples,
-                                        "output/wgan_gp/fid_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
+                                       "output/wgan_gp/fid_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
             fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
             checkpoint['fid'] = fid
 
@@ -328,7 +336,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                 print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
             model.train()
 
-#-------------------------------------------------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------------------------------------------------
 
 def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     """Complete training on best configs - run however many epochs are specified in params until convergence
@@ -347,9 +356,9 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
 
     # determine max step based on image size
     # step 0=4x4, 1=8x8, 2=16x16, 3=32x32, 4=64x64, 5=128x128
-    if img_size ==64:
+    if img_size == 64:
         max_step = 4
-    elif img_size ==128:
+    elif img_size == 128:
         max_step = 5
     else:
         raise ValueError(f'Unsupported image size: {img_size}')
@@ -462,17 +471,19 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
 
     print(f"\nTraining complete! Best gen loss: {best_gen_loss:.4f}")
 
-#-----------------------------------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------------------------------------
 # main function
 def main():
-
     # add argparses for model to run and image size
     parser = argparse.ArgumentParser(description="Train GAN models")
-    parser.add_argument("--model", type=str, choices=["dcgan", "wgan_gp", "progan"], required=True, help="Model to train")
-    parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
+    parser.add_argument("--model", type=str, choices=["dcgan", "wgan_gp", "progan"], required=True,
+                        help="Model to train")
+    parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE,
+                        help="Image size for training")  # default to IMAGE_SIZE - 64x64
     args = parser.parse_args()
 
     # Check for incompatible model and image size combination (DCGAN only supports 64x64)
@@ -482,11 +493,11 @@ def main():
     # when running training, the commandline tells us which model to do for now
     img_size = args.size
     model_choice = args.model
-    
+
     # load data
-    train_loader, train_dataset = load_dataset("train",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
-    val_loader, val_dataset = load_dataset("valid",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
-    test_loader, test_dataset  = load_dataset("test",DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    train_loader, train_dataset = load_dataset("train", DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    val_loader, val_dataset = load_dataset("valid", DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
+    test_loader, test_dataset = load_dataset("test", DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
 
     # define models as None until one is used
     dcgan = None
@@ -497,9 +508,9 @@ def main():
     os.makedirs("models", exist_ok=True)
 
     if model_choice == "dcgan":
-        dcgan = DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64) # TODO: Pratik's model
-        dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
-        train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
+        dcgan = DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)  # TODO: Pratik's model
+        dc_params, dcgan = tune_dcgan(train_loader, val_loader)  # TODO: Pratik's hyperparameter tuning function
+        train_dcgan(train_loader, dcgan, dc_params)  # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
         wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)
 
@@ -511,9 +522,8 @@ def main():
         if os.path.isdir("output/wgan_gp/fid_temp"):
             shutil.rmtree("output/wgan_gp/fid_temp")
     elif model_choice == "progan":
-        progan = ProGAN() # TODO: Jeongwon's model
-        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
-        train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
+        progan_params, progan = tune_progan(train_loader, val_loader)
+        train_progan(train_loader, progan, progan_params, img_size=img_size)
 
     # FOR LOADING EXISTING MODELS
     """
@@ -534,13 +544,12 @@ def main():
     # TESTING BELOW -> until this is worked on more, commented out for now
     """
 
-
-
     # generate fake images from each model
     real_test_dir = os.path.join(DATA_ROOT, "test", "real")
     num_test = len(test_dataset)
     if dcgan is not None:
-        dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,
+                                         DEVICE)
         dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"DCGAN FID: {dcgan_fid:.4f}")
     elif wgan_gp is not None:
@@ -549,19 +558,39 @@ def main():
         wgan_gp.critic.load_state_dict(checkpoint['critic_state_dict'])
 
         wgan_gp.eval()
-        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, f"output/wgan_gp_{img_size}", BATCH_SIZE, LATENT_DIM, DEVICE)
+        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, f"output/wgan_gp_{img_size}", BATCH_SIZE,
+                                           LATENT_DIM, DEVICE)
         wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     elif progan is not None:
-        progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
-        progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
+        # load best checkpoint
+        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
+        progan.gen.load_state_dict(checkpoint['generator_state_dict'])
+        progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
+
+        max_step = 4 if img_size == 64 else 5
+        progan.eval()
+
+        # generate images at final resolution
+        os.makedirs(f"output/progan_{img_size}", exist_ok=True)
+        count = 0
+        with torch.no_grad():
+            while count < num_test:
+                batch = min(BATCH_SIZE, num_test - count)
+                z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
+                fake = progan.gen(z, step=max_step, alpha=1.0)
+                fake = (fake + 1) / 2
+                for img in fake:
+                    from torchvision.utils import save_image
+                    save_image(img, f"output/progan_{img_size}/{count:06d}.png")
+                    count += 1
+
+        progan_fid = compute_fid(real_test_dir, f"output/progan_{img_size}", BATCH_SIZE, DEVICE)
         print(f"ProGAN FID: {progan_fid:.4f}")
 
 
 if __name__ == "__main__":
     main()
-
-
 
 # NOTES:
 #  - when you are tuning and training each model, be sure to save checkpoints throughout training

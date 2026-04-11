@@ -145,6 +145,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         shutil.rmtree("output/wgan_gp/tune_wgan_temp")
 
     return best_params, best_model
+#-----------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_progan(train_loader, val_loader):

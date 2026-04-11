@@ -8,7 +8,7 @@ from utils import get_transforms, load_dataset, generate_images, compute_fid, we
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "real_vs_fake")
+DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "../data", "real_vs_fake")
 
 # IMAGE_SIZE = (64, 64)
 # IMAGE_SIZE = (128, 128) # this will be a later trial
@@ -453,13 +453,13 @@ def tune_progan(train_loader, val_loader):
     """
     # TODO: JEONGWON IMPLEMENT THIS
     params = {
-        'num_epochs_per_step':10,
+        'num_epochs_per_step':8,
         'lr': 0.001,
         'adam_b1': 0.0,
         'adam_b2': 0.99,
         'batch_size': BATCH_SIZE,
         'feature_maps': 512,
-        'fade_in_epochs':5,
+        'fade_in_epochs':3,
         'max_step_64':4,
         'max_step_128':5
     }

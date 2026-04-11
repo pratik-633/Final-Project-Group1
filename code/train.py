@@ -343,6 +343,10 @@ def main():
     parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
     args = parser.parse_args()
 
+    # Check for incompatible model and image size combination (DCGAN only supports 64x64)
+    if args.model == "dcgan" and args.size != 64:
+        parser.error("DCGAN only supports --size 64")
+
     # when running training, the commandline tells us which model to do for now
     img_size = args.size
     model_choice = args.model

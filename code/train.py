@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
@@ -473,7 +474,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         val_loader: Data loader for the validation dataset used to evaluate candidate configurations.
         img_size (int, optional): Image size for the model/configuration to tune or load. Defaults to IMAGE_SIZE.
         tuning (bool, optional): If True, perform hyperparameter tuning; otherwise, load saved parameters from the WGAN-GP config file. Defaults to True.
-    
+
     Returns:
         tuple: A tuple containing the selected hyperparameter dictionary and an initialized WGAN_GP model.
     """
@@ -560,19 +561,20 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         best_model.critic.load_state_dict(checkpoint['critic_state_dict'])
         best_params['critic_optimizer_state'] = checkpoint['critic_optimizer_state_dict']
         best_params['generator_optimizer_state'] = checkpoint['generator_optimizer_state_dict']
-    
+
         # Save best config for future runs without tuning
         save_best_tuned_params(best_params, img_size, file_name="wgan_gp_config.json")
-        
+
         best_params['start_epoch'] = tune_epochs
 
-    # CLEANUP - remove the directories that were made during training 
+    # CLEANUP - remove the directories that were made during training
     if os.path.isdir("checkpoints"):
         shutil.rmtree("checkpoints")
     if os.path.isdir("output/wgan_gp/tune_wgan_temp"):
         shutil.rmtree("output/wgan_gp/tune_wgan_temp")
 
     return best_params, best_model
+#-----------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_progan(train_loader, val_loader):
@@ -650,14 +652,14 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                                         betas=(params['adam_b1'], params['adam_b2']))
     generator_optimizer = torch.optim.Adam(model.generator.parameters(), lr=params['lr'],
                                            betas=(params['adam_b1'], params['adam_b2']))
-    
+
     model.to(DEVICE)
 
     if 'critic_optimizer_state' in params:
         critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
     if 'generator_optimizer_state' in params:
         generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
-    
+
     # if we are starting from scratch, load weight distribution recommended by paper
     # otherwise keep the weights from loaded model
     if params.get('start_epoch', 0) == 0:
@@ -728,13 +730,13 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             'params': {k: v for k, v in params.items() # AI TO FIX THIS LINE TO PREVENT ADDING MORE PARAMS THAN I MEANT TO
                        if k not in ('critic_optimizer_state', 'generator_optimizer_state')},
         }
-        
+
         if not use_val:
             # tuning: always save latest weights so checkpoint matches in-memory model
             checkpoint['critic_loss'] = critic_loss.item()
             checkpoint['generator_loss'] = avg_gen_loss
             torch.save(checkpoint, model_path)
-            
+
         elif is_eval_epoch:
             # full training: FID-based checkpointing every 10 epochs or on final epoch
             model.eval()
@@ -928,7 +930,7 @@ def main():
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)      
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)
 
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)

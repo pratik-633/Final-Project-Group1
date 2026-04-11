@@ -205,12 +205,13 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
     generator_optimizer = torch.optim.Adam(model.generator.parameters(), lr=params['lr'],
                                            betas=(params['adam_b1'], params['adam_b2']))
     
+    model.to(DEVICE)
+
     if 'critic_optimizer_state' in params:
         critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
     if 'generator_optimizer_state' in params:
         generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
     
-    model.to(DEVICE)
     # if we are starting from scratch, load weight distribution recommended by paper
     # otherwise keep the weights from loaded model
     if params.get('start_epoch', 0) == 0:
@@ -342,6 +343,10 @@ def main():
     parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE, help="Image size for training") # default to IMAGE_SIZE - 64x64
     args = parser.parse_args()
 
+    # Check for incompatible model and image size combination (DCGAN only supports 64x64)
+    if args.model == "dcgan" and args.size != 64:
+        parser.error("DCGAN only supports --size 64")
+
     # when running training, the commandline tells us which model to do for now
     img_size = args.size
     model_choice = args.model
@@ -365,7 +370,7 @@ def main():
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
         # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=True) # TODO: Josh's hyperparameter tuning function - current fixed params        
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False) # TODO: Josh's hyperparameter tuning function - current fixed params        
 
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)

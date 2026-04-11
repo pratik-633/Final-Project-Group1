@@ -84,11 +84,11 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     best_fid = float('inf')
     best_params = None
     best_model = WGAN_GP(
-    img_size=img_size,
-    latent_dim=LATENT_DIM,
-    channels=CHANNELS,
-    feature_maps=64
-)
+       img_size=img_size,
+       latent_dim=LATENT_DIM,
+       channels=CHANNELS,
+       feature_maps=64
+    )
 
     os.makedirs("checkpoints", exist_ok=True)
     os.makedirs("output/wgan_gp/tune_wgan_temp", exist_ok=True)

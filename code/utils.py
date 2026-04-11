@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    image_size: list = None
+    image_size: list = []
     channels: int = 3
     batch_size: int = 64
     latent_dim: int =100
@@ -70,7 +70,7 @@ def generate_images(generator, num_images, save_dir, batch_size, latent_dim, dev
         while count < num_images:
             batch = min(batch_size, num_images - count)
             if flatten_noise:
-                noise = torch.randn(batch, laten_dim, device=device)
+                noise = torch.randn(batch, latent_dim, device=device)
             else:
                 noise = torch.randn(batch, latent_dim, 1, 1, device=device)
             fake_imgs = generator(noise)

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Config:
-    image_size: list = []
+    image_size: list = None  # will be set to [64, 128] in __post_init__
     channels: int = 3
     batch_size: int = 64
     latent_dim: int =100

@@ -928,8 +928,7 @@ def main():
         dc_params, dcgan = tune_dcgan(train_loader, val_loader) # TODO: Pratik's hyperparameter tuning function
         train_dcgan(train_loader, dcgan, dc_params) # TODO: Pratik's training function
     elif model_choice == "wgan_gp":
-        # wgan_gp = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False) # TODO: Josh's hyperparameter tuning function - current fixed params        
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)      
 
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)

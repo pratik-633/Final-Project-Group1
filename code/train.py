@@ -282,9 +282,9 @@ class WGAN_GP(torch.nn.Module):
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 # TODO: JEONGWON IMPLEMENT THIS SECTION - MODEL ARCHITECTURE
-"""ProGAN Generator - progressively grows from 4x4 to target resolution.
+"""
+    ProGAN Generator - progressively grows from 4x4 to target resolution.
     Based on: https://arxiv.org/abs/1710.10196
-    
     NOTE: AI ASSISTED WITH THIS ARCHITECTURE
 """
 class Generator_ProGAN(nn.Module):

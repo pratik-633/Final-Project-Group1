@@ -145,6 +145,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     return best_params, best_model
 
+#-----------------------------------------------------------------------------------------------------------------------
 def tune_progan(train_loader, val_loader):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
@@ -155,9 +156,24 @@ def tune_progan(train_loader, val_loader):
     Returns:
         dict: The best hyperparameter configuration found during tuning
         model: The model initialized with the best hyperparameter configuration
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
+    ProGAN paper uses these defaults
     """
-    # TODO: JEONGWON IMPLEMENT THIS
-    return {}, ProGAN()
+    params = {
+        'num_epochs_per_step': 8,
+        'lr': 0.001,
+        'adam_b1': 0.0,
+        'adam_b2': 0.99,
+        'batch_size': BATCH_SIZE,
+        'feature_maps': 512,
+        'fade_in_epochs': 3,
+        'max_step_64': 4,
+        'max_step_128': 5
+    }
+
+    progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+    return params, progan
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -311,25 +327,101 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(train_loader, model, params):
+def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
         train_loader (_type_): _description_
         model (_type_): _description_
         params (_type_): _description_
-    """
-    # TODO: JEONGWON IMPLEMENT THIS
 
-    # TODO: UPDATE PARAMS BASED ON WHAT MODEL NEEDS, AND WHAT TUNING SAYS IS BEST
+    NOTE: AI ASSISTED WITH THIS FUNCTION
+    """
     params = {'learning_rate': 0.0002,
               'beta1': 0.5,
               'beta2': 0.999,
               'batch_size': 64,
               'num_epochs': 100}
 
-    pass
+        for epoch in range(params['num_epochs_per_step']):
+            # alpha: fade-in during first few epochs, then 1.0
+            if epoch < params['fade_in_epochs'] and step > 0:
+                alpha = epoch / params['fade_in_epochs']
+            else:
+                alpha = 1.0
 
+            gen_loss_sum = 0.0
+            disc_loss_sum = 0.0
+            num_batches = 0
+
+            for i, batch_data in enumerate(step_loader):
+                x_real = batch_data[0].to(DEVICE)
+                batch_size = x_real.size(0)
+
+                # ---- Train Discriminator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                with torch.no_grad():
+                    x_fake = model.gen(z, step=step, alpha=alpha)
+
+                disc_real = model.disc(x_real, step=step, alpha=alpha)
+                disc_fake = model.disc(x_fake.detach(), step=step, alpha=alpha)
+
+                # WGAN-style loss (no sigmoid, raw scores)
+                disc_loss = torch.mean(disc_fake) - torch.mean(disc_real)
+
+                # gradient penalty (same idea as WGAN-GP)
+                epsilon = torch.rand(batch_size, 1, 1, 1, device=DEVICE)
+                x_interp = (epsilon * x_real + (1 - epsilon) * x_fake.detach()).requires_grad_(True)
+                disc_interp = model.disc(x_interp, step=step, alpha=alpha)
+                gradients = torch.autograd.grad(
+                    outputs=disc_interp,
+                    inputs=x_interp,
+                    grad_outputs=torch.ones_like(disc_interp),
+                    create_graph=True
+                )[0]
+                gp = 10 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
+                disc_loss = disc_loss + gp
+
+                disc_optimizer.zero_grad()
+                disc_loss.backward()
+                disc_optimizer.step()
+
+                # ---- Train Generator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                x_fake = model.gen(z, step=step, alpha=alpha)
+                gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
+
+                gen_optimizer.zero_grad()
+                gen_loss.backward()
+                gen_optimizer.step()
+
+                gen_loss_sum += gen_loss.item()
+                disc_loss_sum += disc_loss.item()
+                num_batches += 1
+
+            avg_gen = gen_loss_sum / num_batches
+            avg_disc = disc_loss_sum / num_batches
+            print(f"  Epoch {epoch + 1}/{params['num_epochs_per_step']} | "
+                  f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+
+            # save best model
+            if avg_gen < best_gen_loss:
+                best_gen_loss = avg_gen
+                torch.save({
+                    'step': step,
+                    'alpha': alpha,
+                    'epoch': epoch,
+                    'generator_state_dict': model.gen.state_dict(),
+                    'discriminator_state_dict': model.disc.state_dict(),
+                    'gen_optimizer_state_dict': gen_optimizer.state_dict(),
+                    'disc_optimizer_state_dict': disc_optimizer.state_dict(),
+                    'gen_loss': avg_gen,
+                    'disc_loss': avg_disc,
+                    'params': params,
+                }, model_path)
+                print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
+
+    print(f"\nTraining complete! Best gen loss: {best_gen_loss:.4f}")
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -379,9 +471,8 @@ def main():
         if os.path.isdir("output/wgan_gp/fid_temp"):
             shutil.rmtree("output/wgan_gp/fid_temp")
     elif model_choice == "progan":
-        progan = ProGAN() # TODO: Jeongwon's model
-        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
-        train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
+        progan_params, progan = tune_progan(train_loader, val_loader)
+        train_progan(train_loader, progan, progan_params, img_size=img_size)
 
     # FOR LOADING EXISTING MODELS
     """
@@ -421,8 +512,29 @@ def main():
         wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     elif progan is not None:
-        progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
-        progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
+        # load best checkpoint
+        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
+        progan.gen.load_state_dict(checkpoint['generator_state_dict'])
+        progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
+
+        max_step = 4 if img_size == 64 else 5
+        progan.eval()
+
+        # generate images at final resolution
+        os.makedirs(f"output/progan_{img_size}", exist_ok=True)
+        count = 0
+        with torch.no_grad():
+            while count < num_test:
+                batch = min(BATCH_SIZE, num_test - count)
+                z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
+                fake = progan.gen(z, step=max_step, alpha=1.0)
+                fake = (fake + 1) / 2
+                for img in fake:
+                    from torchvision.utils import save_image
+                    save_image(img, f"output/progan_{img_size}/{count:06d}.png")
+                    count += 1
+
+        progan_fid = compute_fid(real_test_dir, f"output/progan_{img_size}", BATCH_SIZE, DEVICE)
         print(f"ProGAN FID: {progan_fid:.4f}")
 
 

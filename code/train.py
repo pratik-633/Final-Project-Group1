@@ -351,24 +351,38 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
         'num_epochs_per_step': 100,
         'fade_in_epochs': 0,
     }
-    if params is None:
+    if params is None: 
         params = {}
+        
     params = {**default_params, **params}
-    
+
+    best_gen_loss = float('inf')
+    model_path = 'models/progan_model.pt'
+    os.makedirs('models', exist_ok=True)
+
+    gen_optimizer = torch.optim.Adam(
+        model.gen.parameters(),
+        lr=params['learning_rate'],
+        betas=(params['beta1'], params['beta2'])
+        )
+    disc_optimizer = torch.optim.Adam(
+        model.disc.parameters(),
+        lr=params['learning_rate'],
+        betas=(params['beta1'], params['beta2'])
+        )
 
     resolutions = [4, 8, 16, 32, 64, 128]
     max_step = params.get('max_step_128', len(resolutions))
 
     for step in range(max_step):
         res = resolutions[step]
-
-    step_transform = transforms.Compose([
-        transforms.Resize((res, res)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5]*3, [0.5]*3),
-    ])
-    step_dataset = datasets.ImageFolder(root=data_path, transform=step_transform)
-    step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
+        step_transform = transforms.Compose([
+            transforms.Resize((res, res)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5]*3, [0.5]*3),
+            ])
+        step_dataset = datasets.ImageFolder(root=data_path, transform=step_transform)
+        step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
 
         for epoch in range(params['num_epochs_per_step']):
             # alpha: fade-in during first few epochs, then 1.0

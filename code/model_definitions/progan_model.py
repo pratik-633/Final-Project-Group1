@@ -13,7 +13,7 @@ from sklearn.model_selection import ParameterSampler, ParameterGrid
     NOTE: AI ASSISTED WITH THIS ARCHITECTURE
 """
 class Generator_ProGAN(nn.Module):
-    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=512):
+    def __init__(self, latent_dim=100, channels=3, feature_maps=512):
         super(Generator_ProGAN, self).__init__()
 
         # initial block: latent_dim(length of noise vector) -> 4x4

@@ -337,11 +337,18 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
 
     NOTE: AI ASSISTED WITH THIS FUNCTION
     """
-    params = {'learning_rate': 0.0002,
-              'beta1': 0.5,
-              'beta2': 0.999,
-              'batch_size': 64,
-              'num_epochs': 100}
+    default_params = {
+        'learning_rate': 0.0002,
+        'beta1': 0.5,
+        'beta2': 0.999,
+        'batch_size': 64,
+        'num_epochs': 100,
+        'num_epochs_per_step': 100,
+        'fade_in_epochs': 0,
+    }
+    if params is None:
+        params = {}
+    params = {**default_params, **params}
 
         for epoch in range(params['num_epochs_per_step']):
             # alpha: fade-in during first few epochs, then 1.0

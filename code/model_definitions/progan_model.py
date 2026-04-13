@@ -165,7 +165,7 @@ class Discriminator_ProGAN(nn.Module):
         return self.final(out)
 
 class ProGAN(torch.nn.Module):
-    def __init__(self, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=512):
+    def __init__(self, latent_dim=100, channels=3, feature_maps=512):
         super(ProGAN, self).__init__()
 
         self.gen = Generator_ProGAN(latent_dim, channels, feature_maps)

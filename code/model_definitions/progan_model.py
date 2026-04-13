@@ -132,7 +132,7 @@ class Discriminator_ProGAN(nn.Module):
         Args:
         x: image tensor
         step: current growth step (0=4x4, 1=8x8, ..., 4=64x64, 5=128x128)
-        lpha: fade-in factor for smooth transition
+        alpha: fade-in factor for smooth transition
         """
 
         if step == 0:

@@ -370,7 +370,8 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
         lr=params['learning_rate'],
         betas=(params['beta1'], params['beta2'])
         )
-
+    model.to(DEVICE)
+    
     resolutions = [4, 8, 16, 32, 64, 128]
     max_step = params.get('max_step_128', len(resolutions))
 
@@ -554,6 +555,7 @@ def main():
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     elif progan is not None:
         # load best checkpoint
+        progan.to(DEVICE)
         checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
         progan.gen.load_state_dict(checkpoint['generator_state_dict'])
         progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])

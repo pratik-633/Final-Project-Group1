@@ -564,6 +564,10 @@ def main():
         progan.eval()
 
         # generate images at final resolution
+        
+        if os.path.exists(f"output/progan_{img_size}"):
+            shutil.rmtree(f"output/progan_{img_size}")
+        
         os.makedirs(f"output/progan_{img_size}", exist_ok=True)
         count = 0
         with torch.no_grad():

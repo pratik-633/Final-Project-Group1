@@ -160,21 +160,26 @@ def tune_progan(train_loader, val_loader):
     NOTE: AI ASSISTED WITH THIS FUNCTION
     ProGAN paper uses these defaults
     """
-    params = {
-        'num_epochs_per_step': 8,
-        'lr': 0.001,
-        'adam_b1': 0.0,
-        'adam_b2': 0.99,
-        'batch_size': BATCH_SIZE,
-        'feature_maps': 512,
-        'fade_in_epochs': 3,
-        'max_step_64': 4,
-        'max_step_128': 5
-    }
 
-    progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
-    return params, progan
+    configs = [
+        {'num_epochs_per_step': 8, 'lr': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
+        {'num_epochs_per_step': 10, 'lr': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
+    ]
+    
+    best_fid = float('inf')
+    best_params = None
+    best_model = None
 
+    for cfg in configs:
+        progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=cfg['feature_maps'])
+        
+        fid_score = evaluate_fid(progan, val_loader)
+        if fid_score < best_fid:
+            best_fid = fid_score
+            best_params = cfg
+            best_model = progan
+
+    return best_params, best_model
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 

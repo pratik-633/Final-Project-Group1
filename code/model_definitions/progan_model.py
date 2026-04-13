@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
-from model_definitions.progan_model import ProGAN
 
 """
     ProGAN Generator - progressively grows from 4x4 to target resolution.

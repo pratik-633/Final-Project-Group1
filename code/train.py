@@ -354,6 +354,21 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     if params is None:
         params = {}
     params = {**default_params, **params}
+    
+
+    resolutions = [4, 8, 16, 32, 64, 128]
+    max_step = params.get('max_step_128', len(resolutions))
+
+    for step in range(max_step):
+        res = resolutions[step]
+
+    step_transform = transforms.Compose([
+        transforms.Resize((res, res)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5]*3, [0.5]*3),
+    ])
+    step_dataset = datasets.ImageFolder(root=data_path, transform=step_transform)
+    step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
 
         for epoch in range(params['num_epochs_per_step']):
             # alpha: fade-in during first few epochs, then 1.0

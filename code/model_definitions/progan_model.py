@@ -139,25 +139,27 @@ class Discriminator_ProGAN(nn.Module):
             out = self.from_rgb_initial(x)
             return self.final(out)
 
-        # highest resolution block index
-        block_idx = len(self.blocks) - 1
+        # Choose the current-resolution block from the growth step.
+        # step=1 starts at the lowest progressive block (8x8 -> 4x4),
+        # while larger steps start from progressively higher resolutions.
+        block_idx = len(self.blocks) - step
 
-        # new path: from_rgb -> block
+        # new path: current resolution from_rgb -> current block
         out = self.from_rgb_layers[block_idx](x)
         out = self.blocks[block_idx](out)
 
-        # old path: downsample -> from_rgb(for fade-in)
+        # old path: downsample once and convert using the previous resolution
         downsampled = nn.functional.avg_pool2d(x, 2)
         if block_idx + 1 < len(self.from_rgb_layers):
             old_out = self.from_rgb_layers[block_idx + 1](downsampled)
         else:
             old_out = self.from_rgb_initial(downsampled)
 
-        # alpha blend
+        # alpha blend between previous and current resolution paths
         out = alpha * out + (1 - alpha) * old_out
 
-        # remaining blocks
-        for i in range(block_idx+1, len(self.blocks)):
+        # continue down through the remaining lower-resolution blocks
+        for i in range(block_idx + 1, len(self.blocks)):
             out = self.blocks[i](out)
 
         return self.final(out)

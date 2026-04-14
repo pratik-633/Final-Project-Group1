@@ -5,6 +5,8 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
+from torchvision import transforms, datasets
+from torch.utils.data import DataLoader, save_image
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
@@ -415,7 +417,7 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
             transforms.ToTensor(),
             transforms.Normalize([0.5]*3, [0.5]*3),
             ])
-        step_dataset = datasets.ImageFolder(root=data_path, transform=step_transform)
+        step_dataset = datasets.ImageFolder(root=os.path.join(DATA_ROOT,'train'), transform=step_transform)
         step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
 
         for epoch in range(params['num_epochs_per_step']):
@@ -610,7 +612,6 @@ def main():
                 fake = progan.gen(z, step=max_step, alpha=1.0)
                 fake = (fake + 1) / 2
                 for img in fake:
-                    from torchvision.utils import save_image
                     save_image(img, f"output/progan_{img_size}/{count:06d}.png")
                     count += 1
 

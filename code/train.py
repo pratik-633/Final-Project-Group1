@@ -170,15 +170,48 @@ def tune_progan(train_loader, val_loader):
     best_params = None
     best_model = None
 
-    for cfg in configs:
+
+    for idx, cfg in enumerate(configs):
+        params = {**fixed_params, **cfg}
+        print(f"\n--- ProGAN tuning config {idx+1}/{len(configs)}: {cfg} ---")
+
         progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=cfg['feature_maps'])
-        
-        fid_score = evaluate_fid(progan, val_loader)
+        train_progan(train_loader, progan, params)
+
+        # generate fake images for FID
+        progan.to(DEVICE)
+        progan.eval()
+        max_step = params['max_step_64'] - 1
+        count = 0
+        num_val = len(val_loader.dataset)
+        with torch.no_grad():
+            while count < num_val:
+                batch = min(BATCH_SIZE, num_val - count)
+                z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
+                fake = progan.gen(z, step=max_step, alpha=1.0)
+                fake = (fake + 1) / 2
+                for img in fake:
+                    from torchvision.utils import save_image
+                    save_image(img, f"output/progan/tune_temp/{count:06d}.png")
+                    count += 1
+
+        fid_score = compute_fid(real_val_dir, "output/progan/tune_temp", BATCH_SIZE, DEVICE)
+        print(f"Config FID: {fid_score:.4f}")
+
+        # cleanup temp images
+        shutil.rmtree("output/progan/tune_temp")
+        os.makedirs("output/progan/tune_temp", exist_ok=True)
+
         if fid_score < best_fid:
             best_fid = fid_score
-            best_params = cfg
+            best_params = params
             best_model = progan
 
+    # final cleanup
+    if os.path.isdir("output/progan/tune_temp"):
+        shutil.rmtree("output/progan/tune_temp")
+
+    print(f"\nBest ProGAN config: {best_params}, FID: {best_fid:.4f}")
     return best_params, best_model
 #-------------------------------------------------------------------------------------------------------------------------------------------
 

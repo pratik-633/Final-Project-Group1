@@ -162,8 +162,8 @@ def tune_progan(train_loader, val_loader):
     """
 
     configs = [
-        {'num_epochs_per_step': 8, 'lr': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
-        {'num_epochs_per_step': 10, 'lr': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
+        {'num_epochs_per_step': 8, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
+        {'num_epochs_per_step': 10, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
     ]
     
     best_fid = float('inf')
@@ -390,7 +390,7 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     params = {**default_params, **params}
 
     best_gen_loss = float('inf')
-    model_path = 'models/progan_model.pt'
+    model_path = f'models/progan_model_{img_size}.pt'
     os.makedirs('models', exist_ok=True)
 
     gen_optimizer = torch.optim.Adam(

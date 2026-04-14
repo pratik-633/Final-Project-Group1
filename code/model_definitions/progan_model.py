@@ -1,12 +1,5 @@
-import os
-import argparse
-import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
-from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
-from sklearn.model_selection import ParameterSampler, ParameterGrid
-
 """
     ProGAN Generator - progressively grows from 4x4 to target resolution.
     Based on: https://arxiv.org/abs/1710.10196
@@ -83,7 +76,7 @@ class Discriminator_ProGAN(nn.Module):
     ProGAN Discriminator - mirrors generator structure in reverse.
     Based on: https://arxiv.org/abs/1710.10196
     """
-    def __init__(self, channels=CHANNELS, feature_maps=512):
+    def __init__(self, channels=3, feature_maps=512):
         super(Discriminator_ProGAN, self).__init__()
         # from_rbg layers: converts image to feature maps at each resolution
         self.from_rgb_layers = nn.ModuleList()

@@ -63,19 +63,24 @@ def load_dataset(split, data_root, image_size, channels, batch_size, num_workers
 
 
 # NOTE: USED AI FOR THIS FUNCTION
-def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device, flatten_noise=False):
-    os.makedirs(save_dir, exist_ok=True)
+def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device, flatten_noise=False, step=None, alpha=None):
     """Generate fake images from a trained generator and save them to disk."""
+    os.makedirs(save_dir, exist_ok=True)
     generator.eval()
     count = 0
     with torch.no_grad():
         while count < num_images:
             batch = min(batch_size, num_images - count)
+            
             if flatten_noise:
                 noise = torch.randn(batch, latent_dim, device=device)
             else:
                 noise = torch.randn(batch, latent_dim, 1, 1, device=device)
-            fake_imgs = generator(noise)
+            if step is not None and alpha is not None:
+                fake_imgs = generator(noise, step=step, alpha=alpha)
+            else:
+                fake_imgs = generator(noise)
+            
             fake_imgs = (fake_imgs + 1) / 2
             for img in fake_imgs:
                 save_image(img, os.path.join(save_dir, f"{count:06d}.png"))

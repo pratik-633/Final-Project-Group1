@@ -184,7 +184,12 @@ def tune_progan(train_loader, val_loader):
         # generate fake images for FID
         progan.to(DEVICE)
         progan.eval()
-        max_step = params['max_step_64'] - 1
+        val_batch = next(iter(val_loader))
+        val_images = val_batch[0] if isinstance(val_batch, (list, tuple)) else val_batch
+        target_img_size = val_images.shape[-1]
+        if target_img_size < 4 or (target_img_size & (target_img_size - 1)) != 0:
+            raise ValueError(f"Unsupported ProGAN image size: {target_img_size}. Expected a power of two >= 4.")
+        max_step = int(np.log2(target_img_size)) - 2
         count = 0
         num_val = len(val_loader.dataset)
         with torch.no_grad():

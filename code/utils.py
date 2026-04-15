@@ -76,8 +76,10 @@ def generate_images(generator, num_images, save_dir, batch_size, latent_dim, dev
                 noise = torch.randn(batch, latent_dim, device=device)
             else:
                 noise = torch.randn(batch, latent_dim, 1, 1, device=device)
-            if step is not None and alpha is not None:
-                fake_imgs = generator(noise, step=step, alpha=alpha)
+            if step is not None:
+                fake_imgs = generator(noise, step=step, alpha=1.0 if alpha is None else alpha)
+            elif alpha is not None:
+                raise ValueError("alpha cannot be provided without step in generate_images().")
             else:
                 fake_imgs = generator(noise)
             

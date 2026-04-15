@@ -6,7 +6,8 @@ import numpy as np
 import pandas as pd
 import torch
 from torchvision import transforms, datasets
-from torch.utils.data import DataLoader, save_image
+from torchvision.utils import save_image
+from torch.utils.data import DataLoader
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN

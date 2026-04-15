@@ -78,7 +78,7 @@ class Discriminator_ProGAN(nn.Module):
     """
     def __init__(self, channels=3, feature_maps=512):
         super(Discriminator_ProGAN, self).__init__()
-        # from_rbg layers: converts image to feature maps at each resolution
+        # from_rgb layers: converts image to feature maps at each resolution
         self.from_rgb_layers = nn.ModuleList()
         self.blocks = nn.ModuleList()
 

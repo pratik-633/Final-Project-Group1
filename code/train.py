@@ -427,6 +427,15 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
             transforms.Normalize([0.5]*3, [0.5]*3),
             ])
         step_dataset = datasets.ImageFolder(root=os.path.join(DATA_ROOT,'train'), transform=step_transform)
+        if 'real' not in step_dataset.class_to_idx:
+            raise ValueError("Expected 'real' class in training dataset for ProGAN training.")
+        real_class_idx = step_dataset.class_to_idx['real']
+        step_dataset.samples = [
+            sample for sample in step_dataset.samples
+            if sample[1] == real_class_idx
+        ]
+        step_dataset.targets = [target for _, target in step_dataset.samples]
+        step_dataset.imgs = step_dataset.samples
         step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
 
         for epoch in range(params['num_epochs_per_step']):

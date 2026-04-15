@@ -406,6 +406,9 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
         betas=(params['beta1'], params['beta2'])
         )
     model.to(DEVICE)
+    model.train()
+    model.gen.train()
+    model.disc.train()
     
     resolutions = [4, 8, 16, 32, 64, 128]
     max_step = resolutions.index(img_size) + 1

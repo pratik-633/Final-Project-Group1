@@ -82,7 +82,6 @@ class Discriminator_ProGAN(nn.Module):
         self.from_rgb_layers = nn.ModuleList()
         self.blocks = nn.ModuleList()
 
-        in_ch = feature_maps
         # build in reverse order(mirrors generator)
         ch_list=[]
         temp = feature_maps

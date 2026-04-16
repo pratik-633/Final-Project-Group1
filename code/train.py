@@ -409,7 +409,7 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
         
     params = {**default_params, **params}
 
-    best_gen_loss = float('inf')
+    best_gen_loss_per_step = {}
     model_path = f'models/progan_model_{img_size}.pt'
     os.makedirs('models', exist_ok=True)
 
@@ -503,8 +503,8 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
                   f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
 
             # save best model
-            if avg_gen < best_gen_loss:
-                best_gen_loss = avg_gen
+            if step not in best_gen_loss_per_step or avg_gen < best_gen_loss_per_step[step]:
+                best_gen_loss_per_step[step] = avg_gen
                 torch.save({
                     'step': step,
                     'alpha': alpha,
@@ -519,7 +519,7 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
                 }, model_path)
                 print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
 
-    print(f"\nTraining complete! Best gen loss: {best_gen_loss:.4f}")
+    print(f"\nTraining complete! Best gen losses per step: {best_gen_loss_per_step}")
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
 

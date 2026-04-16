@@ -386,11 +386,10 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
+def train_progan(model, params, img_size=IMAGE_SIZE):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
-        train_loader (_type_): _description_
         model (_type_): _description_
         params (_type_): _description_
 

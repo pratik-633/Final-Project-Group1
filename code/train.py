@@ -149,7 +149,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     return best_params, best_model
 
 #-----------------------------------------------------------------------------------------------------------------------
-def tune_progan(train_loader, val_loader):
+def tune_progan(train_loader, val_loader, img_size=IMAGE_SIZE):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
     Args:
@@ -187,7 +187,7 @@ def tune_progan(train_loader, val_loader):
         print(f"\n--- ProGAN tuning config {idx+1}/{len(configs)}: {cfg} ---")
 
         progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=cfg['feature_maps'])
-        train_progan(train_loader, progan, params)
+        train_progan(train_loader, progan, params, img_size=img_size)
 
         # generate fake images for FID
         progan.to(DEVICE)
@@ -574,7 +574,7 @@ def main():
         if os.path.isdir("output/wgan_gp/fid_temp"):
             shutil.rmtree("output/wgan_gp/fid_temp")
     elif model_choice == "progan":
-        progan_params, progan = tune_progan(train_loader, val_loader)
+        progan_params, progan = tune_progan(train_loader, val_loader, img_size=img_size)
         train_progan(train_loader, progan, progan_params, img_size=img_size)
 
     # FOR LOADING EXISTING MODELS

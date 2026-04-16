@@ -193,7 +193,9 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
         progan.to(DEVICE)
         progan.eval()
         os.makedirs('output/progan/tune_temp',exist_ok=True)
+        
         val_batch = next(iter(val_loader))
+        
         val_images = val_batch[0] if isinstance(val_batch, (list, tuple)) else val_batch
         target_img_size = val_images.shape[-1]
         if target_img_size < 4 or (target_img_size & (target_img_size - 1)) != 0:
@@ -225,7 +227,7 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
 
     # final cleanup
     if os.path.isdir("output/progan/tune_temp"):
-        shutil.rmtree("output/progan/tune_temp")
+        shutil.rmtree("output/progan/tune_temp", ignore_erros=True)
 
     print(f"\nBest ProGAN config: {best_params}, FID: {best_fid:.4f}")
     return best_params, best_model

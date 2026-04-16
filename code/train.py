@@ -193,7 +193,9 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
         # generate fake images for FID
         progan.to(DEVICE)
         progan.eval()
-        os.makedirs('output/progan/tune_temp',exist_ok=True)
+        if os.path.isdir("output/progan/tune_temp"):
+            shutil.rmtree("output/progan/tune_temp")
+        os.makedirs("output/progan/tune_temp", exist_ok=True)
         
         val_batch = next(iter(val_loader))
         

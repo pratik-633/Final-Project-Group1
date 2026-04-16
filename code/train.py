@@ -168,6 +168,14 @@ def tune_progan(train_loader, val_loader):
         {'num_epochs_per_step': 8, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
         {'num_epochs_per_step': 10, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
     ]
+
+    fixed_params = {                    # ← 이거 추가!
+        'beta1': 0.0,
+        'beta2': 0.99,
+        'batch_size': BATCH_SIZE,
+        'max_step_64': 4,
+        'max_step_128': 5,
+    }
     
     best_fid = float('inf')
     best_params = None

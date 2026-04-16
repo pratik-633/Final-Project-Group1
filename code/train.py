@@ -192,6 +192,7 @@ def tune_progan(train_loader, val_loader, img_size=IMAGE_SIZE):
         # generate fake images for FID
         progan.to(DEVICE)
         progan.eval()
+        os.makedirs('output/progran/tune_temp',exist_ok=True)
         val_batch = next(iter(val_loader))
         val_images = val_batch[0] if isinstance(val_batch, (list, tuple)) else val_batch
         target_img_size = val_images.shape[-1]
@@ -207,7 +208,6 @@ def tune_progan(train_loader, val_loader, img_size=IMAGE_SIZE):
                 fake = progan.gen(z, step=max_step, alpha=1.0)
                 fake = (fake + 1) / 2
                 for img in fake:
-                    from torchvision.utils import save_image
                     save_image(img, f"output/progan/tune_temp/{count:06d}.png")
                     count += 1
 

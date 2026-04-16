@@ -435,11 +435,7 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
 
     for step in range(max_step):
         res = resolutions[step]
-        step_transform = transforms.Compose([
-            transforms.Resize((res, res)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.5] * CHANNELS, [0.5] * CHANNELS),
-            ])
+        step_transform = get_transforms(res, CHANNELS)
         step_dataset = copy.copy(base_dataset)
         step_dataset.transform = step_transform
         step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True,

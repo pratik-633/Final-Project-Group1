@@ -81,7 +81,14 @@ def generate_images(generator, num_images, save_dir, batch_size, latent_dim, dev
             elif alpha is not None:
                 raise ValueError("alpha cannot be provided without step in generate_images().")
             else:
-                fake_imgs = generator(noise)
+                try:
+                    fake_imgs = generator(noise)
+                except TypeError as exc:
+                    raise TypeError(
+                        "generate_images() called the generator without 'step', but this generator "
+                        "appears to require progressive arguments. Pass 'step' (and optionally "
+                        "'alpha') when using progressive models."
+                    ) from exc
             
             fake_imgs = (fake_imgs + 1) / 2
             for img in fake_imgs:

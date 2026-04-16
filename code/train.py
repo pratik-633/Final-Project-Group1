@@ -188,7 +188,8 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
         print(f"\n--- ProGAN tuning config {idx+1}/{len(configs)}: {cfg} ---")
 
         progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=cfg['feature_maps'])
-        train_progan(train_loader, progan, params, img_size=img_size)
+        params['img_size'] = img_size
+        train_progan(progan, train_loader, params)
 
         # generate fake images for FID
         progan.to(DEVICE)
@@ -386,7 +387,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(model, params, img_size=IMAGE_SIZE):
+def train_progan(progan, train_loader, params):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
@@ -395,6 +396,7 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
 
     NOTE: AI ASSISTED WITH THIS FUNCTION
     """
+    img_size = params.get('img_size', 64)
     default_params = {
         'learning_rate': 0.0002,
         'beta1': 0.5,
@@ -408,6 +410,8 @@ def train_progan(model, params, img_size=IMAGE_SIZE):
         params = {}
         
     params = {**default_params, **params}
+
+    model = progan
 
     best_gen_loss_per_step = {}
     model_path = f'models/progan_model_{img_size}.pt'

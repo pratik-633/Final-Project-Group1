@@ -1,3 +1,4 @@
+import copy
 import json
 import shutil
 import os
@@ -227,7 +228,7 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
 
     # final cleanup
     if os.path.isdir("output/progan/tune_temp"):
-        shutil.rmtree("output/progan/tune_temp", ignore_erros=True)
+        shutil.rmtree("output/progan/tune_temp", ignore_errors=True)
 
     print(f"\nBest ProGAN config: {best_params}, FID: {best_fid:.4f}")
     return best_params, best_model
@@ -429,6 +430,8 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
     resolutions = [4, 8, 16, 32, 64, 128]
     max_step = resolutions.index(img_size) + 1
 
+    base_dataset = train_loader.dataset
+
     for step in range(max_step):
         res = resolutions[step]
         step_transform = transforms.Compose([
@@ -436,17 +439,10 @@ def train_progan(train_loader, model, params, img_size=IMAGE_SIZE):
             transforms.ToTensor(),
             transforms.Normalize([0.5]*3, [0.5]*3),
             ])
-        step_dataset = datasets.ImageFolder(root=os.path.join(DATA_ROOT,'train'), transform=step_transform)
-        if 'real' not in step_dataset.class_to_idx:
-            raise ValueError("Expected 'real' class in training dataset for ProGAN training.")
-        real_class_idx = step_dataset.class_to_idx['real']
-        step_dataset.samples = [
-            sample for sample in step_dataset.samples
-            if sample[1] == real_class_idx
-        ]
-        step_dataset.targets = [target for _, target in step_dataset.samples]
-        step_dataset.imgs = step_dataset.samples
-        step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True, drop_last=True)
+        step_dataset = copy.copy(base_dataset)
+        step_dataset.transform = step_transform
+        step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True,
+                                  num_workers=NUM_WORKERS, pin_memory=True, drop_last=True)
 
         for epoch in range(params['num_epochs_per_step']):
             # alpha: fade-in during first few epochs, then 1.0
@@ -630,7 +626,8 @@ def main():
         progan.gen.load_state_dict(checkpoint['generator_state_dict'])
         progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
 
-        max_step = 4 if img_size == 64 else 5
+        max_step = checkpoint.get('step', int(np.log2(img_size)) - 2)
+        alpha = checkpoint.get('alpha', 1.0)
         progan.eval()
 
         # generate images at final resolution
@@ -644,7 +641,7 @@ def main():
             while count < num_test:
                 batch = min(BATCH_SIZE, num_test - count)
                 z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
-                fake = progan.gen(z, step=max_step, alpha=1.0)
+                fake = progan.gen(z, step=max_step, alpha=alpha)
                 fake = (fake + 1) / 2
                 for img in fake:
                     save_image(img, f"output/progan_{img_size}/{count:06d}.png")

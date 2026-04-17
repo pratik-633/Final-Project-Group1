@@ -166,8 +166,8 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
     """
 
     configs = [
-        {'num_epochs_per_step': 8, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
-        {'num_epochs_per_step': 10, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
+        {'num_epochs_per_step': 2, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
+        {'num_epochs_per_step': 2, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
     ]
 
     fixed_params = {                    # ← 이거 추가!
@@ -580,8 +580,9 @@ def main():
         val_loader,
         real_val_dir,
         img_size=img_size)
-        
-        train_progan(train_loader, progan, progan_params, img_size=img_size)
+
+        progan_params['img_size'] = img_size
+        train_progan(progan, train_loader, progan_params)
 
     # FOR LOADING EXISTING MODELS
     """

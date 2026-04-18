@@ -290,10 +290,11 @@ def train_dcgan(train_loader, model, params):
 
             # Train Discriminator
             z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
-            x_fake = model.generator(z)
+            with torch.no_grad():
+                x_fake = model.generator(z)
 
             disc_out_real = model.discriminator(x_real)
-            disc_out_fake = model.discriminator(x_fake.detach())
+            disc_out_fake = model.discriminator(x_fake)
 
             disc_real_loss = criterion(disc_out_real, real_labels)
             disc_fake_loss = criterion(disc_out_fake, fake_labels)

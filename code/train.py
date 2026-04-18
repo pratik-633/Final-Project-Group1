@@ -180,8 +180,6 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tun
         'beta1': 0.0,
         'beta2': 0.99,
         'batch_size': BATCH_SIZE,
-        'max_step_64': 4,
-        'max_step_128': 5,
     }
     
     best_fid = float('inf')

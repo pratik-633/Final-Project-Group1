@@ -53,7 +53,7 @@ class PixelNorm(nn.Module):
 class MinibatchStdDev(nn.Module):
     def forward(self, x):
         # x: (N, C, H, W)
-        std = torch.std(x, dim=0, keepdim=True)       # (1, C, H, W)
+        std = torch.std(x, dim=0, keepdim=True, unbiased=False)       # (1, C, H, W)
         mean_std = torch.mean(std, dim=[1, 2, 3], keepdim=True)  # (1, 1, 1, 1)
         repeated = mean_std.expand(x.size(0), 1, x.size(2), x.size(3))  # (N, 1, H, W)
         return torch.cat([x, repeated], dim=1)

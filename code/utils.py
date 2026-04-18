@@ -63,8 +63,18 @@ def load_dataset(split, data_root, image_size, channels, batch_size, num_workers
 
 
 # NOTE: USED AI FOR THIS FUNCTION
-def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device, flatten_noise=False, step=None, alpha=None):
+def generate_images(generator, num_images, save_dir, batch_size=None, latent_dim=None, device=None, flatten_noise=False, step=None, alpha=None):
     """Generate fake images from a trained generator and save them to disk."""
+    defaults = Config()
+    if batch_size is None:
+        batch_size = defaults.batch_size
+    if latent_dim is None:
+        latent_dim = defaults.latent_dim
+    if device is None:
+        try:
+            device = next(generator.parameters()).device
+        except StopIteration:
+            device = defaults.device
     os.makedirs(save_dir, exist_ok=True)
     generator.eval()
     count = 0

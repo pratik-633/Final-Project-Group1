@@ -641,7 +641,7 @@ def main():
     elif progan is not None:
         # load best checkpoint
         progan.to(DEVICE)
-        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
+        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE, weights_only=False)
         progan.gen.load_state_dict(checkpoint['generator_state_dict'])
         progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
 

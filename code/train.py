@@ -6,8 +6,6 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
-from torchvision import transforms
-from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid

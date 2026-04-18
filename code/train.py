@@ -581,7 +581,7 @@ def main():
         real_val_dir,
         img_size=img_size)
         
-        train_progan(train_loader, progan, progan_params, img_size=img_size)
+        train_progan(progan, train_loader, progan_params)
 
     # FOR LOADING EXISTING MODELS
     """

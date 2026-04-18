@@ -6,8 +6,6 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
-from torchvision import transforms
-from torchvision.utils import save_image
 from torch.utils.data import DataLoader
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
@@ -22,7 +20,6 @@ DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "re
 # IMAGE_SIZE = (128, 128) # this will be a later trial
 
 IMAGE_SIZE = 64
-# IMAGE_SIZE = 128
 CHANNELS = 3
 BATCH_SIZE = 128
 SEED = 42
@@ -150,7 +147,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     return best_params, best_model
 
 #-----------------------------------------------------------------------------------------------------------------------
-def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
+def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tuning=True):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
     Args:
@@ -164,18 +161,23 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
     NOTE: AI ASSISTED WITH THIS FUNCTION
     ProGAN paper uses these defaults
     """
+    
+    if not tuning:
+        with open(os.path.join("configs", "progan_config.json"), "r") as f:
+            all_configs = json.load(f)
+            params = all_configs[f"img_size_{img_size}"]
+        params['img_size'] = img_size
+        return params, ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
 
     configs = [
-        {'num_epochs_per_step': 2, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
-        {'num_epochs_per_step': 2, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
+        {'num_epochs_per_step': 8, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
+        {'num_epochs_per_step': 10, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
     ]
 
-    fixed_params = {                    # ← 이거 추가!
+    fixed_params = {
         'beta1': 0.0,
         'beta2': 0.99,
         'batch_size': BATCH_SIZE,
-        'max_step_64': 4,
-        'max_step_128': 5,
     }
     
     best_fid = float('inf')
@@ -198,26 +200,13 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
             shutil.rmtree("output/progan/tune_temp")
         os.makedirs("output/progan/tune_temp", exist_ok=True)
         
-        val_batch = next(iter(val_loader))
-        
-        val_images = val_batch[0] if isinstance(val_batch, (list, tuple)) else val_batch
-        target_img_size = val_images.shape[-1]
-        if target_img_size < 4 or (target_img_size & (target_img_size - 1)) != 0:
-            raise ValueError(f"Unsupported ProGAN image size: {target_img_size}. Expected a power of two >= 4.")
-        max_step = int(np.log2(target_img_size)) - 2
-        count = 0
+        max_step = int(np.log2(img_size)) - 2
         num_val = len(val_loader.dataset)
-        with torch.no_grad():
-            while count < num_val:
-                batch = min(BATCH_SIZE, num_val - count)
-                z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
-                fake = progan.gen(z, step=max_step, alpha=1.0)
-                fake = (fake + 1) / 2
-                for img in fake:
-                    save_image(img, f"output/progan/tune_temp/{count:06d}.png")
-                    count += 1
+        fake_dir = generate_images(progan.gen, num_val, "output/progan/tune_temp",
+                                    BATCH_SIZE, LATENT_DIM, DEVICE,
+                                    step=max_step, alpha=1.0)
 
-        fid_score = compute_fid(real_val_dir, "output/progan/tune_temp", BATCH_SIZE, DEVICE)
+        fid_score = compute_fid(real_val_dir, fake_dir, BATCH_SIZE, DEVICE)
         print(f"Config FID: {fid_score:.4f}")
 
         # cleanup temp images
@@ -234,6 +223,10 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE):
         shutil.rmtree("output/progan/tune_temp", ignore_errors=True)
 
     print(f"\nBest ProGAN config: {best_params}, FID: {best_fid:.4f}")
+
+    if best_params is not None:
+        save_best_tuned_params(best_params, img_size, file_name="progan_config.json")
+
     return best_params, best_model
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -579,9 +572,10 @@ def main():
         train_loader,
         val_loader,
         real_val_dir,
-        img_size=img_size)
-
-        progan_params['img_size'] = img_size
+        img_size=img_size,
+        tuning=False)
+        
+        
         train_progan(progan, train_loader, progan_params)
 
     # FOR LOADING EXISTING MODELS
@@ -633,23 +627,11 @@ def main():
         progan.eval()
 
         # generate images at final resolution
-        
-        if os.path.exists(f"output/progan_{img_size}"):
-            shutil.rmtree(f"output/progan_{img_size}")
-        
-        os.makedirs(f"output/progan_{img_size}", exist_ok=True)
-        count = 0
-        with torch.no_grad():
-            while count < num_test:
-                batch = min(BATCH_SIZE, num_test - count)
-                z = torch.randn(batch, LATENT_DIM, 1, 1, device=DEVICE)
-                fake = progan.gen(z, step=max_step, alpha=alpha)
-                fake = (fake + 1) / 2
-                for img in fake:
-                    save_image(img, f"output/progan_{img_size}/{count:06d}.png")
-                    count += 1
+        progan_fake_dir = generate_images(progan.gen, num_test, f"output/progan_{img_size}",
+                                           BATCH_SIZE, LATENT_DIM, DEVICE,
+                                           step=max_step, alpha=alpha)
 
-        progan_fid = compute_fid(real_test_dir, f"output/progan_{img_size}", BATCH_SIZE, DEVICE)
+        progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"ProGAN FID: {progan_fid:.4f}")
 
 

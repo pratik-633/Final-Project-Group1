@@ -5,17 +5,71 @@ import torch.nn as nn
     Based on: https://arxiv.org/abs/1710.10196
     NOTE: AI ASSISTED WITH THIS ARCHITECTURE
 """
+
+class EqualizedConv2d(nn.Module):
+    def __init__(self, in_ch, out_ch, kernel_size, stride=1, padding=0, bias=True):
+        super().__init__()
+        self.conv = nn.Conv2d(in_ch, out_ch, kernel_size, stride, padding, bias=bias)
+        nn.init.normal_(self.conv.weight, 0, 1)
+        if bias:
+            nn.init.zeros_(self.conv.bias)
+        fan_in = in_ch * kernel_size * kernel_size
+        self.scale = (2 / fan_in) ** 0.5
+
+    def forward(self, x):
+        return self.conv(x * self.scale)
+
+
+class EqualizedConvTranspose2d(nn.Module):
+    def __init__(self, in_ch, out_ch, kernel_size, stride=1, padding=0, bias=True):
+        super().__init__()
+        self.conv = nn.ConvTranspose2d(in_ch, out_ch, kernel_size, stride, padding, bias=bias)
+        nn.init.normal_(self.conv.weight, 0, 1)
+        if bias:
+            nn.init.zeros_(self.conv.bias)
+        fan_in = in_ch * kernel_size * kernel_size
+        self.scale = (2 / fan_in) ** 0.5
+
+    def forward(self, x):
+        return self.conv(x * self.scale)
+
+
+class EqualizedLinear(nn.Module):
+    def __init__(self, in_features, out_features):
+        super().__init__()
+        self.linear = nn.Linear(in_features, out_features)
+        nn.init.normal_(self.linear.weight, 0, 1)
+        nn.init.zeros_(self.linear.bias)
+        self.scale = (2 / in_features) ** 0.5
+
+    def forward(self, x):
+        return self.linear(x * self.scale)
+    
+class PixelNorm(nn.Module):
+    def forward(self, x):
+        return x / torch.sqrt(torch.mean(x ** 2, dim=1, keepdim=True) + 1e-8)
+
+
+class MinibatchStdDev(nn.Module):
+    def forward(self, x):
+        # x: (N, C, H, W)
+        std = torch.std(x, dim=0, keepdim=True, unbiased=False)       # (1, C, H, W)
+        mean_std = torch.mean(std, dim=[1, 2, 3], keepdim=True)  # (1, 1, 1, 1)
+        repeated = mean_std.expand(x.size(0), 1, x.size(2), x.size(3))  # (N, 1, H, W)
+        return torch.cat([x, repeated], dim=1)
+
+
 class Generator_ProGAN(nn.Module):
     def __init__(self, latent_dim=100, channels=3, feature_maps=512):
         super(Generator_ProGAN, self).__init__()
 
         # initial block: latent_dim(length of noise vector) -> 4x4
         self.initial = nn.Sequential(
-            nn.ConvTranspose2d(latent_dim, feature_maps, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(feature_maps),
+            EqualizedConvTranspose2d(latent_dim, feature_maps, 4, 1, 0),
+            PixelNorm(),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv2d(feature_maps, feature_maps, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(feature_maps),
+            EqualizedConv2d(feature_maps, feature_maps, 3, 1, 1),
+            PixelNorm(),
             nn.LeakyReLU(0.2, inplace=True)
         )
 
@@ -25,7 +79,7 @@ class Generator_ProGAN(nn.Module):
         self.to_rgb_layers = nn.ModuleList()
 
         # to_rgb for initial 4x4
-        self.to_rgb_initial = nn.Conv2d(feature_maps, channels, 1, 1, 0)
+        self.to_rgb_initial = EqualizedConv2d(feature_maps, channels, 1, 1, 0)
 
         in_ch = feature_maps
 
@@ -35,14 +89,14 @@ class Generator_ProGAN(nn.Module):
             out_ch = in_ch // 2
             self.blocks.append(nn.Sequential(
                 nn.Upsample(scale_factor=2, mode='nearest'),
-                nn.Conv2d(in_ch, out_ch, 3, 1, 1, bias=False),
-                nn.BatchNorm2d(out_ch),
+                EqualizedConv2d(in_ch, out_ch, 3, 1, 1),
+                PixelNorm(),
                 nn.LeakyReLU(0.2, inplace=True),
-                nn.Conv2d(out_ch, out_ch, 3, 1, 1, bias=False),
-                nn.BatchNorm2d(out_ch),
+                EqualizedConv2d(out_ch, out_ch, 3, 1, 1),
+                PixelNorm(),
                 nn.LeakyReLU(0.2, inplace=True),
             ))
-            self.to_rgb_layers.append(nn.Conv2d(out_ch, channels, 1, 1, 0))
+            self.to_rgb_layers.append(EqualizedConv2d(out_ch, channels, 1, 1, 0))
             in_ch = out_ch
 
     def forward(self, x, step, alpha=1.0):
@@ -94,29 +148,30 @@ class Discriminator_ProGAN(nn.Module):
 
         for (c_in, c_out) in ch_list:
             self.from_rgb_layers.append(nn.Sequential(
-                nn.Conv2d(channels, c_in, 1, 1, 0),
+                EqualizedConv2d(channels, c_in, 1, 1, 0),
                 nn.LeakyReLU(0.2, inplace=True),
             ))
             self.blocks.append(nn.Sequential(
-                nn.Conv2d(c_in, c_in, 3, 1, 1, bias=False),
+                EqualizedConv2d(c_in, c_in, 3, 1, 1),
                 nn.LeakyReLU(0.2, inplace=True),
-                nn.Conv2d(c_in, c_out, 3, 1, 1, bias=False),
+                EqualizedConv2d(c_in, c_out, 3, 1, 1),
                 nn.LeakyReLU(0.2, inplace=True),
                 nn.AvgPool2d(2)
             ))
 
         # from_rgb for the initial 4x4 resolution
         self.from_rgb_initial = nn.Sequential(
-            nn.Conv2d(channels, feature_maps, 1, 1, 0),
+            EqualizedConv2d(channels, feature_maps, 1, 1, 0),
             nn.LeakyReLU(0.2, inplace=True)
         )
 
         self.final = nn.Sequential(
-            nn.Conv2d(feature_maps, feature_maps, 3, 1, 1),
+            MinibatchStdDev(),
+            EqualizedConv2d(feature_maps + 1, feature_maps, 3, 1, 1),
             nn.LeakyReLU(0.2, inplace=True),
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
-            nn.Linear(feature_maps, 1),
+            EqualizedLinear(feature_maps, 1),
         )
 
     def forward(self, x, step, alpha=1.0):

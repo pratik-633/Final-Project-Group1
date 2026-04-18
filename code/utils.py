@@ -1,6 +1,7 @@
 import os
 import json
 import torch
+import shutil
 from torch import nn
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
@@ -63,19 +64,47 @@ def load_dataset(split, data_root, image_size, channels, batch_size, num_workers
 
 
 # NOTE: USED AI FOR THIS FUNCTION
-def generate_images(generator, num_images, save_dir, batch_size, latent_dim, device, flatten_noise=False):
-    os.makedirs(save_dir, exist_ok=True)
+def generate_images(generator, num_images, save_dir, batch_size=None, latent_dim=None, device=None, flatten_noise=False, step=None, alpha=None):
     """Generate fake images from a trained generator and save them to disk."""
+    if os.path.exists(save_dir):
+        shutil.rmtree(save_dir)
+    os.makedirs(save_dir, exist_ok=True)
+    
+    defaults = Config()
+    if batch_size is None:
+        batch_size = defaults.batch_size
+    if latent_dim is None:
+        latent_dim = defaults.latent_dim
+    if device is None:
+        try:
+            device = next(generator.parameters()).device
+        except StopIteration:
+            device = defaults.device
+   
     generator.eval()
     count = 0
     with torch.no_grad():
         while count < num_images:
             batch = min(batch_size, num_images - count)
+            
             if flatten_noise:
                 noise = torch.randn(batch, latent_dim, device=device)
             else:
                 noise = torch.randn(batch, latent_dim, 1, 1, device=device)
-            fake_imgs = generator(noise)
+            if step is not None:
+                fake_imgs = generator(noise, step=step, alpha=1.0 if alpha is None else alpha)
+            elif alpha is not None:
+                raise ValueError("alpha cannot be provided without step in generate_images().")
+            else:
+                try:
+                    fake_imgs = generator(noise)
+                except TypeError as exc:
+                    raise TypeError(
+                        "generate_images() called the generator without 'step', but this generator "
+                        "appears to require progressive arguments. Pass 'step' (and optionally "
+                        "'alpha') when using progressive models."
+                    ) from exc
+            
             fake_imgs = (fake_imgs + 1) / 2
             for img in fake_imgs:
                 save_image(img, os.path.join(save_dir, f"{count:06d}.png"))

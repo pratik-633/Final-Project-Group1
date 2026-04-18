@@ -1,3 +1,4 @@
+import copy
 import json
 import shutil
 import os
@@ -5,6 +6,7 @@ import argparse
 import numpy as np
 import pandas as pd
 import torch
+from torch.utils.data import DataLoader
 from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
@@ -18,7 +20,6 @@ DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "re
 # IMAGE_SIZE = (128, 128) # this will be a later trial
 
 IMAGE_SIZE = 64
-# IMAGE_SIZE = 128
 CHANNELS = 3
 BATCH_SIZE = 128
 SEED = 42
@@ -145,7 +146,8 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     return best_params, best_model
 
-def tune_progan(train_loader, val_loader):
+#-----------------------------------------------------------------------------------------------------------------------
+def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tuning=True):
     """Run a small amount of epochs on several different configs - save the best one and return to it in the tuning loop
 
     Args:
@@ -155,10 +157,77 @@ def tune_progan(train_loader, val_loader):
     Returns:
         dict: The best hyperparameter configuration found during tuning
         model: The model initialized with the best hyperparameter configuration
-    """
-    # TODO: JEONGWON IMPLEMENT THIS
-    return {}, ProGAN()
 
+    NOTE: AI ASSISTED WITH THIS FUNCTION
+    ProGAN paper uses these defaults
+    """
+    
+    if not tuning:
+        with open(os.path.join("configs", "progan_config.json"), "r") as f:
+            all_configs = json.load(f)
+            params = all_configs[f"img_size_{img_size}"]
+        params['img_size'] = img_size
+        return params, ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=params['feature_maps'])
+
+    configs = [
+        {'num_epochs_per_step': 8, 'learning_rate': 0.001, 'fade_in_epochs': 3, 'feature_maps': 512},
+        {'num_epochs_per_step': 10, 'learning_rate': 0.0005, 'fade_in_epochs': 4, 'feature_maps': 256},
+    ]
+
+    fixed_params = {
+        'beta1': 0.0,
+        'beta2': 0.99,
+        'batch_size': BATCH_SIZE,
+    }
+    
+    best_fid = float('inf')
+    best_params = None
+    best_model = None
+
+
+    for idx, cfg in enumerate(configs):
+        params = {**fixed_params, **cfg}
+        print(f"\n--- ProGAN tuning config {idx+1}/{len(configs)}: {cfg} ---")
+
+        progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=cfg['feature_maps'])
+        params['img_size'] = img_size
+        train_progan(progan, train_loader, params)
+
+        # generate fake images for FID
+        progan.to(DEVICE)
+        progan.eval()
+        if os.path.isdir("output/progan/tune_temp"):
+            shutil.rmtree("output/progan/tune_temp")
+        os.makedirs("output/progan/tune_temp", exist_ok=True)
+        
+        max_step = int(np.log2(img_size)) - 2
+        num_val = len(val_loader.dataset)
+        fake_dir = generate_images(progan.gen, num_val, "output/progan/tune_temp",
+                                    BATCH_SIZE, LATENT_DIM, DEVICE,
+                                    step=max_step, alpha=1.0)
+
+        fid_score = compute_fid(real_val_dir, fake_dir, BATCH_SIZE, DEVICE)
+        print(f"Config FID: {fid_score:.4f}")
+
+        # cleanup temp images
+        shutil.rmtree("output/progan/tune_temp")
+        os.makedirs("output/progan/tune_temp", exist_ok=True)
+
+        if fid_score < best_fid:
+            best_fid = fid_score
+            best_params = params
+            best_model = progan
+
+    # final cleanup
+    if os.path.isdir("output/progan/tune_temp"):
+        shutil.rmtree("output/progan/tune_temp", ignore_errors=True)
+
+    print(f"\nBest ProGAN config: {best_params}, FID: {best_fid:.4f}")
+
+    if best_params is not None:
+        save_best_tuned_params(best_params, img_size, file_name="progan_config.json")
+
+    return best_params, best_model
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -311,25 +380,143 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(train_loader, model, params):
+def train_progan(progan, train_loader, params):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
-        train_loader (_type_): _description_
         model (_type_): _description_
         params (_type_): _description_
+
+    NOTE: AI ASSISTED WITH THIS FUNCTION
     """
-    # TODO: JEONGWON IMPLEMENT THIS
+    img_size = params.get('img_size', 64)
+    default_params = {
+        'learning_rate': 0.0002,
+        'beta1': 0.5,
+        'beta2': 0.999,
+        'batch_size': 64,
+        'num_epochs': 100,
+        'num_epochs_per_step': 100,
+        'fade_in_epochs': 0,
+    }
+    if params is None: 
+        params = {}
+        
+    params = {**default_params, **params}
 
-    # TODO: UPDATE PARAMS BASED ON WHAT MODEL NEEDS, AND WHAT TUNING SAYS IS BEST
-    params = {'learning_rate': 0.0002,
-              'beta1': 0.5,
-              'beta2': 0.999,
-              'batch_size': 64,
-              'num_epochs': 100}
+    model = progan
 
-    pass
+    best_gen_loss_per_step = {}
+    model_path = f'models/progan_model_{img_size}.pt'
+    os.makedirs('models', exist_ok=True)
 
+    gen_optimizer = torch.optim.Adam(
+        model.gen.parameters(),
+        lr=params['learning_rate'],
+        betas=(params['beta1'], params['beta2'])
+        )
+    disc_optimizer = torch.optim.Adam(
+        model.disc.parameters(),
+        lr=params['learning_rate'],
+        betas=(params['beta1'], params['beta2'])
+        )
+    model.to(DEVICE)
+    model.train()
+    model.gen.train()
+    model.disc.train()
+    
+    resolutions = [4, 8, 16, 32, 64, 128]
+    max_step = resolutions.index(img_size) + 1
+
+    base_dataset = train_loader.dataset
+
+    for step in range(max_step):
+        res = resolutions[step]
+        step_transform = get_transforms(res, CHANNELS)
+        step_dataset = copy.copy(base_dataset)
+        step_dataset.transform = step_transform
+        step_loader = DataLoader(step_dataset, batch_size=params['batch_size'], shuffle=True,
+                                  num_workers=NUM_WORKERS, pin_memory=True, drop_last=True)
+
+        for epoch in range(params['num_epochs_per_step']):
+            # alpha: fade-in during first few epochs, then 1.0
+            if epoch < params['fade_in_epochs'] and step > 0:
+                alpha = epoch / params['fade_in_epochs']
+            else:
+                alpha = 1.0
+
+            gen_loss_sum = 0.0
+            disc_loss_sum = 0.0
+            num_batches = 0
+
+            for i, batch_data in enumerate(step_loader):
+                x_real = batch_data[0].to(DEVICE)
+                batch_size = x_real.size(0)
+
+                # ---- Train Discriminator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                with torch.no_grad():
+                    x_fake = model.gen(z, step=step, alpha=alpha)
+
+                disc_real = model.disc(x_real, step=step, alpha=alpha)
+                disc_fake = model.disc(x_fake.detach(), step=step, alpha=alpha)
+
+                # WGAN-style loss (no sigmoid, raw scores)
+                disc_loss = torch.mean(disc_fake) - torch.mean(disc_real)
+
+                # gradient penalty (same idea as WGAN-GP)
+                epsilon = torch.rand(batch_size, 1, 1, 1, device=DEVICE)
+                x_interp = (epsilon * x_real + (1 - epsilon) * x_fake.detach()).requires_grad_(True)
+                disc_interp = model.disc(x_interp, step=step, alpha=alpha)
+                gradients = torch.autograd.grad(
+                    outputs=disc_interp,
+                    inputs=x_interp,
+                    grad_outputs=torch.ones_like(disc_interp),
+                    create_graph=True
+                )[0]
+                gp = 10 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
+                disc_loss = disc_loss + gp
+
+                disc_optimizer.zero_grad()
+                disc_loss.backward()
+                disc_optimizer.step()
+
+                # ---- Train Generator ----
+                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                x_fake = model.gen(z, step=step, alpha=alpha)
+                gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
+
+                gen_optimizer.zero_grad()
+                gen_loss.backward()
+                gen_optimizer.step()
+
+                gen_loss_sum += gen_loss.item()
+                disc_loss_sum += disc_loss.item()
+                num_batches += 1
+
+            avg_gen = gen_loss_sum / num_batches
+            avg_disc = disc_loss_sum / num_batches
+            print(f"  Epoch {epoch + 1}/{params['num_epochs_per_step']} | "
+                  f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+
+            # save best model
+            if step not in best_gen_loss_per_step or avg_gen < best_gen_loss_per_step[step]:
+                best_gen_loss_per_step[step] = avg_gen
+                torch.save({
+                    'step': step,
+                    'alpha': alpha,
+                    'epoch': epoch,
+                    'generator_state_dict': model.gen.state_dict(),
+                    'discriminator_state_dict': model.disc.state_dict(),
+                    'gen_optimizer_state_dict': gen_optimizer.state_dict(),
+                    'disc_optimizer_state_dict': disc_optimizer.state_dict(),
+                    'gen_loss': avg_gen,
+                    'disc_loss': avg_disc,
+                    'params': params,
+                }, model_path)
+                print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
+
+    print(f"\nTraining complete! Best gen losses per step: {best_gen_loss_per_step}")
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -379,9 +566,17 @@ def main():
         if os.path.isdir("output/wgan_gp/fid_temp"):
             shutil.rmtree("output/wgan_gp/fid_temp")
     elif model_choice == "progan":
-        progan = ProGAN() # TODO: Jeongwon's model
-        progan_params, progan = tune_progan(train_loader, val_loader) # TODO: Jeongwon's hyperparameter tuning function
-        train_progan(train_loader, progan, progan_params) # TODO: Jeongwon's training function
+        real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        
+        progan_params, progan = tune_progan(
+        train_loader,
+        val_loader,
+        real_val_dir,
+        img_size=img_size,
+        tuning=False)
+        
+        
+        train_progan(progan, train_loader, progan_params)
 
     # FOR LOADING EXISTING MODELS
     """
@@ -421,7 +616,21 @@ def main():
         wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
     elif progan is not None:
-        progan_fake_dir = generate_images(progan.generator, num_test, "output/progan_fakes", BATCH_SIZE, LATENT_DIM, DEVICE)
+        # load best checkpoint
+        progan.to(DEVICE)
+        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
+        progan.gen.load_state_dict(checkpoint['generator_state_dict'])
+        progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
+
+        max_step = checkpoint.get('step', int(np.log2(img_size)) - 2)
+        alpha = checkpoint.get('alpha', 1.0)
+        progan.eval()
+
+        # generate images at final resolution
+        progan_fake_dir = generate_images(progan.gen, num_test, f"output/progan_{img_size}",
+                                           BATCH_SIZE, LATENT_DIM, DEVICE,
+                                           step=max_step, alpha=alpha)
+
         progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"ProGAN FID: {progan_fid:.4f}")
 

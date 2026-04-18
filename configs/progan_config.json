@@ -1,0 +1,24 @@
+{
+    "img_size_64": {
+        "beta1": 0.0,
+        "beta2": 0.99,
+        "batch_size": 128,
+        "max_step_64": 4,
+        "max_step_128": 5,
+        "feature_maps": 512,
+        "learning_rate": 0.001,
+        "num_epochs_per_step": 10,
+        "fade_in_epochs": 4
+    },
+    "img_size_128": {
+        "beta1": 0.0,
+        "beta2": 0.99,
+        "batch_size": 128,
+        "max_step_64": 4,
+        "max_step_128": 5,
+        "feature_maps": 512,
+        "learning_rate": 0.001,
+        "num_epochs_per_step": 10,
+        "fade_in_epochs": 4
+    }
+}

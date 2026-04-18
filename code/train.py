@@ -33,8 +33,24 @@ LATENT_DIM = 100
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
-    # TODO: PRATIK IMPLEMENT THIS
-    return {}, DCGAN(latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
+    
+    params = {
+        'lr': 2e-4,
+        'adam_b1': 0.5,
+        'adam_b2': 0.999,
+        'batch_size': BATCH_SIZE,
+        'num_epochs': 100,
+        'feature_maps': 64,
+        'image_size': 64,
+    }
+
+    model = DCGAN(
+        latent_dim=LATENT_DIM,
+        channels=CHANNELS,
+        feature_maps=params['feature_maps']
+    )
+
+    return params, model
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
@@ -232,24 +248,106 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tun
 
 
 def train_dcgan(train_loader, model, params):
-    """Complete training on best configs - run however many epochs are specified in params until convergence
+    """Complete training on best configs - run however many epochs are specified in params until convergence."""
+    model_path = f"models/dcgan_model_{params.get('image_size', 64)}.pt"
 
-    Args:
-        train_loader (_type_): _description_
-        model (_type_): _description_
-        params (_type_): _description_
-    Returns:
-        None
-    """
-    # TODO: PRATIK IMPLEMENT THIS
+    criterion = torch.nn.BCELoss()
 
-    # TODO: UPDATE PARAMS BASED ON WHAT MODEL NEEDS, AND WHAT TUNING SAYS IS BEST
-    params = {'learning_rate': 0.0002,
-              'beta1': 0.5,
-              'beta2': 0.999,
-              'batch_size': 64,
-              'num_epochs': 100}
-    pass
+    discriminator_optimizer = torch.optim.Adam(
+        model.discriminator.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+    generator_optimizer = torch.optim.Adam(
+        model.generator.parameters(),
+        lr=params['lr'],
+        betas=(params['adam_b1'], params['adam_b2'])
+    )
+
+    model.to(DEVICE)
+
+    if params.get('start_epoch', 0) == 0:
+        model.apply(weights_init)
+
+    model.train()
+
+    best_gen_loss = float('inf')
+
+    for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
+        disc_loss_sum = 0.0
+        disc_loss_count = 0
+        gen_loss_sum = 0.0
+        gen_loss_count = 0
+
+        print(f"Epoch {epoch + 1}/{params['num_epochs']}")
+
+        for real_data_batch in train_loader:
+            x_real = real_data_batch[0].to(DEVICE)
+            batch_size = x_real.size(0)
+
+            real_labels = torch.ones(batch_size, 1, device=DEVICE)
+            fake_labels = torch.zeros(batch_size, 1, device=DEVICE)
+
+            # Train Discriminator
+            z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+            x_fake = model.generator(z)
+
+            disc_out_real = model.discriminator(x_real)
+            disc_out_fake = model.discriminator(x_fake.detach())
+
+            disc_real_loss = criterion(disc_out_real, real_labels)
+            disc_fake_loss = criterion(disc_out_fake, fake_labels)
+            disc_loss = disc_real_loss + disc_fake_loss
+
+            discriminator_optimizer.zero_grad()
+            disc_loss.backward()
+            discriminator_optimizer.step()
+
+            disc_loss_sum += disc_loss.item()
+            disc_loss_count += 1
+
+            # Train Generator
+            z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+            x_fake = model.generator(z)
+            gen_out = model.discriminator(x_fake)
+
+            gen_loss = criterion(gen_out, real_labels)
+
+            generator_optimizer.zero_grad()
+            gen_loss.backward()
+            generator_optimizer.step()
+
+            gen_loss_sum += gen_loss.item()
+            gen_loss_count += 1
+
+        avg_disc_loss = disc_loss_sum / disc_loss_count if disc_loss_count > 0 else float('inf')
+        avg_gen_loss = gen_loss_sum / gen_loss_count if gen_loss_count > 0 else float('inf')
+
+        print(f"Discriminator loss: {avg_disc_loss:.4f} - Generator loss: {avg_gen_loss:.4f}")
+
+        checkpoint = {
+            'epoch': epoch,
+            'generator_state_dict': model.generator.state_dict(),
+            'discriminator_state_dict': model.discriminator.state_dict(),
+            'generator_optimizer_state_dict': generator_optimizer.state_dict(),
+            'discriminator_optimizer_state_dict': discriminator_optimizer.state_dict(),
+            'params': params,
+            'discriminator_loss': avg_disc_loss,
+            'generator_loss': avg_gen_loss,
+        }
+
+        if avg_gen_loss < best_gen_loss:
+            best_gen_loss = avg_gen_loss
+            torch.save(checkpoint, model_path)
+            print(f"New best model - {model_path}, with generator loss: {avg_gen_loss:.4f}")
+        else:
+            print(f"No improvement in generator loss - {avg_gen_loss:.4f} over best {best_gen_loss:.4f}")
+
+    # Load best checkpoint back into memory 
+    if os.path.exists(model_path):
+        checkpoint = torch.load(model_path, map_location=DEVICE)
+        model.generator.load_state_dict(checkpoint['generator_state_dict'])
+        model.discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 

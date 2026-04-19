@@ -33,7 +33,14 @@ LATENT_DIM = 100
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
-    
+    """Return the current default DCGAN training configuration and model.
+
+    This tuner does not yet run a hyperparameter search; it returns the
+    default parameter set used for downstream training along with an
+    initialized ``DCGAN`` instance. The returned ``params`` dictionary is
+    expected to include the keys ``lr``, ``adam_b1``, ``adam_b2``,
+    ``batch_size``, ``num_epochs``, ``feature_maps``, and ``image_size``.
+    """
     params = {
         'lr': 2e-4,
         'adam_b1': 0.5,

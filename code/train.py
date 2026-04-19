@@ -33,20 +33,13 @@ LATENT_DIM = 100
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
-    """Return the current default DCGAN training configuration and model.
-
-    This tuner does not yet run a hyperparameter search; it returns the
-    default parameter set used for downstream training along with an
-    initialized ``DCGAN`` instance. The returned ``params`` dictionary is
-    expected to include the keys ``lr``, ``adam_b1``, ``adam_b2``,
-    ``batch_size``, ``num_epochs``, ``feature_maps``, and ``image_size``.
-    """
+    
     params = {
         'lr': 2e-4,
         'adam_b1': 0.5,
         'adam_b2': 0.999,
         'batch_size': BATCH_SIZE,
-        'num_epochs': 10,
+        'num_epochs': 2,
         'feature_maps': 64,
         'image_size': 64,
     }
@@ -58,6 +51,7 @@ def tune_dcgan(train_loader, val_loader):
     )
 
     return params, model
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -255,9 +249,10 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tun
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def train_dcgan(train_loader, model, params):
+def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None, model_path=None):
     """Complete training on best configs - run however many epochs are specified in params until convergence."""
-    model_path = f"models/dcgan_model_{params.get('image_size', 64)}.pt"
+    if model_path is None:
+        model_path = f"models/dcgan_model_{params.get('image_size', 64)}.pt"
 
     criterion = torch.nn.BCELoss()
 
@@ -276,7 +271,7 @@ def train_dcgan(train_loader, model, params):
     model.apply(weights_init)
     model.train()
 
-    best_gen_loss = float('inf')
+    best_fid = float('inf')
 
     for epoch in range(params['num_epochs']):
         disc_loss_sum = 0.0
@@ -348,17 +343,44 @@ def train_dcgan(train_loader, model, params):
             'generator_loss': avg_gen_loss,
         }
 
-        if avg_gen_loss < best_gen_loss:
-            best_gen_loss = avg_gen_loss
+        use_val = (val_dir is not None) and (num_val_samples is not None)
+        is_eval_epoch = use_val and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs'])
+
+        if not use_val:
+            # fallback: save latest checkpoint if no validation data is provided
             torch.save(checkpoint, model_path)
-            print(f"New best model - {model_path}, with generator loss: {avg_gen_loss:.4f}")
-        else:
-            print(f"No improvement in generator loss - {avg_gen_loss:.4f} over best {best_gen_loss:.4f}")
+
+        elif is_eval_epoch:
+            model.eval()
+            fake_dir = generate_images(
+                model.generator,
+                num_val_samples,
+                "output/dcgan/fid_temp",
+                BATCH_SIZE,
+                LATENT_DIM,
+                DEVICE
+            )
+            fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
+            checkpoint['fid'] = fid
+
+            if os.path.isdir(fake_dir):
+                shutil.rmtree(fake_dir)
+
+            print(f"Validation FID: {fid:.4f}")
+            if fid < best_fid:
+                best_fid = fid
+                torch.save(checkpoint, model_path)
+                print(f"New best model - {model_path}, with FID: {fid:.4f}")
+            else:
+                print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
+
+            model.train()
 
     if os.path.exists(model_path):
         checkpoint = torch.load(model_path, map_location=DEVICE)
         model.generator.load_state_dict(checkpoint['generator_state_dict'])
         model.discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------------------

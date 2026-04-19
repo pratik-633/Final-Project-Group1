@@ -380,7 +380,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-def train_progan(progan, train_loader, params):
+def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=None):
     """Complete training on best configs - run however many epochs are specified in params until convergence
 
     Args:
@@ -406,7 +406,8 @@ def train_progan(progan, train_loader, params):
 
     model = progan
 
-    best_gen_loss_per_step = {}
+    use_fid = (val_dir is not None) and (num_val_samples is not None)
+    best_fid = float('inf')
     model_path = f'models/progan_model_{img_size}.pt'
     os.makedirs('models', exist_ok=True)
 
@@ -496,27 +497,49 @@ def train_progan(progan, train_loader, params):
 
             avg_gen = gen_loss_sum / num_batches
             avg_disc = disc_loss_sum / num_batches
-            print(f"  Epoch {epoch + 1}/{params['num_epochs_per_step']} | "
-                  f"alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+            print(f"  Step {step+1}/{max_step} | Epoch {epoch+1}/{params['num_epochs_per_step']} | alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
 
-            # save best model
-            if step not in best_gen_loss_per_step or avg_gen < best_gen_loss_per_step[step]:
-                best_gen_loss_per_step[step] = avg_gen
-                torch.save({
-                    'step': step,
-                    'alpha': alpha,
-                    'epoch': epoch,
-                    'generator_state_dict': model.gen.state_dict(),
-                    'discriminator_state_dict': model.disc.state_dict(),
-                    'gen_optimizer_state_dict': gen_optimizer.state_dict(),
-                    'disc_optimizer_state_dict': disc_optimizer.state_dict(),
-                    'gen_loss': avg_gen,
-                    'disc_loss': avg_disc,
-                    'params': params,
-                }, model_path)
-                print(f"  Saved best model at step {step}, gen_loss: {avg_gen:.4f}")
+            is_eval_epoch = use_fid and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs_per_step'])
+            is_final_step = (step == max_step - 1)
 
-    print(f"\nTraining complete! Best gen losses per step: {best_gen_loss_per_step}")
+            checkpoint = {
+                'step': step,
+                'alpha': alpha,
+                'epoch': epoch,
+                'generator_state_dict': model.gen.state_dict(),
+                'discriminator_state_dict': model.disc.state_dict(),
+                'gen_optimizer_state_dict': gen_optimizer.state_dict(),
+                'disc_optimizer_state_dict': disc_optimizer.state_dict(),
+                'gen_loss': avg_gen,
+                'disc_loss': avg_disc,
+                'params': params,
+            }
+
+            if use_fid and is_eval_epoch and is_final_step:
+                model.eval()
+                fake_dir = generate_images(model.gen, num_val_samples,
+                                           "output/progan/fid_temp",
+                                           BATCH_SIZE, LATENT_DIM, DEVICE,
+                                           step=step, alpha=alpha)
+                fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
+                checkpoint['fid'] = fid
+
+                if os.path.isdir(fake_dir):
+                    shutil.rmtree(fake_dir)
+
+                print(f"  Validation FID: {fid:.4f}")
+                if fid < best_fid:
+                    best_fid = fid
+                    torch.save(checkpoint, model_path)
+                    print(f"  New best model saved - FID: {fid:.4f}")
+                else:
+                    print(f"  No FID improvement ({fid:.4f} vs best {best_fid:.4f})")
+                model.train()
+
+            elif not use_fid:
+                torch.save(checkpoint, model_path)
+
+        print(f"\nTraining complete! Best FID: {best_fid:.4f}" if use_fid else "\nTraining complete!")
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -576,7 +599,7 @@ def main():
         tuning=False)
         
         
-        train_progan(progan, train_loader, progan_params)
+        train_progan(progan, train_loader, progan_params, val_dir=real_val_dir, num_val_samples=len(val_dataset))
 
     # FOR LOADING EXISTING MODELS
     """
@@ -618,7 +641,7 @@ def main():
     elif progan is not None:
         # load best checkpoint
         progan.to(DEVICE)
-        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE)
+        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE, weights_only=False)
         progan.gen.load_state_dict(checkpoint['generator_state_dict'])
         progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
 

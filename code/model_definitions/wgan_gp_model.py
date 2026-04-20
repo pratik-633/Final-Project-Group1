@@ -20,6 +20,7 @@ class Generator_WGAN_GP(nn.Module):
                 bias=False
             ),
             nn.BatchNorm2d(feature_maps * (2 ** (n_stages - 1))),
+            
             nn.ReLU(True)
         )
 

@@ -3,10 +3,10 @@
         "adam_b1": 0.0,
         "adam_b2": 0.9,
         "batch_size": 128,
-        "n_critic": 3,
-        "lr": 0.0002,
         "feature_maps": 128,
-        "num_epochs": 150
+        "lr": 0.0002,
+        "n_critic": 5,
+        "num_epochs": 200
     },
     "img_size_128": {
         "adam_b1": 0.0,
@@ -15,6 +15,6 @@
         "n_critic": 3,
         "lr": 0.0002,
         "feature_maps": 128,
-        "num_epochs": 150
+        "num_epochs": 200
     }
 }

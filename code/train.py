@@ -17,9 +17,6 @@ from model_definitions.progan_model import ProGAN
 
 DATA_ROOT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "real_vs_fake")
 
-# IMAGE_SIZE = (64, 64)
-# IMAGE_SIZE = (128, 128) # this will be a later trial
-
 IMAGE_SIZE = 64
 CHANNELS = 3
 BATCH_SIZE = 128
@@ -81,11 +78,19 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
                                channels=CHANNELS, feature_maps=params['feature_maps'])
 
     # reaches here if tuning is True
-    search_params = {
-        'lr': [1e-4, 2e-4, 5e-5],
-        'n_critic': [3, 5, 7],
-        'feature_maps': [32, 64, 128]
-    }
+    if img_size == 64:
+        search_params = {
+            'lr': [1e-4, 2e-4, 5e-5], # we will see about how 5e-5 does, but it is pretty small so I expect to not want to try that out
+            'n_critic': [3, 5, 7], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
+            'feature_maps': [32, 64, 128]
+        }
+    else:
+        # for 128 image size, use this: -> 18 configs to try x 40 epochs each -> then take the best one
+        search_params = {
+            'lr': [5e-5, 1e-4, 1.5e-4], # we will see about how 5e-5 does, but it is pretty small so I expect to not want to try that out
+            'n_critic': [3, 5], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
+            'feature_maps': [32, 64, 128]
+        }
 
     fixed_params = {
         'adam_b1': 0.0,
@@ -142,7 +147,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     # rebuild fresh model with best feature_maps for full training
     if best_params is not None:
-        best_params['num_epochs'] = 150  # set full training epochs
+        best_params['num_epochs'] = 200  # set full training epochs
         best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
                              channels=CHANNELS, feature_maps=best_params['feature_maps'])
         checkpoint = torch.load(best_checkpoint_path, map_location=DEVICE)
@@ -414,12 +419,33 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
         critic_optimizer.load_state_dict(params.get('critic_optimizer_state'))
     if 'generator_optimizer_state' in params:
         generator_optimizer.load_state_dict(params.get('generator_optimizer_state'))
-
+    
+    # CosineAnnealingLR - smoothly decays lr over training, only during full training
+    use_val = (val_dir is not None) and (num_val_samples is not None)
+    if use_val:
+        eta_min = params['lr'] * 0.25  # decay to 5% of initial lr
+        critic_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            critic_optimizer, T_max=params['num_epochs'], eta_min=eta_min)
+        gen_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            generator_optimizer, T_max=params['num_epochs'], eta_min=eta_min)
+        # fast-forward schedulers if resuming from a checkpoint
+        for _ in range(params.get('start_epoch', 0)):
+            critic_scheduler.step()
+            gen_scheduler.step()
+    
     # if we are starting from scratch, load weight distribution recommended by paper
     # otherwise keep the weights from loaded model
     if params.get('start_epoch', 0) == 0:
         model.apply(weights_init)
     model.train()
+    
+    history = {
+        'epoch': [],
+        'critic_loss': [],
+        'generator_loss': [],
+        'fid': [],
+        'lr': []
+    }
 
     best_fid = float('inf')
     for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
@@ -473,6 +499,11 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
         avg_gen_loss = gen_loss_sum / gen_loss_count if gen_loss_count > 0 else float('inf')
         print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {avg_gen_loss:.4f}")
+        
+        history['epoch'].append(epoch)
+        history['critic_loss'].append(critic_loss.item())
+        history['generator_loss'].append(avg_gen_loss)
+        history['lr'].append(critic_optimizer.param_groups[0]['lr'])
 
         # CHECKPOINTING - AI ASSISTED WITH THIS LOGIC
         use_val = (val_dir is not None) and (num_val_samples is not None)
@@ -494,6 +525,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             checkpoint['critic_loss'] = critic_loss.item()
             checkpoint['generator_loss'] = avg_gen_loss
             torch.save(checkpoint, model_path)
+            history['fid'].append(None)
 
         elif is_eval_epoch:
             # full training: FID-based checkpointing every 10 epochs or on final epoch
@@ -502,6 +534,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                                        "output/wgan_gp/fid_temp", BATCH_SIZE, LATENT_DIM, DEVICE)
             fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
             checkpoint['fid'] = fid
+            history['fid'].append(fid) 
 
             if os.path.isdir(fake_dir):
                 shutil.rmtree(fake_dir)
@@ -514,6 +547,18 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             else:
                 print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
             model.train()
+        else:
+            # non-eval epoch with validation enabled — no FID computed
+            history['fid'].append(None)
+        
+        # Reduce LR every epoch -> should happen slowly
+        if use_val:
+            critic_scheduler.step()
+            gen_scheduler.step()
+            if (epoch + 1) % 10 == 0:
+                print(f"LR: {critic_optimizer.param_groups[0]['lr']:.6f}")
+    return history
+        
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------
@@ -814,16 +859,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# NOTES:
-#  - when you are tuning and training each model, be sure to save checkpoints throughout training
-#  - all checkpoints saved during training should overwrite each other to allow for less memory usage
-#  - in the end, we will all have 2 models each, one for 64 pixel resolution, another for 128 pixel resolution
-#  - store all models and data locally, don't commit them, we will find another way to share them
-#  - be sure to name your saved models in a way that clearly indicates the model architecture and resolution
-#       - for example: dcgan_model_64.pt, progan_model_64.pt, wgan_gp_model_128.pt, etc.
-#  - IMPORTANT: DO NOT CHANGE THE PREPROCESSING PIPELINE UNLESS YOU TALK TO US ALL FIRST
-#       - the purpose of the experiment is to compare architectures when given the same input
-#  - You can use any AI or existing tools, but make sure to do the following:
-#       - 1. make sure you can explain what your code does in detail - he will ask
-#       - 2. make sure to leave a comment next to sections of code you didn't write yourself
-#           - this is just because he wants us to calculate what percentage of code we wrote on our own

@@ -35,7 +35,7 @@ pip install -r requirements.txt
 ### Download Data
 
 ```bash
-python3 data/pull_data.py
+python3 pull_data.py
 ```
 
 ## Usage
@@ -63,6 +63,24 @@ tmux attach -t train # reattach later if you want
 python3 code/generate.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```
 
+### Starting Streamlit Dashboard
+
+```bash
+streamlit run code/src/app.py --server.address 127.0.0.1 --server.port 8501
+```
+
+<!-- Them from new terminal in local machine: -->
+
+```bash
+ssh -i /path/to/your-key.pem -L 8501:127.0.0.1:8501 ubuntu@<ec2-public-ip>
+```
+
+Now in open browser, open:
+
+```
+http://localhost:8501
+```
+
 ## Requirements
 
 - Python 3
@@ -72,3 +90,4 @@ python3 code/generate.py --model <dcgan|wgan_gp|progan> --size <64|128>
 - scikit-learn
 - kagglehub
 - pytorch-fid
+- streamlit

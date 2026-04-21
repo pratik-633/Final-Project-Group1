@@ -12,9 +12,9 @@
         "adam_b1": 0.0,
         "adam_b2": 0.9,
         "batch_size": 128,
-        "n_critic": 3,
-        "lr": 0.0002,
         "feature_maps": 128,
+        "lr": 0.0002,
+        "n_critic": 3,
         "num_epochs": 200
     }
 }

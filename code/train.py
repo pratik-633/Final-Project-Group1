@@ -85,11 +85,11 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
             'feature_maps': [32, 64, 128]
         }
     else:
-        # for 128 image size, use this: -> 18 configs to try x 40 epochs each -> then take the best one
+        # for 128 image size, use this: -> 12 configs to try x 40 epochs each -> then take the best one
         search_params = {
-            'lr': [5e-5, 1e-4, 1.5e-4], # we will see about how 5e-5 does, but it is pretty small so I expect to not want to try that out
+            'lr': [1e-4, 1.5e-4, 2e-4], # trying out slightly variable lrs
             'n_critic': [3, 5], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
-            'feature_maps': [32, 64, 128]
+            'feature_maps': [64, 128] # 32 is not useful
         }
 
     fixed_params = {
@@ -98,10 +98,10 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         'batch_size': BATCH_SIZE
     }
 
-    tune_epochs = 20  # short runs per config
+    tune_epochs = 40  # short runs per config
 
-    # param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
-    param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
+    param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
+    # param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
     real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
 
     best_checkpoint_path = ""
@@ -423,7 +423,7 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
     # CosineAnnealingLR - smoothly decays lr over training, only during full training
     use_val = (val_dir is not None) and (num_val_samples is not None)
     if use_val:
-        eta_min = params['lr'] * 0.25  # decay to 5% of initial lr
+        eta_min = params['lr'] * 0.25  # decay to 25% of initial lr
         critic_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
             critic_optimizer, T_max=params['num_epochs'], eta_min=eta_min)
         gen_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
@@ -738,6 +738,7 @@ def main():
                         help="Model to train")
     parser.add_argument("--size", type=int, choices=[64, 128], default=IMAGE_SIZE,
                         help="Image size for training")  # default to IMAGE_SIZE - 64x64
+    parser.add_argument("--tune", default=False, action="store_true", help="Whether to perform hyperparameter tuning (default: False)")
     args = parser.parse_args()
 
     # Check for incompatible model and image size combination (DCGAN only supports 64x64)
@@ -747,6 +748,7 @@ def main():
     # when running training, the commandline tells us which model to do for now
     img_size = args.size
     model_choice = args.model
+    tune = args.tune
 
     # load data
     train_loader, train_dataset = load_dataset("train", DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
@@ -778,15 +780,22 @@ def main():
         if os.path.isdir("output/dcgan/fid_temp"):
             shutil.rmtree("output/dcgan/fid_temp")
     elif model_choice == "wgan_gp":
-        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=False)
+        wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=tune)
 
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)
 
-        train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size,
+        history = train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size,
                       val_dir=real_val_dir, num_val_samples=len(val_dataset))
+        
         if os.path.isdir("output/wgan_gp/fid_temp"):
             shutil.rmtree("output/wgan_gp/fid_temp")
+        
+        os.makedirs("logs", exist_ok=True)
+        with open(f"logs/wgan_gp_{img_size}_history.json", "w") as f:
+            json.dump(history, f)
+        
+        
     elif model_choice == "progan":
         real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
 
@@ -854,6 +863,9 @@ def main():
 
         progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"ProGAN FID: {progan_fid:.4f}")
+        
+        
+    
 
 
 if __name__ == "__main__":

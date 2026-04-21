@@ -57,10 +57,10 @@ python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128> 2>&1 | tee 
 tmux attach -t train # reattach later if you want
 ```
 
-### Test
+### Generating Images
 
 ```bash
-# TODO: ADD TEST INFORMATION LATER
+python3 code/generate.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```
 
 ## Requirements

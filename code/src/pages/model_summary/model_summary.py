@@ -45,7 +45,7 @@ MODEL_CONFIG = {
 }
 
 
-def _load_history(model_key, image_size):
+def load_history(model_key, image_size):
     path = MODEL_CONFIG[model_key]["log_files"][image_size]
     if not os.path.exists(path):
         return None
@@ -60,7 +60,7 @@ def _load_history(model_key, image_size):
     return pd.DataFrame(history)
 
 
-def _latest_image(model_key, image_size):
+def latest_image(model_key, image_size):
     folder = MODEL_CONFIG[model_key]["image_dirs"][image_size]
     if not os.path.isdir(folder):
         return None
@@ -73,10 +73,10 @@ def _latest_image(model_key, image_size):
     return images[-1] if images else None
 
 
-def _build_summary_row(model_key, image_size):
+def build_summary_row(model_key, image_size):
     config = MODEL_CONFIG[model_key]
-    df = _load_history(model_key, image_size)
-    image_path = _latest_image(model_key, image_size)
+    df = load_history(model_key, image_size)
+    image_path = latest_image(model_key, image_size)
 
     if df is None or df.empty:
         return {
@@ -146,14 +146,14 @@ def model_summary():
 
     st.subheader("Summary")
     summary_df = pd.DataFrame(
-        [_build_summary_row(model_key, image_size) for model_key in selected_models]
+        [build_summary_row(model_key, image_size) for model_key in selected_models]
     )
     st.dataframe(summary_df, use_container_width=True)
 
     st.subheader(f"{metric} Across Models")
     comparison_frames = []
     for model_key in selected_models:
-        df = _load_history(model_key, image_size)
+        df = load_history(model_key, image_size)
         if df is None:
             continue
         series = _metric_series(df, model_key, metric)
@@ -171,7 +171,7 @@ def model_summary():
     for col, model_key in zip(cols, selected_models):
         with col:
             st.markdown(f"**{MODEL_CONFIG[model_key]['label']}**")
-            image_path = _latest_image(model_key, image_size)
+            image_path = latest_image(model_key, image_size)
             if image_path:
                 col.image(Image.open(image_path), use_container_width=True)
             else:

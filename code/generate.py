@@ -45,9 +45,10 @@ def main():
     test_loader, test_dataset = load_dataset("test", DATA_ROOT, img_size, CHANNELS, BATCH_SIZE, NUM_WORKERS)
     
     real_test_dir = os.path.join(DATA_ROOT, "test", "real")
-    num_test = len(test_dataset)
+    # num_test = len(test_dataset)
+    num_images = 10
     if dcgan is not None:
-        dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,
+        dcgan_fake_dir = generate_images(dcgan.generator, num_images, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,
                                          DEVICE)
         dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
         print(f"DCGAN FID: {dcgan_fid:.4f}")
@@ -57,7 +58,7 @@ def main():
         # wgan_gp.critic.load_state_dict(checkpoint['critic_state_dict'])
 
         wgan_gp.eval()
-        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, f"output/wgan_gp_{img_size}", BATCH_SIZE,
+        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_images, f"output/wgan_gp_{img_size}", BATCH_SIZE,
                                            LATENT_DIM, DEVICE)
         wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
         print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
@@ -74,7 +75,7 @@ def main():
         alpha = checkpoint.get('alpha', 1.0)
         progan.eval()
 
-        progan_fake_dir = generate_images(progan.gen, num_test, f"output/progan_{img_size}",
+        progan_fake_dir = generate_images(progan.gen, num_images, f"output/progan_{img_size}",
                                           BATCH_SIZE, LATENT_DIM, DEVICE,
                                           step=max_step, alpha=alpha)
 

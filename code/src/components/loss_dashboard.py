@@ -1,6 +1,4 @@
 import streamlit as st
-import pandas as pd
-import json
 from plots.loss_plots import plot_loss_curves
 
 

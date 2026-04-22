@@ -451,6 +451,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
     for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
         gen_loss_sum = 0.0
         gen_loss_count = 0
+        critic_loss_sum = 0.0
+        critic_loss_count = 0
         print(f"Epoch {epoch + 1}/{params['num_epochs']}")
         critic_loss = torch.tensor(0.0)  # initialize for print later
         generator_loss = torch.tensor(0.0)  # initialize for print later
@@ -468,6 +470,10 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             critic_out_fake: torch.Tensor = model.critic(x_fake.detach())
             critic_loss = (torch.mean(critic_out_fake) - torch.mean(
                 critic_out_real)) + model.calculate_gradient_penalty(x_fake, x_real)
+            
+            
+            critic_loss_sum += critic_loss.item()
+            critic_loss_count += 1
 
             # UPDATE CRITIC WEIGHTS
             critic_optimizer.zero_grad()
@@ -488,6 +494,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                 gen_loss_sum += generator_loss.item()
                 gen_loss_count += 1
 
+                
+
                 # UPDATE GENERATOR WEIGHTS
                 generator_optimizer.zero_grad()
                 generator_loss.backward()
@@ -498,10 +506,13 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
                     p.requires_grad_(True)
 
         avg_gen_loss = gen_loss_sum / gen_loss_count if gen_loss_count > 0 else float('inf')
-        print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {avg_gen_loss:.4f}")
+        avg_critic_loss = critic_loss_sum / critic_loss_count if critic_loss_count > 0 else float('inf')
+        # print(f"Critic loss: {critic_loss.item():.4f} - Generator loss: {avg_gen_loss:.4f}")
+        print(f"Critic loss: {avg_critic_loss:.4f} - Generator loss: {avg_gen_loss:.4f}")
         
         history['epoch'].append(epoch)
-        history['critic_loss'].append(critic_loss.item())
+        # history['critic_loss'].append(critic_loss.item())
+        history['critic_loss'].append(avg_critic_loss)
         history['generator_loss'].append(avg_gen_loss)
         history['lr'].append(critic_optimizer.param_groups[0]['lr'])
 
@@ -522,7 +533,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
         if not use_val:
             # tuning: always save latest weights so checkpoint matches in-memory model
-            checkpoint['critic_loss'] = critic_loss.item()
+            # checkpoint['critic_loss'] = critic_loss.item()
+            checkpoint['critic_loss'] = avg_critic_loss
             checkpoint['generator_loss'] = avg_gen_loss
             torch.save(checkpoint, model_path)
             history['fid'].append(None)

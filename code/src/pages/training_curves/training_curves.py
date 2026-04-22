@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from components.loss_dashboard import loss_dashboard
 from loaders.loaders import load_loss_data
 

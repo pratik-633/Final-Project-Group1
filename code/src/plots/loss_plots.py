@@ -26,14 +26,21 @@ def plot_discriminator_loss(train_history, model):
   disc_loss_df = pd.DataFrame({'epoch': epochs, 'discriminator_loss': loss}).set_index('epoch')
   st.line_chart(disc_loss_df)
   
-def plot_loss_curves(train_history, metric, model_type):
-  if metric == 'generator':
-    plot_generator_loss(train_history)
-  elif metric == 'discriminator':
-    if model_type=='wgan':
-      plot_discriminator_loss(train_history, model_type)
-    else:
-      plot_discriminator_loss(train_history, model_type)
-  elif metric == 'fid':
+def plot_combined_loss(train_history, model):
+    epochs = train_history['epoch']
+    gen_loss = train_history['generator_loss']
+    disc_loss = train_history['critic_loss'] if model == 'wgan' else train_history['discriminator_loss']
+    
+    df = pd.DataFrame({
+        'epoch': epochs,
+        'generator_loss': gen_loss,
+        'critic_loss' if model == 'wgan' else 'discriminator_loss': disc_loss
+    }).set_index('epoch')
+    st.line_chart(df)
+
+
+def plot_loss_curves(train_history, model_type, metric='loss'):
+  if metric == 'fid':
     plot_fid(train_history)
-  
+  else:
+    plot_combined_loss(train_history, model_type)

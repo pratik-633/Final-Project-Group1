@@ -4,12 +4,12 @@ from pages.training_curves.training_curves import training_curves
 from pages.overview.overview import overview
 from pages.architectures.architectures import architectures
 from pages.model_comparison.model_comparison import model_comparison
-from pages.generated_images.generated_images import generated_images
+from pages.image_gallery.image_gallery import image_gallery
 from pages.conclusions.conclusions import conclusions
+from pages.references.reference import references
 
 def main():
   """Root of the application. This page will basically only be for rerouting. All work is done in sub-components
-  
   
   """
   st.title("Generative Adversarial Network (GAN) Dashboard")
@@ -24,10 +24,12 @@ def main():
     training_curves()
   elif page == "Model Comparison":
     model_comparison()
-  elif page == "Generated Images":
-    generated_images()
+  elif page == "Image Gallery":
+    image_gallery()
   elif page == "Conclusions and Future Work":
     conclusions()
+  elif page == "References":
+    references()
 
 if __name__ == "__main__":
   main()

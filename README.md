@@ -91,3 +91,12 @@ http://localhost:8501
 - kagglehub
 - pytorch-fid
 - streamlit
+
+## References
+
+- https://arxiv.org/pdf/1406.2661
+- https://arxiv.org/pdf/1511.06434
+- https://arxiv.org/pdf/1701.07875
+- https://arxiv.org/abs/1704.00028
+- https://arxiv.org/pdf/1710.10196
+- https://medium.com/@Packt_Pub/inside-the-generative-adversarial-networks-gan-architecture-2435afbd6b3b

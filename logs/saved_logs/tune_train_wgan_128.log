@@ -1,0 +1,1034 @@
+[train] Loaded 50000 real images  |  batches: 390
+[valid] Loaded 10000 real images  |  batches: 79
+[test] Loaded 10000 real images  |  batches: 79
+
+--- Tuning config 1/12: {'feature_maps': 64, 'lr': 0.0001, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -36.5263 - Generator loss: 49.7650
+Epoch 2/40
+Critic loss: -26.1333 - Generator loss: 40.8701
+Epoch 3/40
+Critic loss: -19.6959 - Generator loss: 38.4979
+Epoch 4/40
+Critic loss: -19.4066 - Generator loss: 39.3142
+Epoch 5/40
+Critic loss: -18.9985 - Generator loss: 28.7525
+Epoch 6/40
+Critic loss: -16.1168 - Generator loss: 17.3425
+Epoch 7/40
+Critic loss: -14.9158 - Generator loss: 11.4093
+Epoch 8/40
+Critic loss: -14.8476 - Generator loss: 13.6517
+Epoch 9/40
+Critic loss: -13.4185 - Generator loss: 12.7730
+Epoch 10/40
+Critic loss: -13.2914 - Generator loss: 11.4368
+Epoch 11/40
+Critic loss: -13.7822 - Generator loss: 12.2990
+Epoch 12/40
+Critic loss: -12.1654 - Generator loss: 11.0802
+Epoch 13/40
+Critic loss: -13.9658 - Generator loss: 9.7616
+Epoch 14/40
+Critic loss: -11.0287 - Generator loss: 10.4099
+Epoch 15/40
+Critic loss: -11.7023 - Generator loss: 10.2665
+Epoch 16/40
+Critic loss: -12.3463 - Generator loss: 10.3670
+Epoch 17/40
+Critic loss: -12.2073 - Generator loss: 9.3883
+Epoch 18/40
+Critic loss: -11.4330 - Generator loss: 9.1315
+Epoch 19/40
+Critic loss: -11.9620 - Generator loss: 8.2139
+Epoch 20/40
+Critic loss: -10.2597 - Generator loss: 7.3464
+Epoch 21/40
+Critic loss: -9.7450 - Generator loss: 7.8413
+Epoch 22/40
+Critic loss: -10.1832 - Generator loss: 7.6850
+Epoch 23/40
+Critic loss: -10.1538 - Generator loss: 5.7075
+Epoch 24/40
+Critic loss: -9.1777 - Generator loss: 6.6494
+Epoch 25/40
+Critic loss: -10.4256 - Generator loss: 5.3570
+Epoch 26/40
+Critic loss: -9.5331 - Generator loss: 6.0898
+Epoch 27/40
+Critic loss: -9.0691 - Generator loss: 5.8612
+Epoch 28/40
+Critic loss: -9.6967 - Generator loss: 5.5041
+Epoch 29/40
+Critic loss: -8.9641 - Generator loss: 5.0346
+Epoch 30/40
+Critic loss: -8.5287 - Generator loss: 5.8012
+Epoch 31/40
+Critic loss: -9.7027 - Generator loss: 1.9350
+Epoch 32/40
+Critic loss: -8.4119 - Generator loss: 2.6125
+Epoch 33/40
+Critic loss: -8.4368 - Generator loss: 1.2431
+Epoch 34/40
+Critic loss: -8.8865 - Generator loss: 0.2342
+Epoch 35/40
+Critic loss: -9.2475 - Generator loss: 0.3164
+Epoch 36/40
+Critic loss: -7.8976 - Generator loss: 0.2907
+Epoch 37/40
+Critic loss: -7.4164 - Generator loss: -2.0661
+Epoch 38/40
+Critic loss: -7.2365 - Generator loss: -1.2901
+Epoch 39/40
+Critic loss: -8.2482 - Generator loss: -0.8538
+Epoch 40/40
+Critic loss: -8.2807 - Generator loss: 0.1702
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 103.7076
+Config FID: 103.7076
+
+--- Tuning config 2/12: {'feature_maps': 64, 'lr': 0.0001, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -49.2707 - Generator loss: 55.0523
+Epoch 2/40
+Critic loss: -42.1809 - Generator loss: 41.7285
+Epoch 3/40
+Critic loss: -25.6480 - Generator loss: 39.5336
+Epoch 4/40
+Critic loss: -24.8756 - Generator loss: 47.1605
+Epoch 5/40
+Critic loss: -24.5638 - Generator loss: 51.2587
+Epoch 6/40
+Critic loss: -25.2761 - Generator loss: 39.8327
+Epoch 7/40
+Critic loss: -22.4838 - Generator loss: 16.0682
+Epoch 8/40
+Critic loss: -19.3793 - Generator loss: 10.1380
+Epoch 9/40
+Critic loss: -19.9502 - Generator loss: 14.5909
+Epoch 10/40
+Critic loss: -23.4229 - Generator loss: 19.3228
+Epoch 11/40
+Critic loss: -19.4071 - Generator loss: 21.3190
+Epoch 12/40
+Critic loss: -18.7356 - Generator loss: 21.1517
+Epoch 13/40
+Critic loss: -19.5425 - Generator loss: 19.8852
+Epoch 14/40
+Critic loss: -21.5792 - Generator loss: 18.1359
+Epoch 15/40
+Critic loss: -19.0556 - Generator loss: 17.1564
+Epoch 16/40
+Critic loss: -20.1754 - Generator loss: 18.6009
+Epoch 17/40
+Critic loss: -18.9425 - Generator loss: 16.1214
+Epoch 18/40
+Critic loss: -18.5599 - Generator loss: 14.8996
+Epoch 19/40
+Critic loss: -19.1561 - Generator loss: 13.4310
+Epoch 20/40
+Critic loss: -18.8930 - Generator loss: 13.9841
+Epoch 21/40
+Critic loss: -16.7001 - Generator loss: 13.7327
+Epoch 22/40
+Critic loss: -16.4622 - Generator loss: 15.3654
+Epoch 23/40
+Critic loss: -14.7745 - Generator loss: 16.3607
+Epoch 24/40
+Critic loss: -17.1548 - Generator loss: 14.3431
+Epoch 25/40
+Critic loss: -14.6149 - Generator loss: 13.3420
+Epoch 26/40
+Critic loss: -16.8202 - Generator loss: 15.0110
+Epoch 27/40
+Critic loss: -16.6557 - Generator loss: 12.6082
+Epoch 28/40
+Critic loss: -14.0169 - Generator loss: 10.9420
+Epoch 29/40
+Critic loss: -14.4655 - Generator loss: 12.2798
+Epoch 30/40
+Critic loss: -17.0292 - Generator loss: 12.0780
+Epoch 31/40
+Critic loss: -15.5880 - Generator loss: 12.1364
+Epoch 32/40
+Critic loss: -14.5716 - Generator loss: 12.3801
+Epoch 33/40
+Critic loss: -13.5603 - Generator loss: 8.2154
+Epoch 34/40
+Critic loss: -14.5787 - Generator loss: 7.9206
+Epoch 35/40
+Critic loss: -14.5490 - Generator loss: 9.2700
+Epoch 36/40
+Critic loss: -14.1382 - Generator loss: 8.1693
+Epoch 37/40
+Critic loss: -13.2199 - Generator loss: 10.6544
+Epoch 38/40
+Critic loss: -14.0087 - Generator loss: 8.4184
+Epoch 39/40
+Critic loss: -12.4754 - Generator loss: 8.3864
+Epoch 40/40
+Critic loss: -13.0508 - Generator loss: 7.3181
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 129.6844
+Config FID: 129.6844
+
+--- Tuning config 3/12: {'feature_maps': 64, 'lr': 0.00015, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -37.0230 - Generator loss: 33.1173
+Epoch 2/40
+Critic loss: -24.0026 - Generator loss: 23.0427
+Epoch 3/40
+Critic loss: -21.0438 - Generator loss: 20.1322
+Epoch 4/40
+Critic loss: -15.7626 - Generator loss: 12.4778
+Epoch 5/40
+Critic loss: -16.2013 - Generator loss: 9.1076
+Epoch 6/40
+Critic loss: -16.1239 - Generator loss: 5.4547
+Epoch 7/40
+Critic loss: -15.1537 - Generator loss: 4.0494
+Epoch 8/40
+Critic loss: -13.3159 - Generator loss: 5.2014
+Epoch 9/40
+Critic loss: -11.3022 - Generator loss: 6.5987
+Epoch 10/40
+Critic loss: -12.3102 - Generator loss: 8.9057
+Epoch 11/40
+Critic loss: -10.4859 - Generator loss: 9.7817
+Epoch 12/40
+Critic loss: -12.7890 - Generator loss: 9.1884
+Epoch 13/40
+Critic loss: -11.0248 - Generator loss: 9.0472
+Epoch 14/40
+Critic loss: -10.2647 - Generator loss: 8.5932
+Epoch 15/40
+Critic loss: -9.9966 - Generator loss: 9.9626
+Epoch 16/40
+Critic loss: -8.5438 - Generator loss: 10.9586
+Epoch 17/40
+Critic loss: -8.8328 - Generator loss: 12.6519
+Epoch 18/40
+Critic loss: -9.1324 - Generator loss: 11.9237
+Epoch 19/40
+Critic loss: -8.6945 - Generator loss: 11.7940
+Epoch 20/40
+Critic loss: -9.2116 - Generator loss: 11.5945
+Epoch 21/40
+Critic loss: -9.5012 - Generator loss: 11.5122
+Epoch 22/40
+Critic loss: -8.7652 - Generator loss: 12.6161
+Epoch 23/40
+Critic loss: -8.7345 - Generator loss: 12.7696
+Epoch 24/40
+Critic loss: -8.7593 - Generator loss: 13.7536
+Epoch 25/40
+Critic loss: -9.3218 - Generator loss: 13.7635
+Epoch 26/40
+Critic loss: -8.7019 - Generator loss: 13.0153
+Epoch 27/40
+Critic loss: -8.7253 - Generator loss: 12.9415
+Epoch 28/40
+Critic loss: -7.0235 - Generator loss: 10.3172
+Epoch 29/40
+Critic loss: -7.7318 - Generator loss: 12.1823
+Epoch 30/40
+Critic loss: -8.2998 - Generator loss: 10.9828
+Epoch 31/40
+Critic loss: -7.9941 - Generator loss: 12.1656
+Epoch 32/40
+Critic loss: -7.3752 - Generator loss: 11.6896
+Epoch 33/40
+Critic loss: -9.2030 - Generator loss: 11.7918
+Epoch 34/40
+Critic loss: -7.2900 - Generator loss: 10.2769
+Epoch 35/40
+Critic loss: -7.3217 - Generator loss: 12.5482
+Epoch 36/40
+Critic loss: -7.0845 - Generator loss: 10.7896
+Epoch 37/40
+Critic loss: -6.2998 - Generator loss: 11.2468
+Epoch 38/40
+Critic loss: -6.2332 - Generator loss: 12.0044
+Epoch 39/40
+Critic loss: -6.2065 - Generator loss: 10.5425
+Epoch 40/40
+Critic loss: -4.5871 - Generator loss: 9.1794
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 105.7899
+Config FID: 105.7899
+
+--- Tuning config 4/12: {'feature_maps': 64, 'lr': 0.00015, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -56.5606 - Generator loss: 58.3733
+Epoch 2/40
+Critic loss: -39.0597 - Generator loss: 44.0838
+Epoch 3/40
+Critic loss: -32.1424 - Generator loss: 35.3189
+Epoch 4/40
+Critic loss: -26.8142 - Generator loss: 45.9712
+Epoch 5/40
+Critic loss: -26.6680 - Generator loss: 46.9560
+Epoch 6/40
+Critic loss: -22.4023 - Generator loss: 29.0675
+Epoch 7/40
+Critic loss: -22.7260 - Generator loss: 16.0019
+Epoch 8/40
+Critic loss: -25.0206 - Generator loss: 15.5628
+Epoch 9/40
+Critic loss: -19.5116 - Generator loss: 16.6653
+Epoch 10/40
+Critic loss: -17.0399 - Generator loss: 13.8106
+Epoch 11/40
+Critic loss: -16.4175 - Generator loss: 13.5356
+Epoch 12/40
+Critic loss: -18.7153 - Generator loss: 14.3221
+Epoch 13/40
+Critic loss: -18.4657 - Generator loss: 14.9610
+Epoch 14/40
+Critic loss: -16.7715 - Generator loss: 15.1051
+Epoch 15/40
+Critic loss: -15.0377 - Generator loss: 15.9409
+Epoch 16/40
+Critic loss: -15.2427 - Generator loss: 18.2636
+Epoch 17/40
+Critic loss: -13.9467 - Generator loss: 18.8070
+Epoch 18/40
+Critic loss: -14.0578 - Generator loss: 15.8303
+Epoch 19/40
+Critic loss: -14.6588 - Generator loss: 15.6809
+Epoch 20/40
+Critic loss: -15.7578 - Generator loss: 14.1838
+Epoch 21/40
+Critic loss: -14.8090 - Generator loss: 17.4382
+Epoch 22/40
+Critic loss: -13.0158 - Generator loss: 16.2672
+Epoch 23/40
+Critic loss: -11.9946 - Generator loss: 12.3462
+Epoch 24/40
+Critic loss: -13.0500 - Generator loss: 13.8309
+Epoch 25/40
+Critic loss: -14.6160 - Generator loss: 16.1938
+Epoch 26/40
+Critic loss: -14.2041 - Generator loss: 14.4911
+Epoch 27/40
+Critic loss: -14.0331 - Generator loss: 9.9787
+Epoch 28/40
+Critic loss: -13.7818 - Generator loss: 14.2174
+Epoch 29/40
+Critic loss: -14.4181 - Generator loss: 13.0341
+Epoch 30/40
+Critic loss: -13.7300 - Generator loss: 12.7922
+Epoch 31/40
+Critic loss: -12.1644 - Generator loss: 14.2308
+Epoch 32/40
+Critic loss: -12.2419 - Generator loss: 13.8394
+Epoch 33/40
+Critic loss: -11.7777 - Generator loss: 12.2670
+Epoch 34/40
+Critic loss: -12.1423 - Generator loss: 9.8199
+Epoch 35/40
+Critic loss: -12.1132 - Generator loss: 10.8537
+Epoch 36/40
+Critic loss: -13.1597 - Generator loss: 11.9001
+Epoch 37/40
+Critic loss: -10.2257 - Generator loss: 7.1343
+Epoch 38/40
+Critic loss: -11.6925 - Generator loss: 8.0500
+Epoch 39/40
+Critic loss: -10.3645 - Generator loss: 9.8193
+Epoch 40/40
+Critic loss: -11.9841 - Generator loss: 8.5428
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 119.9533
+Config FID: 119.9533
+
+--- Tuning config 5/12: {'feature_maps': 64, 'lr': 0.0002, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -40.5680 - Generator loss: 28.0405
+Epoch 2/40
+Critic loss: -26.2017 - Generator loss: 15.4568
+Epoch 3/40
+Critic loss: -19.6345 - Generator loss: 7.6398
+Epoch 4/40
+Critic loss: -16.5372 - Generator loss: 7.7190
+Epoch 5/40
+Critic loss: -13.6236 - Generator loss: 13.6557
+Epoch 6/40
+Critic loss: -15.3141 - Generator loss: 11.3082
+Epoch 7/40
+Critic loss: -14.7707 - Generator loss: 6.2881
+Epoch 8/40
+Critic loss: -13.1077 - Generator loss: 7.3638
+Epoch 9/40
+Critic loss: -17.5407 - Generator loss: 13.1468
+Epoch 10/40
+Critic loss: -12.6142 - Generator loss: 17.6414
+Epoch 11/40
+Critic loss: -11.5218 - Generator loss: 21.3239
+Epoch 12/40
+Critic loss: -12.2742 - Generator loss: 22.8921
+Epoch 13/40
+Critic loss: -11.7763 - Generator loss: 25.1436
+Epoch 14/40
+Critic loss: -11.0740 - Generator loss: 24.1282
+Epoch 15/40
+Critic loss: -10.1462 - Generator loss: 24.5895
+Epoch 16/40
+Critic loss: -10.8890 - Generator loss: 25.6098
+Epoch 17/40
+Critic loss: -9.1868 - Generator loss: 25.5947
+Epoch 18/40
+Critic loss: -9.4587 - Generator loss: 26.4099
+Epoch 19/40
+Critic loss: -9.2764 - Generator loss: 27.7408
+Epoch 20/40
+Critic loss: -8.7044 - Generator loss: 26.5636
+Epoch 21/40
+Critic loss: -9.8297 - Generator loss: 26.6837
+Epoch 22/40
+Critic loss: -9.9563 - Generator loss: 26.1669
+Epoch 23/40
+Critic loss: -9.3242 - Generator loss: 26.6604
+Epoch 24/40
+Critic loss: -9.3452 - Generator loss: 25.4789
+Epoch 25/40
+Critic loss: -9.3379 - Generator loss: 25.2109
+Epoch 26/40
+Critic loss: -8.1496 - Generator loss: 23.9894
+Epoch 27/40
+Critic loss: -8.3116 - Generator loss: 24.8532
+Epoch 28/40
+Critic loss: -7.7680 - Generator loss: 25.4668
+Epoch 29/40
+Critic loss: -7.2171 - Generator loss: 25.0876
+Epoch 30/40
+Critic loss: -9.6897 - Generator loss: 26.1599
+Epoch 31/40
+Critic loss: -8.8237 - Generator loss: 25.9543
+Epoch 32/40
+Critic loss: -7.3977 - Generator loss: 24.3763
+Epoch 33/40
+Critic loss: -7.6766 - Generator loss: 23.7466
+Epoch 34/40
+Critic loss: -8.3078 - Generator loss: 24.5275
+Epoch 35/40
+Critic loss: -6.5538 - Generator loss: 23.1252
+Epoch 36/40
+Critic loss: -8.3660 - Generator loss: 23.6249
+Epoch 37/40
+Critic loss: -7.2660 - Generator loss: 25.2578
+Epoch 38/40
+Critic loss: -6.7304 - Generator loss: 24.4103
+Epoch 39/40
+Critic loss: -6.0060 - Generator loss: 22.3926
+Epoch 40/40
+Critic loss: -6.5100 - Generator loss: 21.9134
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 99.2972
+Config FID: 99.2972
+
+--- Tuning config 6/12: {'feature_maps': 64, 'lr': 0.0002, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -60.6690 - Generator loss: 47.5546
+Epoch 2/40
+Critic loss: -40.6029 - Generator loss: 31.1099
+Epoch 3/40
+Critic loss: -31.8702 - Generator loss: 14.4696
+Epoch 4/40
+Critic loss: -30.6958 - Generator loss: 22.9697
+Epoch 5/40
+Critic loss: -27.2351 - Generator loss: 18.5285
+Epoch 6/40
+Critic loss: -22.3898 - Generator loss: 24.7504
+Epoch 7/40
+Critic loss: -20.4831 - Generator loss: 26.7873
+Epoch 8/40
+Critic loss: -18.6966 - Generator loss: 26.5446
+Epoch 9/40
+Critic loss: -22.2852 - Generator loss: 31.4386
+Epoch 10/40
+Critic loss: -20.0728 - Generator loss: 34.9612
+Epoch 11/40
+Critic loss: -21.1743 - Generator loss: 31.2057
+Epoch 12/40
+Critic loss: -17.3162 - Generator loss: 33.8913
+Epoch 13/40
+Critic loss: -17.9156 - Generator loss: 36.5853
+Epoch 14/40
+Critic loss: -15.2915 - Generator loss: 40.9998
+Epoch 15/40
+Critic loss: -17.5182 - Generator loss: 42.3617
+Epoch 16/40
+Critic loss: -16.8576 - Generator loss: 45.2572
+Epoch 17/40
+Critic loss: -15.0843 - Generator loss: 42.5493
+Epoch 18/40
+Critic loss: -17.4086 - Generator loss: 45.9741
+Epoch 19/40
+Critic loss: -16.2674 - Generator loss: 47.1175
+Epoch 20/40
+Critic loss: -15.2299 - Generator loss: 48.3175
+Epoch 21/40
+Critic loss: -12.9899 - Generator loss: 45.9541
+Epoch 22/40
+Critic loss: -15.3691 - Generator loss: 42.9791
+Epoch 23/40
+Critic loss: -12.9134 - Generator loss: 46.0667
+Epoch 24/40
+Critic loss: -14.9404 - Generator loss: 43.8831
+Epoch 25/40
+Critic loss: -14.6075 - Generator loss: 40.6980
+Epoch 26/40
+Critic loss: -13.7050 - Generator loss: 39.1061
+Epoch 27/40
+Critic loss: -13.6238 - Generator loss: 37.7115
+Epoch 28/40
+Critic loss: -13.2876 - Generator loss: 41.6643
+Epoch 29/40
+Critic loss: -11.9752 - Generator loss: 37.1949
+Epoch 30/40
+Critic loss: -12.6405 - Generator loss: 37.2788
+Epoch 31/40
+Critic loss: -13.4932 - Generator loss: 37.8213
+Epoch 32/40
+Critic loss: -13.5020 - Generator loss: 37.1375
+Epoch 33/40
+Critic loss: -9.5932 - Generator loss: 34.5652
+Epoch 34/40
+Critic loss: -12.1106 - Generator loss: 38.7769
+Epoch 35/40
+Critic loss: -10.5857 - Generator loss: 34.0726
+Epoch 36/40
+Critic loss: -11.8509 - Generator loss: 35.7841
+Epoch 37/40
+Critic loss: -12.4080 - Generator loss: 35.6220
+Epoch 38/40
+Critic loss: -11.4355 - Generator loss: 37.4420
+Epoch 39/40
+Critic loss: -10.3256 - Generator loss: 32.7948
+Epoch 40/40
+Critic loss: -12.5239 - Generator loss: 32.1283
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 105.8912
+Config FID: 105.8912
+
+--- Tuning config 7/12: {'feature_maps': 128, 'lr': 0.0001, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -55.9865 - Generator loss: 96.8521
+Epoch 2/40
+Critic loss: -45.9014 - Generator loss: 72.4007
+Epoch 3/40
+Critic loss: -24.2129 - Generator loss: 54.7592
+Epoch 4/40
+Critic loss: -26.6718 - Generator loss: 40.1592
+Epoch 5/40
+Critic loss: -24.4511 - Generator loss: 42.4518
+Epoch 6/40
+Critic loss: -23.6715 - Generator loss: 38.9674
+Epoch 7/40
+Critic loss: -19.0616 - Generator loss: 21.7907
+Epoch 8/40
+Critic loss: -17.3702 - Generator loss: 13.0110
+Epoch 9/40
+Critic loss: -18.7887 - Generator loss: 6.9350
+Epoch 10/40
+Critic loss: -17.3661 - Generator loss: 8.3591
+Epoch 11/40
+Critic loss: -17.7489 - Generator loss: 9.4291
+Epoch 12/40
+Critic loss: -14.4329 - Generator loss: 11.6926
+Epoch 13/40
+Critic loss: -16.7720 - Generator loss: 13.6672
+Epoch 14/40
+Critic loss: -14.4918 - Generator loss: 13.4978
+Epoch 15/40
+Critic loss: -14.0216 - Generator loss: 11.9369
+Epoch 16/40
+Critic loss: -13.9782 - Generator loss: 8.8281
+Epoch 17/40
+Critic loss: -13.5605 - Generator loss: 10.7982
+Epoch 18/40
+Critic loss: -12.8976 - Generator loss: 8.3507
+Epoch 19/40
+Critic loss: -13.9706 - Generator loss: 5.2369
+Epoch 20/40
+Critic loss: -12.7990 - Generator loss: 8.7751
+Epoch 21/40
+Critic loss: -13.2876 - Generator loss: 6.5893
+Epoch 22/40
+Critic loss: -10.7972 - Generator loss: 5.9883
+Epoch 23/40
+Critic loss: -13.3869 - Generator loss: 6.4663
+Epoch 24/40
+Critic loss: -10.5889 - Generator loss: 6.0033
+Epoch 25/40
+Critic loss: -11.1891 - Generator loss: 6.1546
+Epoch 26/40
+Critic loss: -10.6142 - Generator loss: 4.7391
+Epoch 27/40
+Critic loss: -10.6834 - Generator loss: 6.6209
+Epoch 28/40
+Critic loss: -10.9775 - Generator loss: 6.3047
+Epoch 29/40
+Critic loss: -10.9452 - Generator loss: 4.9996
+Epoch 30/40
+Critic loss: -11.3143 - Generator loss: 5.2046
+Epoch 31/40
+Critic loss: -10.1929 - Generator loss: 3.8347
+Epoch 32/40
+Critic loss: -9.5814 - Generator loss: 3.4658
+Epoch 33/40
+Critic loss: -11.1155 - Generator loss: 5.0947
+Epoch 34/40
+Critic loss: -9.4730 - Generator loss: 5.6603
+Epoch 35/40
+Critic loss: -12.1945 - Generator loss: 3.2488
+Epoch 36/40
+Critic loss: -11.2172 - Generator loss: 3.3333
+Epoch 37/40
+Critic loss: -10.2628 - Generator loss: 2.2725
+Epoch 38/40
+Critic loss: -8.2843 - Generator loss: 3.6375
+Epoch 39/40
+Critic loss: -8.9141 - Generator loss: 3.6591
+Epoch 40/40
+Critic loss: -7.5711 - Generator loss: 3.7356
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 104.0371
+Config FID: 104.0371
+
+--- Tuning config 8/12: {'feature_maps': 128, 'lr': 0.0001, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -90.3407 - Generator loss: 75.7998
+Epoch 2/40
+Critic loss: -66.1911 - Generator loss: 63.5975
+Epoch 3/40
+Critic loss: -58.8525 - Generator loss: 53.4743
+Epoch 4/40
+Critic loss: -51.4361 - Generator loss: 49.3898
+Epoch 5/40
+Critic loss: -27.6792 - Generator loss: 66.5776
+Epoch 6/40
+Critic loss: -35.2327 - Generator loss: 52.7332
+Epoch 7/40
+Critic loss: -26.7853 - Generator loss: 32.0671
+Epoch 8/40
+Critic loss: -28.3607 - Generator loss: 26.7851
+Epoch 9/40
+Critic loss: -23.1547 - Generator loss: 23.5153
+Epoch 10/40
+Critic loss: -24.2988 - Generator loss: 17.7287
+Epoch 11/40
+Critic loss: -20.9481 - Generator loss: 18.1679
+Epoch 12/40
+Critic loss: -20.3252 - Generator loss: 19.4230
+Epoch 13/40
+Critic loss: -22.4263 - Generator loss: 20.7960
+Epoch 14/40
+Critic loss: -20.6514 - Generator loss: 19.0150
+Epoch 15/40
+Critic loss: -21.4821 - Generator loss: 18.7798
+Epoch 16/40
+Critic loss: -16.1880 - Generator loss: 20.9113
+Epoch 17/40
+Critic loss: -20.6760 - Generator loss: 20.1733
+Epoch 18/40
+Critic loss: -19.2352 - Generator loss: 13.8524
+Epoch 19/40
+Critic loss: -16.9813 - Generator loss: 18.5019
+Epoch 20/40
+Critic loss: -17.9431 - Generator loss: 20.7544
+Epoch 21/40
+Critic loss: -15.0201 - Generator loss: 18.0244
+Epoch 22/40
+Critic loss: -13.3481 - Generator loss: 19.1626
+Epoch 23/40
+Critic loss: -17.3461 - Generator loss: 15.9054
+Epoch 24/40
+Critic loss: -19.2050 - Generator loss: 16.8772
+Epoch 25/40
+Critic loss: -15.7213 - Generator loss: 19.6357
+Epoch 26/40
+Critic loss: -15.5204 - Generator loss: 18.7909
+Epoch 27/40
+Critic loss: -16.0581 - Generator loss: 15.7348
+Epoch 28/40
+Critic loss: -17.9184 - Generator loss: 16.0466
+Epoch 29/40
+Critic loss: -16.6289 - Generator loss: 20.7926
+Epoch 30/40
+Critic loss: -14.7612 - Generator loss: 18.4488
+Epoch 31/40
+Critic loss: -17.4472 - Generator loss: 12.1659
+Epoch 32/40
+Critic loss: -12.1799 - Generator loss: 18.0363
+Epoch 33/40
+Critic loss: -14.6211 - Generator loss: 15.5832
+Epoch 34/40
+Critic loss: -16.4425 - Generator loss: 17.2023
+Epoch 35/40
+Critic loss: -16.4745 - Generator loss: 15.6961
+Epoch 36/40
+Critic loss: -12.6487 - Generator loss: 13.8731
+Epoch 37/40
+Critic loss: -12.8196 - Generator loss: 16.9974
+Epoch 38/40
+Critic loss: -12.4712 - Generator loss: 17.0004
+Epoch 39/40
+Critic loss: -13.0215 - Generator loss: 15.8672
+Epoch 40/40
+Critic loss: -15.6201 - Generator loss: 14.0064
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 118.7569
+Config FID: 118.7569
+
+--- Tuning config 9/12: {'feature_maps': 128, 'lr': 0.00015, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -46.1404 - Generator loss: 41.8109
+Epoch 2/40
+Critic loss: -37.3965 - Generator loss: -0.4660
+Epoch 3/40
+Critic loss: -22.5469 - Generator loss: -20.7119
+Epoch 4/40
+Critic loss: -20.4483 - Generator loss: -24.0925
+Epoch 5/40
+Critic loss: -20.5369 - Generator loss: -18.1705
+Epoch 6/40
+Critic loss: -19.6775 - Generator loss: -3.3248
+Epoch 7/40
+Critic loss: -16.8099 - Generator loss: 1.6750
+Epoch 8/40
+Critic loss: -15.8612 - Generator loss: 3.2820
+Epoch 9/40
+Critic loss: -16.9953 - Generator loss: 2.9706
+Epoch 10/40
+Critic loss: -14.6556 - Generator loss: 9.0851
+Epoch 11/40
+Critic loss: -14.9662 - Generator loss: 12.4721
+Epoch 12/40
+Critic loss: -13.7930 - Generator loss: 16.9250
+Epoch 13/40
+Critic loss: -12.4454 - Generator loss: 19.8897
+Epoch 14/40
+Critic loss: -11.4918 - Generator loss: 26.7353
+Epoch 15/40
+Critic loss: -11.1002 - Generator loss: 31.5780
+Epoch 16/40
+Critic loss: -10.4374 - Generator loss: 31.6546
+Epoch 17/40
+Critic loss: -11.0858 - Generator loss: 34.3891
+Epoch 18/40
+Critic loss: -11.8143 - Generator loss: 39.1328
+Epoch 19/40
+Critic loss: -10.3647 - Generator loss: 38.5076
+Epoch 20/40
+Critic loss: -11.2558 - Generator loss: 38.6666
+Epoch 21/40
+Critic loss: -10.9900 - Generator loss: 37.0704
+Epoch 22/40
+Critic loss: -13.1561 - Generator loss: 36.9607
+Epoch 23/40
+Critic loss: -10.0302 - Generator loss: 37.8382
+Epoch 24/40
+Critic loss: -11.0046 - Generator loss: 39.4749
+Epoch 25/40
+Critic loss: -8.9508 - Generator loss: 38.1788
+Epoch 26/40
+Critic loss: -8.9674 - Generator loss: 38.4636
+Epoch 27/40
+Critic loss: -9.3791 - Generator loss: 38.3873
+Epoch 28/40
+Critic loss: -9.9002 - Generator loss: 39.0835
+Epoch 29/40
+Critic loss: -9.3781 - Generator loss: 36.4402
+Epoch 30/40
+Critic loss: -9.6526 - Generator loss: 38.8178
+Epoch 31/40
+Critic loss: -9.3762 - Generator loss: 39.4609
+Epoch 32/40
+Critic loss: -8.3966 - Generator loss: 38.5374
+Epoch 33/40
+Critic loss: -5.0799 - Generator loss: 38.2302
+Epoch 34/40
+Critic loss: -8.4956 - Generator loss: 38.1180
+Epoch 35/40
+Critic loss: -8.5809 - Generator loss: 35.2247
+Epoch 36/40
+Critic loss: -7.9441 - Generator loss: 39.1648
+Epoch 37/40
+Critic loss: -7.7633 - Generator loss: 36.1698
+Epoch 38/40
+Critic loss: -7.9242 - Generator loss: 39.5335
+Epoch 39/40
+Critic loss: -8.9716 - Generator loss: 41.6323
+Epoch 40/40
+Critic loss: -8.2812 - Generator loss: 38.6979
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 97.2086
+Config FID: 97.2086
+
+--- Tuning config 10/12: {'feature_maps': 128, 'lr': 0.00015, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -99.5621 - Generator loss: 50.8895
+Epoch 2/40
+Critic loss: -55.6092 - Generator loss: 50.1274
+Epoch 3/40
+Critic loss: -43.9327 - Generator loss: 18.0261
+Epoch 4/40
+Critic loss: -36.9360 - Generator loss: 17.3664
+Epoch 5/40
+Critic loss: -35.7539 - Generator loss: 26.2964
+Epoch 6/40
+Critic loss: -25.3990 - Generator loss: 26.0240
+Epoch 7/40
+Critic loss: -25.6404 - Generator loss: 26.4895
+Epoch 8/40
+Critic loss: -25.3658 - Generator loss: 32.5517
+Epoch 9/40
+Critic loss: -29.8597 - Generator loss: 38.3676
+Epoch 10/40
+Critic loss: -26.3547 - Generator loss: 49.0430
+Epoch 11/40
+Critic loss: -21.1158 - Generator loss: 53.2603
+Epoch 12/40
+Critic loss: -27.0307 - Generator loss: 48.2730
+Epoch 13/40
+Critic loss: -22.0626 - Generator loss: 53.4213
+Epoch 14/40
+Critic loss: -23.1908 - Generator loss: 51.0273
+Epoch 15/40
+Critic loss: -22.5170 - Generator loss: 48.6768
+Epoch 16/40
+Critic loss: -18.7355 - Generator loss: 52.2310
+Epoch 17/40
+Critic loss: -21.3038 - Generator loss: 53.0164
+Epoch 18/40
+Critic loss: -25.8663 - Generator loss: 51.3229
+Epoch 19/40
+Critic loss: -17.4845 - Generator loss: 52.8246
+Epoch 20/40
+Critic loss: -18.9499 - Generator loss: 51.8408
+Epoch 21/40
+Critic loss: -18.2836 - Generator loss: 52.4530
+Epoch 22/40
+Critic loss: -17.2100 - Generator loss: 50.8046
+Epoch 23/40
+Critic loss: -18.2372 - Generator loss: 50.8728
+Epoch 24/40
+Critic loss: -18.2260 - Generator loss: 51.3110
+Epoch 25/40
+Critic loss: -17.5444 - Generator loss: 49.2272
+Epoch 26/40
+Critic loss: -16.5225 - Generator loss: 49.9955
+Epoch 27/40
+Critic loss: -18.1413 - Generator loss: 47.1391
+Epoch 28/40
+Critic loss: -15.5079 - Generator loss: 48.0020
+Epoch 29/40
+Critic loss: -15.7187 - Generator loss: 45.7991
+Epoch 30/40
+Critic loss: -11.6614 - Generator loss: 45.8354
+Epoch 31/40
+Critic loss: -12.6312 - Generator loss: 47.2234
+Epoch 32/40
+Critic loss: -14.0427 - Generator loss: 40.1718
+Epoch 33/40
+Critic loss: -14.9610 - Generator loss: 39.8150
+Epoch 34/40
+Critic loss: -15.1724 - Generator loss: 37.5959
+Epoch 35/40
+Critic loss: -14.8843 - Generator loss: 42.7238
+Epoch 36/40
+Critic loss: -15.4609 - Generator loss: 40.5170
+Epoch 37/40
+Critic loss: -14.2925 - Generator loss: 39.3618
+Epoch 38/40
+Critic loss: -16.0428 - Generator loss: 38.8412
+Epoch 39/40
+Critic loss: -15.5285 - Generator loss: 41.1467
+Epoch 40/40
+Critic loss: -14.2225 - Generator loss: 42.0195
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 109.6995
+Config FID: 109.6995
+
+--- Tuning config 11/12: {'feature_maps': 128, 'lr': 0.0002, 'n_critic': 3} ---
+Epoch 1/40
+Critic loss: -40.6932 - Generator loss: 12.3103
+Epoch 2/40
+Critic loss: -32.0860 - Generator loss: -39.3168
+Epoch 3/40
+Critic loss: -22.8956 - Generator loss: -56.9256
+Epoch 4/40
+Critic loss: -17.5869 - Generator loss: -65.4396
+Epoch 5/40
+Critic loss: -18.6858 - Generator loss: -50.3131
+Epoch 6/40
+Critic loss: -16.9485 - Generator loss: -21.3290
+Epoch 7/40
+Critic loss: -12.8161 - Generator loss: -2.1635
+Epoch 8/40
+Critic loss: -12.8164 - Generator loss: 5.5018
+Epoch 9/40
+Critic loss: -13.3353 - Generator loss: 10.0153
+Epoch 10/40
+Critic loss: -13.8060 - Generator loss: 14.4255
+Epoch 11/40
+Critic loss: -11.7972 - Generator loss: 18.3733
+Epoch 12/40
+Critic loss: -12.7014 - Generator loss: 24.1753
+Epoch 13/40
+Critic loss: -10.7500 - Generator loss: 28.6069
+Epoch 14/40
+Critic loss: -10.5816 - Generator loss: 32.9451
+Epoch 15/40
+Critic loss: -12.4658 - Generator loss: 37.0580
+Epoch 16/40
+Critic loss: -11.2699 - Generator loss: 42.0301
+Epoch 17/40
+Critic loss: -10.1086 - Generator loss: 46.4224
+Epoch 18/40
+Critic loss: -9.7001 - Generator loss: 48.2757
+Epoch 19/40
+Critic loss: -10.0415 - Generator loss: 48.8776
+Epoch 20/40
+Critic loss: -10.4321 - Generator loss: 47.9169
+Epoch 21/40
+Critic loss: -10.8819 - Generator loss: 48.3954
+Epoch 22/40
+Critic loss: -8.4158 - Generator loss: 46.4970
+Epoch 23/40
+Critic loss: -7.9046 - Generator loss: 46.5360
+Epoch 24/40
+Critic loss: -9.7713 - Generator loss: 45.6604
+Epoch 25/40
+Critic loss: -8.8960 - Generator loss: 47.7272
+Epoch 26/40
+Critic loss: -7.4136 - Generator loss: 48.0306
+Epoch 27/40
+Critic loss: -8.5803 - Generator loss: 48.5384
+Epoch 28/40
+Critic loss: -7.0434 - Generator loss: 49.7331
+Epoch 29/40
+Critic loss: -9.1272 - Generator loss: 48.9332
+Epoch 30/40
+Critic loss: -7.0460 - Generator loss: 52.0745
+Epoch 31/40
+Critic loss: -7.9854 - Generator loss: 53.5035
+Epoch 32/40
+Critic loss: -8.4855 - Generator loss: 54.1479
+Epoch 33/40
+Critic loss: -8.2283 - Generator loss: 54.8488
+Epoch 34/40
+Critic loss: -6.9382 - Generator loss: 55.3661
+Epoch 35/40
+Critic loss: -7.4805 - Generator loss: 56.2214
+Epoch 36/40
+Critic loss: -6.5483 - Generator loss: 54.3475
+Epoch 37/40
+Critic loss: -8.6027 - Generator loss: 55.4900
+Epoch 38/40
+Critic loss: -6.2976 - Generator loss: 54.5957
+Epoch 39/40
+Critic loss: -7.9445 - Generator loss: 57.0327
+Epoch 40/40
+Critic loss: -8.7027 - Generator loss: 56.0184
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 89.4981
+Config FID: 89.4981
+
+--- Tuning config 12/12: {'feature_maps': 128, 'lr': 0.0002, 'n_critic': 5} ---
+Epoch 1/40
+Critic loss: -78.8693 - Generator loss: 49.4023
+Epoch 2/40
+Critic loss: -53.0897 - Generator loss: 14.0196
+Epoch 3/40
+Critic loss: -38.1405 - Generator loss: -11.0175
+Epoch 4/40
+Critic loss: -35.6695 - Generator loss: -16.1006
+Epoch 5/40
+Critic loss: -31.4124 - Generator loss: -6.0291
+Epoch 6/40
+Critic loss: -26.6435 - Generator loss: 14.2112
+Epoch 7/40
+Critic loss: -24.7535 - Generator loss: 18.3194
+Epoch 8/40
+Critic loss: -23.7101 - Generator loss: 24.0670
+Epoch 9/40
+Critic loss: -25.1735 - Generator loss: 25.0468
+Epoch 10/40
+Critic loss: -24.3892 - Generator loss: 27.7398
+Epoch 11/40
+Critic loss: -23.2172 - Generator loss: 39.3961
+Epoch 12/40
+Critic loss: -23.8980 - Generator loss: 40.3855
+Epoch 13/40
+Critic loss: -22.5173 - Generator loss: 42.0753
+Epoch 14/40
+Critic loss: -20.2034 - Generator loss: 43.7139
+Epoch 15/40
+Critic loss: -22.7788 - Generator loss: 47.4256
+Epoch 16/40
+Critic loss: -17.1246 - Generator loss: 48.5355
+Epoch 17/40
+Critic loss: -18.2155 - Generator loss: 47.5757
+Epoch 18/40
+Critic loss: -18.6197 - Generator loss: 52.5832
+Epoch 19/40
+Critic loss: -18.7425 - Generator loss: 47.9807
+Epoch 20/40
+Critic loss: -18.0650 - Generator loss: 52.0491
+Epoch 21/40
+Critic loss: -16.7147 - Generator loss: 49.5780
+Epoch 22/40
+Critic loss: -17.2831 - Generator loss: 48.1447
+Epoch 23/40
+Critic loss: -17.9082 - Generator loss: 50.1466
+Epoch 24/40
+Critic loss: -17.0841 - Generator loss: 48.6090
+Epoch 25/40
+Critic loss: -16.3379 - Generator loss: 49.8083
+Epoch 26/40
+Critic loss: -16.4345 - Generator loss: 46.2743
+Epoch 27/40
+Critic loss: -17.3150 - Generator loss: 50.4181
+Epoch 28/40
+Critic loss: -17.7131 - Generator loss: 43.9070
+Epoch 29/40
+Critic loss: -14.0833 - Generator loss: 46.2176
+Epoch 30/40
+Critic loss: -14.6163 - Generator loss: 44.0597
+Epoch 31/40
+Critic loss: -13.7800 - Generator loss: 44.1833
+Epoch 32/40
+Critic loss: -13.0562 - Generator loss: 43.3478
+Epoch 33/40
+Critic loss: -15.3707 - Generator loss: 42.3999
+Epoch 34/40
+Critic loss: -14.6800 - Generator loss: 46.8839
+Epoch 35/40
+Critic loss: -13.8715 - Generator loss: 49.8007
+Epoch 36/40
+Critic loss: -12.9053 - Generator loss: 45.9236
+Epoch 37/40
+Critic loss: -15.0473 - Generator loss: 48.3554
+Epoch 38/40
+Critic loss: -12.3525 - Generator loss: 49.4383
+Epoch 39/40
+Critic loss: -9.8300 - Generator loss: 47.1686
+Epoch 40/40
+Critic loss: -13.7488 - Generator loss: 45.6762
+Generated 10000 images -> output/wgan_gp/tune_wgan_temp
+FID: 101.2228
+Config FID: 101.2228
+
+Best config: {'adam_b1': 0.0, 'adam_b2': 0.9, 'batch_size': 128, 'feature_maps': 128, 'lr': 0.0002, 'n_critic': 3, 'num_epochs': 40}, FID: 89.4981
+Epoch 41/200
+Critic loss: -7.3593 - Generator loss: 56.2079
+Epoch 42/200
+Critic loss: -7.1309 - Generator loss: 57.1813
+Epoch 43/200
+Critic loss: -6.6519 - Generator loss: 57.4874
+Epoch 44/200
+Critic loss: -6.0366 - Generator loss: 56.5838
+Epoch 45/200

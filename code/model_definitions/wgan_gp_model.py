@@ -4,8 +4,16 @@ import torch.nn as nn
 
 
 class Generator_WGAN_GP(nn.Module):
-    """Generator class for WGAN-GP model."""
+    """Generator class for WGAN-GP model.
+    
+    Args:
+        img_size (int): Size of the output image (assumed to be square).
+        latent_dim (int): Dimensionality of the input noise vector.
+        channels (int): Number of channels in the output image.
+        feature_maps (int, optional): Base number of feature maps. Defaults to 64.
+    """
     def __init__(self, img_size, latent_dim, channels, feature_maps=64):
+        
         super(Generator_WGAN_GP, self).__init__()
 
         n_stages = int(np.log2(img_size) - 2)
@@ -20,6 +28,7 @@ class Generator_WGAN_GP(nn.Module):
                 bias=False
             ),
             nn.BatchNorm2d(feature_maps * (2 ** (n_stages - 1))),
+            
             nn.ReLU(True)
         )
 
@@ -54,7 +63,13 @@ class Generator_WGAN_GP(nn.Module):
 
 
 class Critic_WGAN_GP(nn.Module):
-    """Critic class for WGAN-GP model."""
+    """Critic class for WGAN-GP model.
+    
+    Args:
+    img_size (int): Size of the input image (assumed to be square).
+    channels (int): Number of channels in the input image.
+    feature_maps (int, optional): Base number of feature maps. Defaults to 64.
+    """
     def __init__(self, img_size, channels, feature_maps=64):
         super(Critic_WGAN_GP, self).__init__()
 
@@ -103,7 +118,14 @@ class Critic_WGAN_GP(nn.Module):
 
 
 class WGAN_GP(nn.Module):
-    """WGAN-GP architecture class."""
+    """WGAN-GP architecture class.
+    
+    Args:
+        img_size (int): Size of the input image (assumed to be square).
+        latent_dim (int): Dimensionality of the input noise vector.
+        channels (int): Number of channels in the input image.
+        feature_maps (int, optional): Base number of feature maps. Defaults to 64.
+    """
     def __init__(self, img_size, latent_dim, channels, feature_maps=64):
         super(WGAN_GP, self).__init__()
         self.generator = Generator_WGAN_GP(
@@ -119,6 +141,15 @@ class WGAN_GP(nn.Module):
         )
 
     def calculate_gradient_penalty(self, x_fake: torch.Tensor, x_real: torch.Tensor) -> torch.Tensor:
+        """Custom gradient penalty method for wgan-gp. This is the principal componenet of the class
+
+        Args:
+            x_fake (torch.Tensor): _description_
+            x_real (torch.Tensor): _description_
+
+        Returns:
+            torch.Tensor: _description_
+        """
         epsilon = torch.rand(
             x_real.size(0), 1, 1, 1,
             device=x_real.device,

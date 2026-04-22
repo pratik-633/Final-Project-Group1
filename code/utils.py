@@ -127,6 +127,8 @@ def compute_fid(real_dir, fake_dir, batch_size, device):
     return fid_value
 
 
+
+
 # NOTE: USED AI FOR THIS FUNCTION
 def weights_init(m):
     """Initialize the weights of convolutional and normalization layers."""
@@ -168,21 +170,36 @@ def save_best_tuned_params(best_params, img_size, file_name):
     with open(config_path, "w") as f:
         json.dump(all_configs, f, indent=4)
 
-        
-# test code
 
-if __name__ == "__main__":
-    # Config check
-    config = Config()
-    print(config)
-    print(f"image_sizes: {config.image_size}")
-    print(f"device: {config.device}")
+# NOTE: AI ASSISTED WITH THIS FUNCTION
+def export_real_images_for_fid(split, data_root, image_size, save_dir):
+    """Cache resized/cropped real images for fair FID evaluation."""
+    split_path = os.path.join(data_root, split)
+    if not os.path.isdir(split_path):
+        raise FileNotFoundError(f"Data split not found: {split_path}")
 
-    # weights_init check
-    linear = nn.Linear(100, 256)
-    weights_init(linear)
-    print(f"Linear weight mean: {linear.weight.data.mean():.4f}")
+    # FID should compare saved image files, so do not normalize here.
+    transform = transforms.Compose([
+        transforms.Resize(image_size),
+        transforms.CenterCrop(image_size),
+        transforms.ToTensor(),
+    ])
 
-    # noise shape check
-    print(f"DCGAN noise: {torch.randn(1, config.latent_dim, 1, 1).shape}")
-    print(f"ProGAN noise: {torch.randn(1, config.latent_dim).shape}")
+    dataset = ImageFolder(root=split_path, transform=transform)
+    real_idx = dataset.class_to_idx["real"]
+    real_samples = [(path, target) for path, target in dataset.samples if target == real_idx]
+
+    if os.path.isdir(save_dir) and len(os.listdir(save_dir)) == len(real_samples):
+        return save_dir
+
+    if os.path.isdir(save_dir):
+        shutil.rmtree(save_dir)
+    os.makedirs(save_dir, exist_ok=True)
+
+    for index, (path, _) in enumerate(real_samples):
+        image = dataset.loader(path)
+        image = transform(image)
+        save_image(image, os.path.join(save_dir, f"{index:06d}.png"))
+
+    print(f"Cached {len(real_samples)} real images for FID -> {save_dir}")
+    return save_dir

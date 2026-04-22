@@ -3,6 +3,7 @@ import argparse
 import json
 import numpy as np
 import torch
+from utils import export_real_images_for_fid
 from train import (
     DCGAN, WGAN_GP, ProGAN,
     generate_images, compute_fid, load_dataset,
@@ -68,7 +69,13 @@ def main():
     elif model == "progan":
         progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS).to(DEVICE)
     
-    real_test_dir = os.path.join(DATA_ROOT, "test", "real")
+    # real_test_dir = os.path.join(DATA_ROOT, "test", "real")
+    real_test_dir = export_real_images_for_fid(
+        split="test",
+        data_root=DATA_ROOT,
+        image_size=img_size,
+        save_dir=os.path.join("output", "fid_cache", f"test_real_{img_size}")
+        )
     num_images = 10000
     if dcgan is not None:
         dcgan_fake_dir = generate_images(dcgan.generator, num_images, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,

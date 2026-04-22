@@ -69,7 +69,7 @@ def main():
         progan = ProGAN(latent_dim=LATENT_DIM, channels=CHANNELS).to(DEVICE)
     
     real_test_dir = os.path.join(DATA_ROOT, "test", "real")
-    num_images = 2000
+    num_images = 10000
     if dcgan is not None:
         dcgan_fake_dir = generate_images(dcgan.generator, num_images, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,
                                          DEVICE)

@@ -24,6 +24,9 @@ def references():
 
     - Karras et al. (2017), *Progressive Growing of GANs for Improved Quality, Stability, and Variation*  
       https://arxiv.org/abs/1710.10196
+      
+    - Zeiler and Fergus (2010), *Deconvolutional Networks*
+      https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf
     """)
     
     

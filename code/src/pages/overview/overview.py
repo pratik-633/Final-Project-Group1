@@ -10,10 +10,9 @@ def overview():
         "on a real vs. fake image dataset."
     )
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     col1.metric("Models Trained", "3")
     col2.metric("Image Resolution", "64 / 128 px")
-    col3.metric("Dataset Split", "Train / Val / Test")
 
     st.divider()
     st.subheader("What's in this dashboard?")

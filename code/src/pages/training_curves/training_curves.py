@@ -1,5 +1,5 @@
 import streamlit as st
-from components.loss_dashboard import loss_dashboard
+from components.loss_dashboard.loss_dashboard import loss_dashboard
 from loaders.loaders import load_loss_data
 
 

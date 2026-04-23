@@ -2,3 +2,378 @@
 [valid] Loaded 10000 real images  |  batches: 79
 [test] Loaded 10000 real images  |  batches: 79
 Epoch 1/300
+Critic loss: -47.8459 - Generator loss: 41.2011
+Epoch 2/300
+Critic loss: -24.1238 - Generator loss: -30.0750
+Epoch 3/300
+Critic loss: -17.5691 - Generator loss: -41.7133
+Epoch 4/300
+Critic loss: -14.7895 - Generator loss: -50.4731
+Epoch 5/300
+Critic loss: -13.8582 - Generator loss: -42.3960
+Epoch 6/300
+Critic loss: -12.9253 - Generator loss: -30.0264
+Epoch 7/300
+Critic loss: -12.1355 - Generator loss: -15.4228
+Epoch 8/300
+Critic loss: -11.3538 - Generator loss: -10.0565
+Epoch 9/300
+Critic loss: -10.7673 - Generator loss: -3.9685
+Epoch 10/300
+Critic loss: -10.2322 - Generator loss: 0.4640
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 157.9036
+Validation FID: 157.9036
+New best model - models/wgan_gp_model_128.pt, with FID: 157.9036
+LR: 0.000200
+Epoch 11/300
+Critic loss: -9.8032 - Generator loss: 4.5315
+Epoch 12/300
+Critic loss: -9.5519 - Generator loss: 8.0675
+Epoch 13/300
+Critic loss: -9.1673 - Generator loss: 10.6869
+Epoch 14/300
+Critic loss: -8.8707 - Generator loss: 12.1907
+Epoch 15/300
+Critic loss: -8.6329 - Generator loss: 16.5406
+Epoch 16/300
+Critic loss: -8.3487 - Generator loss: 18.8306
+Epoch 17/300
+Critic loss: -8.2239 - Generator loss: 24.4650
+Epoch 18/300
+Critic loss: -8.0111 - Generator loss: 28.0145
+Epoch 19/300
+Critic loss: -7.7213 - Generator loss: 29.5025
+Epoch 20/300
+Critic loss: -7.6252 - Generator loss: 30.8011
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 102.0125
+Validation FID: 102.0125
+New best model - models/wgan_gp_model_128.pt, with FID: 102.0125
+LR: 0.000198
+Epoch 21/300
+Critic loss: -7.3649 - Generator loss: 32.1281
+Epoch 22/300
+Critic loss: -7.2264 - Generator loss: 32.0339
+Epoch 23/300
+Critic loss: -7.0591 - Generator loss: 30.7891
+Epoch 24/300
+Critic loss: -6.9188 - Generator loss: 30.2765
+Epoch 25/300
+Critic loss: -6.8322 - Generator loss: 31.6705
+Epoch 26/300
+Critic loss: -6.6945 - Generator loss: 33.4885
+Epoch 27/300
+Critic loss: -6.6669 - Generator loss: 34.2553
+Epoch 28/300
+Critic loss: -6.5374 - Generator loss: 33.8886
+Epoch 29/300
+Critic loss: -6.5197 - Generator loss: 35.3891
+Epoch 30/300
+Critic loss: -6.4340 - Generator loss: 37.3076
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 79.2677
+Validation FID: 79.2677
+New best model - models/wgan_gp_model_128.pt, with FID: 79.2677
+LR: 0.000196
+Epoch 31/300
+Critic loss: -6.3617 - Generator loss: 39.4947
+Epoch 32/300
+Critic loss: -6.3630 - Generator loss: 40.3958
+Epoch 33/300
+Critic loss: -6.2880 - Generator loss: 42.6448
+Epoch 34/300
+Critic loss: -6.1601 - Generator loss: 43.2381
+Epoch 35/300
+Critic loss: -6.1202 - Generator loss: 42.5610
+Epoch 36/300
+Critic loss: -6.0698 - Generator loss: 45.3843
+Epoch 37/300
+Critic loss: -5.9595 - Generator loss: 45.6519
+Epoch 38/300
+Critic loss: -5.9780 - Generator loss: 45.4865
+Epoch 39/300
+Critic loss: -5.9119 - Generator loss: 49.2536
+Epoch 40/300
+Critic loss: -5.8542 - Generator loss: 47.8449
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 79.2689
+Validation FID: 79.2689
+No FID improvement - 79.2689 over best 79.2677
+LR: 0.000194
+Epoch 41/300
+Critic loss: -5.8648 - Generator loss: 49.3420
+Epoch 42/300
+Critic loss: -5.7781 - Generator loss: 50.6099
+Epoch 43/300
+Critic loss: -5.7884 - Generator loss: 48.6333
+Epoch 44/300
+Critic loss: -5.7128 - Generator loss: 50.3252
+Epoch 45/300
+Critic loss: -5.6971 - Generator loss: 50.5824
+Epoch 46/300
+Critic loss: -5.6687 - Generator loss: 49.2822
+Epoch 47/300
+Critic loss: -5.6296 - Generator loss: 50.0230
+Epoch 48/300
+Critic loss: -5.5990 - Generator loss: 50.2519
+Epoch 49/300
+Critic loss: -5.5482 - Generator loss: 51.0664
+Epoch 50/300
+Critic loss: -5.4908 - Generator loss: 49.2210
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 61.5510
+Validation FID: 61.5510
+New best model - models/wgan_gp_model_128.pt, with FID: 61.5510
+LR: 0.000190
+Epoch 51/300
+Critic loss: -5.4843 - Generator loss: 50.7025
+Epoch 52/300
+Critic loss: -5.4895 - Generator loss: 50.5665
+Epoch 53/300
+Critic loss: -5.4650 - Generator loss: 50.8137
+Epoch 54/300
+Critic loss: -5.3678 - Generator loss: 50.4758
+Epoch 55/300
+Critic loss: -5.3561 - Generator loss: 52.0816
+Epoch 56/300
+Critic loss: -5.3949 - Generator loss: 51.4598
+Epoch 57/300
+Critic loss: -5.3433 - Generator loss: 51.5738
+Epoch 58/300
+Critic loss: -5.2986 - Generator loss: 52.9514
+Epoch 59/300
+Critic loss: -5.3693 - Generator loss: 55.0932
+Epoch 60/300
+Critic loss: -5.2897 - Generator loss: 55.7802
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 58.5868
+Validation FID: 58.5868
+New best model - models/wgan_gp_model_128.pt, with FID: 58.5868
+LR: 0.000186
+Epoch 61/300
+Critic loss: -5.2913 - Generator loss: 56.6296
+Epoch 62/300
+Critic loss: -5.2760 - Generator loss: 56.1325
+Epoch 63/300
+Critic loss: -5.2802 - Generator loss: 57.3627
+Epoch 64/300
+Critic loss: -5.2283 - Generator loss: 57.0934
+Epoch 65/300
+Critic loss: -5.2315 - Generator loss: 58.6612
+Epoch 66/300
+Critic loss: -5.2233 - Generator loss: 58.8443
+Epoch 67/300
+Critic loss: -5.2418 - Generator loss: 58.6668
+Epoch 68/300
+Critic loss: -5.2366 - Generator loss: 59.6458
+Epoch 69/300
+Critic loss: -5.2102 - Generator loss: 62.0536
+Epoch 70/300
+Critic loss: -5.1953 - Generator loss: 62.4254
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 52.9719
+Validation FID: 52.9719
+New best model - models/wgan_gp_model_128.pt, with FID: 52.9719
+LR: 0.000181
+Epoch 71/300
+Critic loss: -5.1744 - Generator loss: 62.9810
+Epoch 72/300
+Critic loss: -5.1981 - Generator loss: 63.1949
+Epoch 73/300
+Critic loss: -5.1471 - Generator loss: 63.5922
+Epoch 74/300
+Critic loss: -5.1537 - Generator loss: 65.9012
+Epoch 75/300
+Critic loss: -5.1912 - Generator loss: 67.1170
+Epoch 76/300
+Critic loss: -5.1459 - Generator loss: 66.8013
+Epoch 77/300
+Critic loss: -5.1542 - Generator loss: 67.6934
+Epoch 78/300
+Critic loss: -5.1851 - Generator loss: 67.7156
+Epoch 79/300
+Critic loss: -5.1313 - Generator loss: 66.4140
+Epoch 80/300
+Critic loss: -5.1844 - Generator loss: 67.1497
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 48.3023
+Validation FID: 48.3023
+New best model - models/wgan_gp_model_128.pt, with FID: 48.3023
+LR: 0.000175
+Epoch 81/300
+Critic loss: -5.1597 - Generator loss: 69.9897
+Epoch 82/300
+Critic loss: -5.1672 - Generator loss: 69.7866
+Epoch 83/300
+Critic loss: -5.1520 - Generator loss: 71.6239
+Epoch 84/300
+Critic loss: -5.2069 - Generator loss: 69.9846
+Epoch 85/300
+Critic loss: -5.1896 - Generator loss: 70.8463
+Epoch 86/300
+Critic loss: -5.1861 - Generator loss: 70.9538
+Epoch 87/300
+Critic loss: -5.1977 - Generator loss: 72.9411
+Epoch 88/300
+Critic loss: -5.2002 - Generator loss: 73.9420
+Epoch 89/300
+Critic loss: -5.2072 - Generator loss: 73.1390
+Epoch 90/300
+Critic loss: -5.1718 - Generator loss: 72.9132
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 45.9792
+Validation FID: 45.9792
+New best model - models/wgan_gp_model_128.pt, with FID: 45.9792
+LR: 0.000169
+Epoch 91/300
+Critic loss: -5.1965 - Generator loss: 74.9375
+Epoch 92/300
+Critic loss: -5.2774 - Generator loss: 73.8323
+Epoch 93/300
+Critic loss: -5.2063 - Generator loss: 76.2171
+Epoch 94/300
+Critic loss: -5.2002 - Generator loss: 76.2113
+Epoch 95/300
+Critic loss: -5.2585 - Generator loss: 76.6125
+Epoch 96/300
+Critic loss: -5.2270 - Generator loss: 76.9343
+Epoch 97/300
+Critic loss: -5.2974 - Generator loss: 76.4599
+Epoch 98/300
+Critic loss: -5.2700 - Generator loss: 75.7336
+Epoch 99/300
+Critic loss: -5.3001 - Generator loss: 77.9863
+Epoch 100/300
+Critic loss: -5.3123 - Generator loss: 77.1338
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 43.7232
+Validation FID: 43.7232
+New best model - models/wgan_gp_model_128.pt, with FID: 43.7232
+LR: 0.000163
+Epoch 101/300
+Critic loss: -5.3211 - Generator loss: 77.8768
+Epoch 102/300
+Critic loss: -5.3265 - Generator loss: 80.1079
+Epoch 103/300
+Critic loss: -5.3314 - Generator loss: 82.1482
+Epoch 104/300
+Critic loss: -5.3430 - Generator loss: 81.0258
+Epoch 105/300
+Critic loss: -5.3487 - Generator loss: 79.9676
+Epoch 106/300
+Critic loss: -5.3870 - Generator loss: 81.5250
+Epoch 107/300
+Critic loss: -5.3790 - Generator loss: 81.6907
+Epoch 108/300
+Critic loss: -5.3976 - Generator loss: 81.6706
+Epoch 109/300
+Critic loss: -5.4226 - Generator loss: 82.5544
+Epoch 110/300
+Critic loss: -5.4629 - Generator loss: 83.1683
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 42.5199
+Validation FID: 42.5199
+New best model - models/wgan_gp_model_128.pt, with FID: 42.5199
+LR: 0.000156
+Epoch 111/300
+Critic loss: -5.4645 - Generator loss: 84.0016
+Epoch 112/300
+Critic loss: -5.4758 - Generator loss: 84.3856
+Epoch 113/300
+Critic loss: -5.4945 - Generator loss: 83.2780
+Epoch 114/300
+Critic loss: -5.5107 - Generator loss: 83.5754
+Epoch 115/300
+Critic loss: -5.5154 - Generator loss: 84.7105
+Epoch 116/300
+Critic loss: -5.5695 - Generator loss: 84.8217
+Epoch 117/300
+Critic loss: -5.5966 - Generator loss: 84.7294
+Epoch 118/300
+Critic loss: -5.5872 - Generator loss: 85.8860
+Epoch 119/300
+Critic loss: -5.6088 - Generator loss: 85.6399
+Epoch 120/300
+Critic loss: -5.6297 - Generator loss: 84.7706
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 38.5469
+Validation FID: 38.5469
+New best model - models/wgan_gp_model_128.pt, with FID: 38.5469
+LR: 0.000148
+Epoch 121/300
+Critic loss: -5.6765 - Generator loss: 86.2931
+Epoch 122/300
+Critic loss: -5.6422 - Generator loss: 85.8549
+Epoch 123/300
+Critic loss: -5.7049 - Generator loss: 87.2110
+Epoch 124/300
+Critic loss: -5.7150 - Generator loss: 86.7429
+Epoch 125/300
+Critic loss: -5.7256 - Generator loss: 86.6775
+Epoch 126/300
+Critic loss: -5.7495 - Generator loss: 87.3104
+Epoch 127/300
+Critic loss: -5.7767 - Generator loss: 87.1902
+Epoch 128/300
+Critic loss: -5.7684 - Generator loss: 87.9601
+Epoch 129/300
+Critic loss: -5.8112 - Generator loss: 87.7619
+Epoch 130/300
+Critic loss: -5.8666 - Generator loss: 87.5422
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 39.5527
+Validation FID: 39.5527
+No FID improvement - 39.5527 over best 38.5469
+LR: 0.000141
+Epoch 131/300
+Critic loss: -5.8688 - Generator loss: 87.0089
+Epoch 132/300
+Critic loss: -5.8971 - Generator loss: 86.6806
+Epoch 133/300
+Critic loss: -5.9455 - Generator loss: 86.7873
+Epoch 134/300
+Critic loss: -5.9460 - Generator loss: 88.3806
+Epoch 135/300
+Critic loss: -5.9578 - Generator loss: 87.3609
+Epoch 136/300
+Critic loss: -5.9994 - Generator loss: 87.5281
+Epoch 137/300
+Critic loss: -6.0218 - Generator loss: 88.4673
+Epoch 138/300
+Critic loss: -6.0584 - Generator loss: 87.3376
+Epoch 139/300
+Critic loss: -6.0782 - Generator loss: 88.3732
+Epoch 140/300
+Critic loss: -6.1103 - Generator loss: 88.0921
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 41.1218
+Validation FID: 41.1218
+No FID improvement - 41.1218 over best 38.5469
+LR: 0.000133
+Epoch 141/300
+Critic loss: -6.1561 - Generator loss: 87.5017
+Epoch 142/300
+Critic loss: -6.1530 - Generator loss: 87.4392
+Epoch 143/300
+Critic loss: -6.2450 - Generator loss: 87.2052
+Epoch 144/300
+Critic loss: -6.2357 - Generator loss: 89.2719
+Epoch 145/300
+Critic loss: -6.2192 - Generator loss: 87.8073
+Epoch 146/300
+Critic loss: -6.2626 - Generator loss: 87.9762
+Epoch 147/300
+Critic loss: -6.2943 - Generator loss: 88.6125
+Epoch 148/300
+Critic loss: -6.3265 - Generator loss: 88.3197
+Epoch 149/300
+Critic loss: -6.3252 - Generator loss: 88.5970
+Epoch 150/300
+Critic loss: -6.3996 - Generator loss: 88.2947
+Generated 10000 images -> output/wgan_gp/fid_temp
+FID: 39.4142
+Validation FID: 39.4142
+No FID improvement - 39.4142 over best 38.5469
+LR: 0.000125
+Early stopping at epoch 150 due to no FID improvement for 3 eval epochs.

@@ -298,7 +298,7 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
 
     history = {
         'epoch': [],
-        'critic_loss': [],
+        'discriminator_loss': [],
         'generator_loss': [],
         'fid': [],
     }
@@ -327,7 +327,10 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
                 x_fake = model.generator(z)
 
             # anneal instance noise from 0.1 to 0.0 over training - helps prevent D from overpowering G early
-            noise_std = max(0.0, 0.1 * (1.0 - epoch / params['num_epochs']))
+            if params['num_epochs'] > 1:
+                noise_std = max(0.0, 0.1 * (1.0 - epoch / (params['num_epochs'] - 1)))
+            else:
+                noise_std = 0.0
             x_real_noisy = x_real + noise_std * torch.randn_like(x_real)
             x_fake_noisy = x_fake + noise_std * torch.randn_like(x_fake)
 
@@ -385,7 +388,7 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
             fake_dir = generate_images(
                 model.generator,
                 num_val_samples,
-                "output/dcgan/fid_temp",
+                f"output/dcgan_{params.get('image_size', 64)}/fid_temp",
                 BATCH_SIZE,
                 LATENT_DIM,
                 DEVICE
@@ -399,7 +402,7 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
             model.train()
 
         history['epoch'].append(epoch + 1)
-        history['critic_loss'].append(avg_disc_loss)
+        history['discriminator_loss'].append(avg_disc_loss)
         history['generator_loss'].append(avg_gen_loss)
         history['fid'].append(current_fid)
 
@@ -410,10 +413,9 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
             'generator_optimizer_state_dict': generator_optimizer.state_dict(),
             'discriminator_optimizer_state_dict': discriminator_optimizer.state_dict(),
             'params': params,
-            'critic_loss': avg_disc_loss,
+           'discriminator_loss': avg_disc_loss,
             'generator_loss': avg_gen_loss,
             'fid': current_fid,
-            'history': copy.deepcopy(history),
         }
 
         if not use_val:
@@ -835,7 +837,7 @@ def main():
 
     if model_choice == "dcgan":
         import logging
-        os.makedirs("output/dcgan", exist_ok=True)
+        os.makedirs(f"output/dcgan_{img_size}", exist_ok=True)
         dcgan_log_path = f"output/dcgan_run_{img_size}.log"
         dcgan_logger = logging.getLogger("dcgan")
         dcgan_logger.setLevel(logging.INFO)
@@ -853,7 +855,7 @@ def main():
             image_size=img_size,
             save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
         )
-        os.makedirs("output/dcgan/fid_temp", exist_ok=True)
+        os.makedirs(f"output/dcgan_{img_size}/fid_temp", exist_ok=True)
 
         dc_history = train_dcgan(
             train_loader,
@@ -864,13 +866,16 @@ def main():
             logger=dcgan_logger
         )
 
-        with open(f"output/dcgan_history_{img_size}.json", "w") as f:
-            json.dump(dc_history, f, indent=2)
+        os.makedirs("logs", exist_ok=True)
+        dcgan_history_log_path = f"logs/dcgan_{img_size}_history.json"
 
-        dcgan_logger.info(f"History saved to output/dcgan_history_{img_size}.json")
+        with open(dcgan_history_log_path, "w") as f:
+            json.dump({"train_history": dc_history}, f, indent=2)
 
-        if os.path.isdir("output/dcgan/fid_temp"):
-            shutil.rmtree("output/dcgan/fid_temp")
+        dcgan_logger.info(f"History saved to {dcgan_history_log_path}")
+
+        if os.path.isdir(f"output/dcgan_{img_size}/fid_temp"):
+            shutil.rmtree(f"output/dcgan_{img_size}/fid_temp")
             
     elif model_choice == "wgan_gp":
         wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=tune)

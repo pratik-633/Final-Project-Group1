@@ -1,0 +1,11 @@
+{
+    "img_size_64": {
+        "adam_b1": 0.5,
+        "adam_b2": 0.999,
+        "batch_size": 128,
+        "image_size": 64,
+        "feature_maps": 64,
+        "lr": 0.0002,
+        "num_epochs": 100
+    }
+}

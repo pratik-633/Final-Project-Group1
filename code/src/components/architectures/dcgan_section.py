@@ -14,6 +14,6 @@ def dcgan_section():
     img_path = Path(__file__).resolve().parents[2] / "assets" / "gan_arch_diag.png"
     st.image(str(img_path), caption="DCGAN GAN Diagram")
     
-    st.subheader("DCGAN Convolutions")
-    img_path = Path(__file__).resolve().parents[2] / "assets" / "dcgan_conv.png"
-    st.image(str(img_path), caption="DCGAN Convolutional Layers")
+    st.subheader("DCGAN Deconvolutions")
+    img_path = Path(__file__).resolve().parents[2] / "assets" / "dcgan_deconv.png"
+    st.image(str(img_path), caption="DCGAN Deconvolutional Layers")

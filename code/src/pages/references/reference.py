@@ -51,3 +51,10 @@ def references():
     - Packt, *Inside the Generative Adversarial Networks (GAN) architecture*  
       https://medium.com/@Packt_Pub/inside-the-generative-adversarial-networks-gan-architecture-2435afbd6b3b
     """)
+    
+    st.divider()
+    st.subheader("Additional Resources")
+    st.markdown("""
+          - https://apxml.com/courses/generative-adversarial-networks-gans/chapter-5-evaluation-of-gans/frechet-inception-distance-fid
+    """
+    )

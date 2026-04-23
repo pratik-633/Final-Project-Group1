@@ -2,6 +2,10 @@
 [valid] Loaded 10000 real images  |  batches: 79
 [test] Loaded 10000 real images  |  batches: 79
 Epoch 1/300
+[train] Loaded 50000 real images  |  batches: 390
+[valid] Loaded 10000 real images  |  batches: 79
+[test] Loaded 10000 real images  |  batches: 79
+Epoch 1/300
 Critic loss: -47.8459 - Generator loss: 41.2011
 Epoch 2/300
 Critic loss: -24.1238 - Generator loss: -30.0750

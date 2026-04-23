@@ -834,21 +834,44 @@ def main():
     os.makedirs("models", exist_ok=True)
 
     if model_choice == "dcgan":
+        import logging
+        os.makedirs("output/dcgan", exist_ok=True)
+        dcgan_log_path = f"output/dcgan_run_{img_size}.log"
+        dcgan_logger = logging.getLogger("dcgan")
+        dcgan_logger.setLevel(logging.INFO)
+        if not dcgan_logger.handlers:
+            dcgan_logger.addHandler(logging.FileHandler(dcgan_log_path))
+            dcgan_logger.addHandler(logging.StreamHandler())
+        dcgan_logger.propagate = False
+        dcgan_logger.info(f"Log file: {dcgan_log_path}")
+
         dc_params, dcgan = tune_dcgan(train_loader, val_loader)
 
-        real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        real_val_dir = export_real_images_for_fid(
+            split="valid",
+            data_root=DATA_ROOT,
+            image_size=img_size,
+            save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
+        )
         os.makedirs("output/dcgan/fid_temp", exist_ok=True)
 
-        train_dcgan(
+        dc_history = train_dcgan(
             train_loader,
             dcgan,
             dc_params,
             val_dir=real_val_dir,
-            num_val_samples=len(val_dataset)
+            num_val_samples=len(val_dataset),
+            logger=dcgan_logger
         )
+
+        with open(f"output/dcgan_history_{img_size}.json", "w") as f:
+            json.dump(dc_history, f, indent=2)
+
+        dcgan_logger.info(f"History saved to output/dcgan_history_{img_size}.json")
 
         if os.path.isdir("output/dcgan/fid_temp"):
             shutil.rmtree("output/dcgan/fid_temp")
+            
     elif model_choice == "wgan_gp":
         wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=tune)
 

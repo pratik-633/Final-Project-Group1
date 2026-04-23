@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
-from utils import get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params
+from utils import (get_transforms, load_dataset, generate_images, compute_fid, weights_init, save_best_tuned_params, export_real_images_for_fid)
 from sklearn.model_selection import ParameterSampler, ParameterGrid
 from model_definitions.dcgan_model import DCGAN
 from model_definitions.wgan_gp_model import WGAN_GP
@@ -102,7 +102,13 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
 
     param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
     # param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
-    real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+    # real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+    real_val_dir = export_real_images_for_fid(
+        split="valid",
+        data_root=DATA_ROOT,
+        image_size=img_size,
+        save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
+    )
 
     best_checkpoint_path = ""
     best_fid = float('inf')
@@ -446,6 +452,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
         'fid': [],
         'lr': []
     }
+    
+    patience = 0
 
     best_fid = float('inf')
     for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
@@ -553,11 +561,14 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
             print(f"Validation FID: {fid:.4f}")
             if fid < best_fid:
+                patience = 0
                 best_fid = fid
                 torch.save(checkpoint, model_path)
                 print(f"New best model - {model_path}, with FID: {fid:.4f}")
             else:
                 print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
+                patience += 1
+                
             model.train()
         else:
             # non-eval epoch with validation enabled — no FID computed
@@ -569,6 +580,11 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             gen_scheduler.step()
             if (epoch + 1) % 10 == 0:
                 print(f"LR: {critic_optimizer.param_groups[0]['lr']:.6f}")
+        
+        
+        if patience >= 3:
+            print(f"Early stopping at epoch {epoch + 1} due to no FID improvement for 3 eval epochs.")
+            return history
     return history
         
 
@@ -794,7 +810,14 @@ def main():
     elif model_choice == "wgan_gp":
         wgan_params, wgan_gp = tune_wgan_gp(train_loader, val_loader, img_size=img_size, tuning=tune)
 
-        real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        # real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        real_val_dir = export_real_images_for_fid(
+            split="valid",
+            data_root=DATA_ROOT,
+            image_size=img_size,
+            save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
+        )
+        
         os.makedirs("output/wgan_gp/fid_temp", exist_ok=True)
 
         history = train_wgan_gp(train_loader, wgan_gp, wgan_params, img_size=img_size,
@@ -819,66 +842,6 @@ def main():
             tuning=False)
 
         train_progan(progan, train_loader, progan_params, val_dir=real_val_dir, num_val_samples=len(val_dataset))
-
-    # FOR LOADING EXISTING MODELS
-    """
-    # 1. Instantiate the model with the same architecture
-    # model = WGAN_GP(img_size=64, latent_dim=LATENT_DIM, channels=CHANNELS, feature_maps=64)
-    # model.to(DEVICE)
-
-    # # 2. Load the checkpoint
-    # checkpoint = torch.load("models/wgan_gp_model_64.pt", map_location=DEVICE)
-
-    # # 3. Load state dicts
-    # model.generator.load_state_dict(checkpoint['generator_state_dict'])
-    # model.critic.load_state_dict(checkpoint['critic_state_dict'])
-
-    # # 4. Set to eval mode for inference (or train mode to resume training)
-    # model.eval()
-
-    # TESTING BELOW -> until this is worked on more, commented out for now
-    """
-
-    # generate fake images from each model
-    real_test_dir = os.path.join(DATA_ROOT, "test", "real")
-    num_test = len(test_dataset)
-    if dcgan is not None:
-        dcgan_fake_dir = generate_images(dcgan.generator, num_test, "output/dcgan_fakes", BATCH_SIZE, LATENT_DIM,
-                                         DEVICE)
-        dcgan_fid = compute_fid(real_test_dir, dcgan_fake_dir, BATCH_SIZE, DEVICE)
-        print(f"DCGAN FID: {dcgan_fid:.4f}")
-    elif wgan_gp is not None:
-        checkpoint = torch.load(f"models/wgan_gp_model_{img_size}.pt", map_location=DEVICE)
-        wgan_gp.generator.load_state_dict(checkpoint['generator_state_dict'])
-        wgan_gp.critic.load_state_dict(checkpoint['critic_state_dict'])
-
-        wgan_gp.eval()
-        wgan_gp_fake_dir = generate_images(wgan_gp.generator, num_test, f"output/wgan_gp_{img_size}", BATCH_SIZE,
-                                           LATENT_DIM, DEVICE)
-        wgan_gp_fid = compute_fid(real_test_dir, wgan_gp_fake_dir, BATCH_SIZE, DEVICE)
-        print(f"WGAN-GP FID: {wgan_gp_fid:.4f}")
-    elif progan is not None:
-        # load best checkpoint
-        progan.to(DEVICE)
-        checkpoint = torch.load(f"models/progan_model_{img_size}.pt", map_location=DEVICE, weights_only=False)
-        progan.gen.load_state_dict(checkpoint['generator_state_dict'])
-        progan.disc.load_state_dict(checkpoint['discriminator_state_dict'])
-
-        max_step = checkpoint.get('step', int(np.log2(img_size)) - 2)
-        alpha = checkpoint.get('alpha', 1.0)
-        progan.eval()
-
-        # generate images at final resolution
-        progan_fake_dir = generate_images(progan.gen, num_test, f"output/progan_{img_size}",
-                                          BATCH_SIZE, LATENT_DIM, DEVICE,
-                                          step=max_step, alpha=alpha)
-
-        progan_fid = compute_fid(real_test_dir, progan_fake_dir, BATCH_SIZE, DEVICE)
-        print(f"ProGAN FID: {progan_fid:.4f}")
-        
-        
-    
-
 
 if __name__ == "__main__":
     main()

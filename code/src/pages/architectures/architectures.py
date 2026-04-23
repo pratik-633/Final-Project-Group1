@@ -6,10 +6,11 @@ from components.architectures.progan_section import progan_section
 
 def _shared_setup_section():
     st.subheader("Shared Setup")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Latent Dim", "100")
     col2.metric("Channels", "3 (RGB)")
     col3.metric("Image Sizes", "64 / 128")
+    col4.metric("Metric", "Fréchet Inception Distance (FID)")
 
     st.markdown(
         """
@@ -17,6 +18,7 @@ def _shared_setup_section():
         - Each model section follows: generator, discriminator or critic, then notes.
         """
     )
+    
 
 def _comparison_placeholder_section():
     st.subheader("Quick Comparison")

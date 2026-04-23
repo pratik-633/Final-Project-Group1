@@ -19,7 +19,7 @@ def overview():
     st.markdown("""
     - **Architectures** — Architectural details for DCGAN, ProGAN, and WGAN-GP. Includes information on layer operations, generator and discriminator designs, loss functions, etc.
     - **Training Curves** — Loss/Metric curves and convergence behavior over epochs for each model type.
-    - **Model Comparison** — Side-by-side side by side FID scores, image comparisons, and more.
+    - **Model Comparison** — Side-by-side FID scores, image comparisons, and more.
     - **Image Gallery** — Generated samples from each model.
     - **Conclusions** — Findings and future work.
     """)
@@ -27,14 +27,16 @@ def overview():
     st.divider()
     st.subheader("Purpose")
     st.markdown(
-        "The purpose of this dashboard is to provide insights into the training and performance of different GAN architectures. "
-        "Users can explore model details, training dynamics, and generated samples to better understand the strengths and weaknesses of each approach."
-        "We hope that this dashboard can be used as a resource for students, researchers, and anybody who is interested in learning about GANs and their training process."
+        """
+        The purpose of this dashboard is to provide insights into the training and performance of different GAN architectures. 
+        Users can explore model details, training dynamics, and generated samples to better understand the strengths and weaknesses of each approach.
+        We hope that this dashboard can be used as a resource for students, researchers, and anybody who is interested in learning about GANs and their training process.
+        """
     )
     
     st.divider()
     st.subheader("Experiment")
-    st.write(
+    st.markdown(
         """
         We trained three GAN architectures on a dataset of real and fake images.
         Trained models include:
@@ -47,7 +49,9 @@ def overview():
     
     st.divider()
     st.subheader("Findings")
-    st.write(
-        "Preliminary findings suggest that WGAN-GP produces more stable training and higher quality samples compared to DCGAN, while ProGAN excels at generating high-resolution images. "
-        "However, the results are still being analyzed and will be updated in the future."
+    st.markdown(
+        """
+        Preliminary findings suggest that WGAN-GP produces more stable training and higher quality samples compared to DCGAN, while ProGAN excels at generating high-resolution images.
+        However, the results are still being analyzed and will be updated in the future.
+        """
     )

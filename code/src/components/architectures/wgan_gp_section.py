@@ -41,12 +41,12 @@ def wgan_gp_section():
             - The discriminator is training on a binary classification task (real or fake), and BCE returns a probability. When the probability distributions
             for the real and fake samples have little overlap, the discriminator can easily classify samples, and send back effectively useless information (gradients close to 0)
             to the generator.
-                - Consequences are mode collapse, instable training dynamics, and lack of ability to train on higher resolutions.
+                - Consequences are mode collapse, unstable training dynamics, and lack of ability to train on higher resolutions.
         2. Earth Mover Distance:
             - WGAN proposed using the Earth Mover (Wasserstein-1) distance as a loss function, which provides smoother gradients even when the real and fake distributions have little overlap.
             This allows for more stable training and better convergence.
                 - The scalar output is a distance value, that basically tells **how far apart the real and fake distributions are**
-            - The contstraint, is that the output must be **1-Lipschitz**
+            - The constraint is that the output must be **1-Lipschitz**
                 - **1-Lipschitz** means that the output of the critic must increase at most the same as the input. This ensures that the critic is smooth and returns meaningful gradients.
                 - Originally, the WGAN paper addressed this with weight clipping, but they said themselves this was a terrible idea and encouraged further research.
                 

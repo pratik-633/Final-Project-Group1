@@ -55,6 +55,7 @@ def references():
     st.divider()
     st.subheader("Additional Resources")
     st.markdown("""
-          - https://apxml.com/courses/generative-adversarial-networks-gans/chapter-5-evaluation-of-gans/frechet-inception-distance-fid
+    - ApX Machine Learning, *Fréchet Inception Distance (FID)*  
+      https://apxml.com/courses/generative-adversarial-networks-gans/chapter-5-evaluation-of-gans/frechet-inception-distance-fid
     """
     )

@@ -1,0 +1,4 @@
+[train] Loaded 50000 real images  |  batches: 390
+[valid] Loaded 10000 real images  |  batches: 79
+[test] Loaded 10000 real images  |  batches: 79
+Epoch 1/300

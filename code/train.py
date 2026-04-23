@@ -452,6 +452,8 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
         'fid': [],
         'lr': []
     }
+    
+    patience = 0
 
     best_fid = float('inf')
     for epoch in range(params.get('start_epoch', 0), params['num_epochs']):
@@ -559,11 +561,14 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
 
             print(f"Validation FID: {fid:.4f}")
             if fid < best_fid:
+                patience = 0
                 best_fid = fid
                 torch.save(checkpoint, model_path)
                 print(f"New best model - {model_path}, with FID: {fid:.4f}")
             else:
                 print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
+                patience += 1
+                
             model.train()
         else:
             # non-eval epoch with validation enabled — no FID computed
@@ -575,6 +580,11 @@ def train_wgan_gp(train_loader, model: WGAN_GP, params, img_size=IMAGE_SIZE, val
             gen_scheduler.step()
             if (epoch + 1) % 10 == 0:
                 print(f"LR: {critic_optimizer.param_groups[0]['lr']:.6f}")
+        
+        
+        if patience >= 3:
+            print(f"Early stopping at epoch {epoch + 1} due to no FID improvement for 3 eval epochs.")
+            return history
     return history
         
 

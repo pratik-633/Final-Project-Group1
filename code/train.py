@@ -33,12 +33,13 @@ LATENT_DIM = 100
 # -------------------------------------------------------------------------------------------------------------------------------------------
 def tune_dcgan(train_loader, val_loader):
     params = {
-        'lr': 2e-4,
+        'lr_g': 1e-4,
+        'lr_d': 5e-5,
         'adam_b1': 0.5,
         'adam_b2': 0.999,
         'batch_size': BATCH_SIZE,
-        'num_epochs': 10,
-        'feature_maps': 64,
+        'num_epochs': 150,
+        'feature_maps': 128,
         'image_size': 64,
     }
 

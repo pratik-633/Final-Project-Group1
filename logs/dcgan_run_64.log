@@ -1,0 +1,610 @@
+Log file: output/dcgan_run_64.log
+Starting DCGAN training — lr_g=0.0001, lr_d=5e-05, epochs=150, feature_maps=128, batch_size=128
+Epoch 1/150
+Discriminator loss: 0.4570 - Generator loss: 0.7028
+Epoch 2/150
+Log file: output/dcgan_run_64.log
+Starting DCGAN training — lr_g=0.0001, lr_d=5e-05, epochs=150, feature_maps=128, batch_size=128
+Epoch 1/150
+Discriminator loss: 0.4591 - Generator loss: 0.7465
+Epoch 2/150
+Log file: output/dcgan_run_64.log
+Log file: output/dcgan_run_64.log
+Starting DCGAN training — lr_g=0.0001, lr_d=5e-05, epochs=100, feature_maps=128, batch_size=128
+Epoch 1/100
+Discriminator loss: 0.4628 - Generator loss: 0.7595
+Epoch 2/100
+Discriminator loss: 0.3362 - Generator loss: 0.0041
+Epoch 3/100
+Discriminator loss: 0.3352 - Generator loss: 0.0046
+Epoch 4/100
+Discriminator loss: 0.3312 - Generator loss: 0.0016
+Epoch 5/100
+Discriminator loss: 0.3300 - Generator loss: 0.0015
+Validation FID: 431.2579
+New best model - models/dcgan_model_64.pt, with FID: 431.2579
+Epoch 6/100
+Discriminator loss: 0.3292 - Generator loss: 0.0008
+Epoch 7/100
+Discriminator loss: 0.3278 - Generator loss: 0.0003
+Epoch 8/100
+Discriminator loss: 0.3284 - Generator loss: 0.0005
+Epoch 9/100
+Discriminator loss: 0.3276 - Generator loss: 0.0003
+Epoch 10/100
+Discriminator loss: 0.3270 - Generator loss: 0.0001
+Validation FID: 513.0784
+No FID improvement - 513.0784 over best 431.2579
+Epoch 11/100
+Discriminator loss: 0.3266 - Generator loss: 0.0001
+Epoch 12/100
+Discriminator loss: 0.3267 - Generator loss: 0.0001
+Epoch 13/100
+Discriminator loss: 0.3265 - Generator loss: 0.0000
+Epoch 14/100
+Discriminator loss: 0.3264 - Generator loss: 0.0000
+Epoch 15/100
+Discriminator loss: 1.1182 - Generator loss: 3.0517
+Validation FID: 264.0357
+New best model - models/dcgan_model_64.pt, with FID: 264.0357
+Epoch 16/100
+Discriminator loss: 1.0862 - Generator loss: 1.5874
+Epoch 17/100
+Discriminator loss: 0.9754 - Generator loss: 1.5513
+Epoch 18/100
+Discriminator loss: 0.9142 - Generator loss: 1.3348
+Epoch 19/100
+Discriminator loss: 0.9235 - Generator loss: 0.9797
+Epoch 20/100
+Discriminator loss: 0.9384 - Generator loss: 0.8311
+Validation FID: 149.4508
+New best model - models/dcgan_model_64.pt, with FID: 149.4508
+Epoch 21/100
+Discriminator loss: 0.9270 - Generator loss: 0.7028
+Epoch 22/100
+Discriminator loss: 0.9479 - Generator loss: 0.6594
+Epoch 23/100
+Discriminator loss: 0.9351 - Generator loss: 0.5852
+Epoch 24/100
+Discriminator loss: 0.9528 - Generator loss: 0.5575
+Epoch 25/100
+Discriminator loss: 0.9292 - Generator loss: 0.5201
+Validation FID: 149.6922
+No FID improvement - 149.6922 over best 149.4508
+Epoch 26/100
+Discriminator loss: 0.9457 - Generator loss: 0.5307
+Epoch 27/100
+Discriminator loss: 0.9435 - Generator loss: 0.5029
+Epoch 28/100
+Discriminator loss: 0.9344 - Generator loss: 0.4880
+Epoch 29/100
+Discriminator loss: 0.9191 - Generator loss: 0.4847
+Epoch 30/100
+Discriminator loss: 0.9226 - Generator loss: 0.4665
+Validation FID: 142.1634
+New best model - models/dcgan_model_64.pt, with FID: 142.1634
+Epoch 31/100
+Discriminator loss: 0.9033 - Generator loss: 0.4660
+Epoch 32/100
+Discriminator loss: 0.8855 - Generator loss: 0.4269
+Epoch 33/100
+Discriminator loss: 0.8394 - Generator loss: 0.3721
+Epoch 34/100
+Discriminator loss: 0.8454 - Generator loss: 0.4045
+Epoch 35/100
+Discriminator loss: 0.8251 - Generator loss: 0.3713
+Validation FID: 147.0560
+No FID improvement - 147.0560 over best 142.1634
+Epoch 36/100
+Discriminator loss: 0.8028 - Generator loss: 0.3519
+Epoch 37/100
+Discriminator loss: 0.7985 - Generator loss: 0.3431
+Epoch 38/100
+Discriminator loss: 0.7711 - Generator loss: 0.3188
+Epoch 39/100
+Discriminator loss: 0.7590 - Generator loss: 0.3107
+Epoch 40/100
+Discriminator loss: 0.7528 - Generator loss: 0.3047
+Validation FID: 144.8243
+No FID improvement - 144.8243 over best 142.1634
+Epoch 41/100
+Discriminator loss: 0.7090 - Generator loss: 0.2907
+Epoch 42/100
+Discriminator loss: 0.7581 - Generator loss: 0.3463
+Epoch 43/100
+Discriminator loss: 0.7056 - Generator loss: 0.2734
+Epoch 44/100
+Discriminator loss: 0.7085 - Generator loss: 0.2972
+Epoch 45/100
+Discriminator loss: 0.6737 - Generator loss: 0.2564
+Validation FID: 137.7114
+New best model - models/dcgan_model_64.pt, with FID: 137.7114
+Epoch 46/100
+Discriminator loss: 0.6730 - Generator loss: 0.2764
+Epoch 47/100
+Discriminator loss: 0.6612 - Generator loss: 0.2901
+Epoch 48/100
+Discriminator loss: 0.6855 - Generator loss: 0.3382
+Epoch 49/100
+Discriminator loss: 0.6494 - Generator loss: 0.2982
+Epoch 50/100
+Discriminator loss: 0.6425 - Generator loss: 0.2990
+Validation FID: 141.5584
+No FID improvement - 141.5584 over best 137.7114
+Epoch 51/100
+Discriminator loss: 0.6758 - Generator loss: 0.3878
+Epoch 52/100
+Discriminator loss: 0.6597 - Generator loss: 0.3689
+Epoch 53/100
+Discriminator loss: 0.6271 - Generator loss: 0.3566
+Epoch 54/100
+Discriminator loss: 0.6335 - Generator loss: 0.3572
+Epoch 55/100
+Discriminator loss: 0.6423 - Generator loss: 0.4101
+Validation FID: 133.5168
+New best model - models/dcgan_model_64.pt, with FID: 133.5168
+Epoch 56/100
+Discriminator loss: 0.6286 - Generator loss: 0.4112
+Epoch 57/100
+Discriminator loss: 0.6197 - Generator loss: 0.4410
+Epoch 58/100
+Discriminator loss: 0.6380 - Generator loss: 0.4914
+Epoch 59/100
+Discriminator loss: 0.6272 - Generator loss: 0.4752
+Epoch 60/100
+Discriminator loss: 0.5949 - Generator loss: 0.5059
+Validation FID: 136.9687
+No FID improvement - 136.9687 over best 133.5168
+Epoch 61/100
+Discriminator loss: 0.6213 - Generator loss: 0.5735
+Epoch 62/100
+Discriminator loss: 0.5855 - Generator loss: 0.5753
+Epoch 63/100
+Discriminator loss: 0.6117 - Generator loss: 0.6814
+Epoch 64/100
+Discriminator loss: 0.5942 - Generator loss: 0.7201
+Epoch 65/100
+Discriminator loss: 0.6239 - Generator loss: 0.7551
+Validation FID: 139.1879
+No FID improvement - 139.1879 over best 133.5168
+Epoch 66/100
+Discriminator loss: 0.6043 - Generator loss: 0.7768
+Epoch 67/100
+Discriminator loss: 0.5538 - Generator loss: 0.8128
+Epoch 68/100
+Discriminator loss: 0.5923 - Generator loss: 0.9263
+Epoch 69/100
+Discriminator loss: 0.5757 - Generator loss: 1.0193
+Epoch 70/100
+Discriminator loss: 0.6455 - Generator loss: 1.1356
+Validation FID: 137.9467
+No FID improvement - 137.9467 over best 133.5168
+Epoch 71/100
+Discriminator loss: 0.5329 - Generator loss: 1.0852
+Epoch 72/100
+Discriminator loss: 0.5594 - Generator loss: 1.2326
+Epoch 73/100
+Discriminator loss: 0.6929 - Generator loss: 1.3390
+Epoch 74/100
+Discriminator loss: 0.5711 - Generator loss: 1.3749
+Epoch 75/100
+Discriminator loss: 0.5400 - Generator loss: 1.4683
+Validation FID: 144.3295
+No FID improvement - 144.3295 over best 133.5168
+Epoch 76/100
+Discriminator loss: 0.5484 - Generator loss: 1.5826
+Epoch 77/100
+Discriminator loss: 0.5985 - Generator loss: 1.6679
+Epoch 78/100
+Discriminator loss: 0.5649 - Generator loss: 1.7614
+Epoch 79/100
+Discriminator loss: 0.5307 - Generator loss: 1.9002
+Epoch 80/100
+Discriminator loss: 0.5591 - Generator loss: 2.0004
+Validation FID: 138.3268
+No FID improvement - 138.3268 over best 133.5168
+Epoch 81/100
+Discriminator loss: 0.5186 - Generator loss: 2.1377
+Epoch 82/100
+Discriminator loss: 0.9255 - Generator loss: 2.0119
+Epoch 83/100
+Discriminator loss: 0.5205 - Generator loss: 2.2716
+Epoch 84/100
+Discriminator loss: 0.5348 - Generator loss: 2.4198
+Epoch 85/100
+Discriminator loss: 0.5391 - Generator loss: 2.5292
+Validation FID: 138.3540
+No FID improvement - 138.3540 over best 133.5168
+Epoch 86/100
+Discriminator loss: 0.5138 - Generator loss: 2.6692
+Epoch 87/100
+Discriminator loss: 0.5298 - Generator loss: 2.7673
+Epoch 88/100
+Log file: output/dcgan_run_64.log
+Starting DCGAN training — lr_g=0.0001, lr_d=5e-05, epochs=100, feature_maps=128, batch_size=128
+Epoch 1/100
+Discriminator loss: 0.4563 - Generator loss: 0.7038
+Epoch 2/100
+Discriminator loss: 0.3360 - Generator loss: 0.0038
+Epoch 3/100
+Discriminator loss: 0.3341 - Generator loss: 0.0036
+Epoch 4/100
+Discriminator loss: 0.3317 - Generator loss: 0.0023
+Epoch 5/100
+Discriminator loss: 0.3306 - Generator loss: 0.0015
+Validation FID: 513.9345
+New best model - models/dcgan_model_64.pt, with FID: 513.9345
+Epoch 6/100
+Discriminator loss: 0.3285 - Generator loss: 0.0004
+Epoch 7/100
+Discriminator loss: 0.3279 - Generator loss: 0.0003
+Epoch 8/100
+Discriminator loss: 0.3275 - Generator loss: 0.0002
+Epoch 9/100
+Discriminator loss: 0.3272 - Generator loss: 0.0001
+Epoch 10/100
+Log file: output/dcgan_run_64.log
+Starting DCGAN training — lr_g=0.0001, lr_d=5e-05, epochs=150, feature_maps=128, batch_size=128
+Epoch 1/150
+Discriminator loss: 0.5645 - Generator loss: 1.4184
+Epoch 2/150
+Discriminator loss: 0.3453 - Generator loss: 0.0093
+Epoch 3/150
+Discriminator loss: 0.3369 - Generator loss: 0.0046
+Epoch 4/150
+Discriminator loss: 0.3348 - Generator loss: 0.0031
+Epoch 5/150
+Discriminator loss: 0.3323 - Generator loss: 0.0023
+Validation FID: 458.6322
+New best model - models/dcgan_model_64.pt, with FID: 458.6322
+Epoch 6/150
+Discriminator loss: 0.3308 - Generator loss: 0.0014
+Epoch 7/150
+Discriminator loss: 0.3287 - Generator loss: 0.0008
+Epoch 8/150
+Discriminator loss: 0.3289 - Generator loss: 0.0009
+Epoch 9/150
+Discriminator loss: 0.3309 - Generator loss: 0.0028
+Epoch 10/150
+Discriminator loss: 0.3308 - Generator loss: 0.0011
+Validation FID: 448.5942
+New best model - models/dcgan_model_64.pt, with FID: 448.5942
+Epoch 11/150
+Discriminator loss: 0.3286 - Generator loss: 0.0007
+Epoch 12/150
+Discriminator loss: 0.3281 - Generator loss: 0.0007
+Epoch 13/150
+Discriminator loss: 0.3280 - Generator loss: 0.0006
+Epoch 14/150
+Discriminator loss: 0.3274 - Generator loss: 0.0004
+Epoch 15/150
+Discriminator loss: 0.3281 - Generator loss: 0.0004
+Validation FID: 412.9097
+New best model - models/dcgan_model_64.pt, with FID: 412.9097
+Epoch 16/150
+Discriminator loss: 0.3274 - Generator loss: 0.0003
+Epoch 17/150
+Discriminator loss: 0.3272 - Generator loss: 0.0003
+Epoch 18/150
+Discriminator loss: 0.3274 - Generator loss: 0.0002
+Epoch 19/150
+Discriminator loss: 0.3268 - Generator loss: 0.0001
+Epoch 20/150
+Discriminator loss: 0.3265 - Generator loss: 0.0001
+Validation FID: 451.3785
+No FID improvement - 451.3785 over best 412.9097
+Epoch 21/150
+Discriminator loss: 0.3270 - Generator loss: 0.0002
+Epoch 22/150
+Discriminator loss: 1.1275 - Generator loss: 3.7032
+Epoch 23/150
+Discriminator loss: 1.0367 - Generator loss: 2.0785
+Epoch 24/150
+Discriminator loss: 0.9704 - Generator loss: 1.8787
+Epoch 25/150
+Discriminator loss: 1.0224 - Generator loss: 1.5669
+Validation FID: 173.5686
+New best model - models/dcgan_model_64.pt, with FID: 173.5686
+Epoch 26/150
+Discriminator loss: 0.9534 - Generator loss: 1.4729
+Epoch 27/150
+Discriminator loss: 0.9072 - Generator loss: 1.4672
+Epoch 28/150
+Discriminator loss: 0.9206 - Generator loss: 1.3145
+Epoch 29/150
+Discriminator loss: 0.9432 - Generator loss: 1.0887
+Epoch 30/150
+Discriminator loss: 0.9280 - Generator loss: 0.8870
+Validation FID: 140.7249
+New best model - models/dcgan_model_64.pt, with FID: 140.7249
+Epoch 31/150
+Discriminator loss: 0.9638 - Generator loss: 0.8338
+Epoch 32/150
+Discriminator loss: 0.9639 - Generator loss: 0.8050
+Epoch 33/150
+Discriminator loss: 0.9421 - Generator loss: 0.7273
+Epoch 34/150
+Discriminator loss: 0.9766 - Generator loss: 0.7465
+Epoch 35/150
+Discriminator loss: 0.9753 - Generator loss: 0.6998
+Validation FID: 98.7423
+New best model - models/dcgan_model_64.pt, with FID: 98.7423
+Epoch 36/150
+Discriminator loss: 1.0032 - Generator loss: 0.6770
+Epoch 37/150
+Discriminator loss: 0.9685 - Generator loss: 0.6129
+Epoch 38/150
+Discriminator loss: 1.0299 - Generator loss: 0.6623
+Epoch 39/150
+Discriminator loss: 0.9961 - Generator loss: 0.6150
+Epoch 40/150
+Discriminator loss: 1.0060 - Generator loss: 0.5973
+Validation FID: 82.5124
+New best model - models/dcgan_model_64.pt, with FID: 82.5124
+Epoch 41/150
+Discriminator loss: 1.0143 - Generator loss: 0.6236
+Epoch 42/150
+Discriminator loss: 1.0012 - Generator loss: 0.5863
+Epoch 43/150
+Discriminator loss: 0.9742 - Generator loss: 0.5487
+Epoch 44/150
+Discriminator loss: 0.9620 - Generator loss: 0.5534
+Epoch 45/150
+Discriminator loss: 0.9555 - Generator loss: 0.5296
+Validation FID: 75.8488
+New best model - models/dcgan_model_64.pt, with FID: 75.8488
+Epoch 46/150
+Discriminator loss: 0.9601 - Generator loss: 0.5181
+Epoch 47/150
+Discriminator loss: 0.9286 - Generator loss: 0.4634
+Epoch 48/150
+Discriminator loss: 0.9332 - Generator loss: 0.4964
+Epoch 49/150
+Discriminator loss: 0.9123 - Generator loss: 0.4378
+Epoch 50/150
+Discriminator loss: 0.9035 - Generator loss: 0.4414
+Validation FID: 55.9958
+New best model - models/dcgan_model_64.pt, with FID: 55.9958
+Epoch 51/150
+Discriminator loss: 0.9065 - Generator loss: 0.4225
+Epoch 52/150
+Discriminator loss: 0.8918 - Generator loss: 0.4352
+Epoch 53/150
+Discriminator loss: 0.8412 - Generator loss: 0.3332
+Epoch 54/150
+Discriminator loss: 0.8972 - Generator loss: 0.4001
+Epoch 55/150
+Discriminator loss: 0.8941 - Generator loss: 0.4196
+Validation FID: 51.6882
+New best model - models/dcgan_model_64.pt, with FID: 51.6882
+Epoch 56/150
+Discriminator loss: 0.8240 - Generator loss: 0.3386
+Epoch 57/150
+Discriminator loss: 0.7961 - Generator loss: 0.2891
+Epoch 58/150
+Discriminator loss: 0.8021 - Generator loss: 0.3188
+Epoch 59/150
+Discriminator loss: 0.8018 - Generator loss: 0.3232
+Epoch 60/150
+Discriminator loss: 0.7851 - Generator loss: 0.3176
+Validation FID: 44.0576
+New best model - models/dcgan_model_64.pt, with FID: 44.0576
+Epoch 61/150
+Discriminator loss: 0.7824 - Generator loss: 0.2982
+Epoch 62/150
+Discriminator loss: 0.7199 - Generator loss: 0.2273
+Epoch 63/150
+Discriminator loss: 0.7670 - Generator loss: 0.3060
+Epoch 64/150
+Discriminator loss: 0.7175 - Generator loss: 0.2215
+Epoch 65/150
+Discriminator loss: 0.7618 - Generator loss: 0.3551
+Validation FID: 40.7836
+New best model - models/dcgan_model_64.pt, with FID: 40.7836
+Epoch 66/150
+Discriminator loss: 0.7493 - Generator loss: 0.2971
+Epoch 67/150
+Discriminator loss: 0.6991 - Generator loss: 0.2576
+Epoch 68/150
+Discriminator loss: 0.7527 - Generator loss: 0.3036
+Epoch 69/150
+Discriminator loss: 0.6609 - Generator loss: 0.1848
+Epoch 70/150
+Discriminator loss: 0.7450 - Generator loss: 0.3328
+Validation FID: 35.6391
+New best model - models/dcgan_model_64.pt, with FID: 35.6391
+Epoch 71/150
+Discriminator loss: 0.6838 - Generator loss: 0.2775
+Epoch 72/150
+Discriminator loss: 0.6989 - Generator loss: 0.3027
+Epoch 73/150
+Discriminator loss: 0.6726 - Generator loss: 0.2775
+Epoch 74/150
+Discriminator loss: 0.6673 - Generator loss: 0.2526
+Epoch 75/150
+Discriminator loss: 0.7896 - Generator loss: 0.4578
+Validation FID: 35.8594
+No FID improvement - 35.8594 over best 35.6391
+Epoch 76/150
+Discriminator loss: 0.5789 - Generator loss: 0.2048
+Epoch 77/150
+Discriminator loss: 0.6886 - Generator loss: 0.3371
+Epoch 78/150
+Discriminator loss: 0.6778 - Generator loss: 0.3058
+Epoch 79/150
+Discriminator loss: 0.5889 - Generator loss: 0.2193
+Epoch 80/150
+Discriminator loss: 0.6423 - Generator loss: 0.3111
+Validation FID: 32.2395
+New best model - models/dcgan_model_64.pt, with FID: 32.2395
+Epoch 81/150
+Discriminator loss: 0.6579 - Generator loss: 0.3251
+Epoch 82/150
+Discriminator loss: 0.6364 - Generator loss: 0.3225
+Epoch 83/150
+Discriminator loss: 0.6266 - Generator loss: 0.3249
+Epoch 84/150
+Discriminator loss: 0.6170 - Generator loss: 0.3357
+Epoch 85/150
+Discriminator loss: 0.6880 - Generator loss: 0.4197
+Validation FID: 31.1748
+New best model - models/dcgan_model_64.pt, with FID: 31.1748
+Epoch 86/150
+Discriminator loss: 0.5948 - Generator loss: 0.3157
+Epoch 87/150
+Discriminator loss: 0.6660 - Generator loss: 0.4593
+Epoch 88/150
+Discriminator loss: 0.5776 - Generator loss: 0.3487
+Epoch 89/150
+Discriminator loss: 0.6933 - Generator loss: 0.4975
+Epoch 90/150
+Discriminator loss: 0.5659 - Generator loss: 0.3139
+Validation FID: 29.3628
+New best model - models/dcgan_model_64.pt, with FID: 29.3628
+Epoch 91/150
+Discriminator loss: 0.6117 - Generator loss: 0.4329
+Epoch 92/150
+Discriminator loss: 0.6359 - Generator loss: 0.4689
+Epoch 93/150
+Discriminator loss: 0.5598 - Generator loss: 0.3951
+Epoch 94/150
+Discriminator loss: 0.6391 - Generator loss: 0.5643
+Epoch 95/150
+Discriminator loss: 0.6268 - Generator loss: 0.5439
+Validation FID: 28.7499
+New best model - models/dcgan_model_64.pt, with FID: 28.7499
+Epoch 96/150
+Discriminator loss: 0.5764 - Generator loss: 0.5012
+Epoch 97/150
+Discriminator loss: 0.6201 - Generator loss: 0.5807
+Epoch 98/150
+Discriminator loss: 0.5493 - Generator loss: 0.4980
+Epoch 99/150
+Discriminator loss: 0.5981 - Generator loss: 0.6341
+Epoch 100/150
+Discriminator loss: 0.6533 - Generator loss: 0.6876
+Validation FID: 32.6924
+No FID improvement - 32.6924 over best 28.7499
+Epoch 101/150
+Discriminator loss: 0.5421 - Generator loss: 0.6401
+Epoch 102/150
+Discriminator loss: 0.5998 - Generator loss: 0.7316
+Epoch 103/150
+Discriminator loss: 0.5392 - Generator loss: 0.6717
+Epoch 104/150
+Discriminator loss: 0.6479 - Generator loss: 0.8365
+Epoch 105/150
+Discriminator loss: 0.5545 - Generator loss: 0.7852
+Validation FID: 25.1766
+New best model - models/dcgan_model_64.pt, with FID: 25.1766
+Epoch 106/150
+Discriminator loss: 0.5625 - Generator loss: 0.9037
+Epoch 107/150
+Discriminator loss: 0.6477 - Generator loss: 0.9840
+Epoch 108/150
+Discriminator loss: 0.6739 - Generator loss: 0.9966
+Epoch 109/150
+Discriminator loss: 0.5678 - Generator loss: 1.0276
+Epoch 110/150
+Discriminator loss: 0.5564 - Generator loss: 1.0694
+Validation FID: 26.0333
+No FID improvement - 26.0333 over best 25.1766
+Epoch 111/150
+Discriminator loss: 0.6149 - Generator loss: 1.1928
+Epoch 112/150
+Discriminator loss: 0.5206 - Generator loss: 1.1553
+Epoch 113/150
+Discriminator loss: 0.6709 - Generator loss: 1.3611
+Epoch 114/150
+Discriminator loss: 0.5127 - Generator loss: 1.2880
+Epoch 115/150
+Discriminator loss: 0.6351 - Generator loss: 1.4645
+Validation FID: 26.2939
+No FID improvement - 26.2939 over best 25.1766
+Epoch 116/150
+Discriminator loss: 0.6215 - Generator loss: 1.5344
+Epoch 117/150
+Discriminator loss: 0.5012 - Generator loss: 1.4900
+Epoch 118/150
+Discriminator loss: 0.5153 - Generator loss: 1.6014
+Epoch 119/150
+Discriminator loss: 0.6054 - Generator loss: 1.7187
+Epoch 120/150
+Discriminator loss: 0.5718 - Generator loss: 1.7815
+Validation FID: 26.0191
+No FID improvement - 26.0191 over best 25.1766
+Epoch 121/150
+Discriminator loss: 0.5815 - Generator loss: 1.8784
+Epoch 122/150
+Discriminator loss: 0.5025 - Generator loss: 1.9404
+Epoch 123/150
+Discriminator loss: 0.5112 - Generator loss: 2.0244
+Epoch 124/150
+Discriminator loss: 0.5582 - Generator loss: 2.1089
+Epoch 125/150
+Discriminator loss: 0.5938 - Generator loss: 2.1970
+Validation FID: 24.9883
+New best model - models/dcgan_model_64.pt, with FID: 24.9883
+Epoch 126/150
+Discriminator loss: 0.4811 - Generator loss: 2.2786
+Epoch 127/150
+Discriminator loss: 0.6523 - Generator loss: 2.3541
+Epoch 128/150
+Discriminator loss: 0.4701 - Generator loss: 2.3975
+Epoch 129/150
+Discriminator loss: 0.7813 - Generator loss: 2.5358
+Epoch 130/150
+Discriminator loss: 0.5048 - Generator loss: 2.4913
+Validation FID: 27.2311
+No FID improvement - 27.2311 over best 24.9883
+Epoch 131/150
+Discriminator loss: 0.4879 - Generator loss: 2.6397
+Epoch 132/150
+Discriminator loss: 0.4722 - Generator loss: 2.7327
+Epoch 133/150
+Discriminator loss: 0.6251 - Generator loss: 2.8296
+Epoch 134/150
+Discriminator loss: 0.4478 - Generator loss: 2.8226
+Epoch 135/150
+Discriminator loss: 0.5877 - Generator loss: 2.8962
+Validation FID: 26.8557
+No FID improvement - 26.8557 over best 24.9883
+Epoch 136/150
+Discriminator loss: 0.4533 - Generator loss: 2.9969
+Epoch 137/150
+Discriminator loss: 0.5539 - Generator loss: 3.0537
+Epoch 138/150
+Discriminator loss: 0.4402 - Generator loss: 3.1679
+Epoch 139/150
+Discriminator loss: 0.4913 - Generator loss: 3.2391
+Epoch 140/150
+Discriminator loss: 0.6369 - Generator loss: 3.1793
+Validation FID: 24.0026
+New best model - models/dcgan_model_64.pt, with FID: 24.0026
+Epoch 141/150
+Discriminator loss: 0.4458 - Generator loss: 3.3048
+Epoch 142/150
+Discriminator loss: 0.4637 - Generator loss: 3.3797
+Epoch 143/150
+Discriminator loss: 0.5945 - Generator loss: 3.2837
+Epoch 144/150
+Discriminator loss: 0.4406 - Generator loss: 3.4782
+Epoch 145/150
+Discriminator loss: 0.5193 - Generator loss: 3.4651
+Validation FID: 22.8093
+New best model - models/dcgan_model_64.pt, with FID: 22.8093
+Epoch 146/150
+Discriminator loss: 0.5377 - Generator loss: 3.4684
+Epoch 147/150
+Discriminator loss: 0.4300 - Generator loss: 3.6284
+Epoch 148/150
+Discriminator loss: 0.5538 - Generator loss: 3.5176
+Epoch 149/150
+Discriminator loss: 0.4346 - Generator loss: 3.6779
+Epoch 150/150
+Discriminator loss: 0.5833 - Generator loss: 3.5812
+Validation FID: 24.2553
+No FID improvement - 24.2553 over best 22.8093
+Training complete. Best validation FID: 22.8093
+Reloaded best checkpoint from models/dcgan_model_64.pt
+History saved to output/dcgan_history_64.json

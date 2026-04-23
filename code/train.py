@@ -263,21 +263,29 @@ def tune_progan(train_loader, val_loader, real_val_dir, img_size=IMAGE_SIZE, tun
 # -------------------------------------------------------------------------------------------------------------------------------------------
 
 
-def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None, model_path=None):
-    """Complete training on best configs - run however many epochs are specified in params until convergence."""
+def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None, model_path=None, logger=None):
+    """Train DCGAN and save best checkpoint by validation FID when validation data is provided."""
+
+    def log(msg):
+        if logger:
+            logger.info(msg)
+        else:
+            print(msg)
+
     if model_path is None:
         model_path = f"models/dcgan_model_{params.get('image_size', 64)}.pt"
 
     criterion = torch.nn.BCELoss()
 
+    # split lr for D and G — slows D so G can keep up
     discriminator_optimizer = torch.optim.Adam(
         model.discriminator.parameters(),
-        lr=params['lr'],
+        lr=params.get('lr_d', params.get('lr', 1e-4)),
         betas=(params['adam_b1'], params['adam_b2'])
     )
     generator_optimizer = torch.optim.Adam(
         model.generator.parameters(),
-        lr=params['lr'],
+        lr=params.get('lr_g', params.get('lr', 1e-4)),
         betas=(params['adam_b1'], params['adam_b2'])
     )
 
@@ -286,6 +294,18 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
     model.train()
 
     best_fid = float('inf')
+    use_val = (val_dir is not None) and (num_val_samples is not None)
+
+    history = {
+        'epoch': [],
+        'critic_loss': [],
+        'generator_loss': [],
+        'fid': [],
+    }
+
+    log(f"Starting DCGAN training — lr_g={params.get('lr_g')}, lr_d={params.get('lr_d')}, "
+        f"epochs={params['num_epochs']}, feature_maps={params['feature_maps']}, "
+        f"batch_size={params['batch_size']}")
 
     for epoch in range(params['num_epochs']):
         disc_loss_sum = 0.0
@@ -293,22 +313,30 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
         gen_loss_sum = 0.0
         gen_loss_count = 0
 
-        print(f"Epoch {epoch + 1}/{params['num_epochs']}")
+        log(f"Epoch {epoch + 1}/{params['num_epochs']}")
 
         for real_data_batch in train_loader:
             x_real = real_data_batch[0].to(DEVICE)
             batch_size = x_real.size(0)
 
-            real_labels = torch.ones(batch_size, 1, device=DEVICE)
-            fake_labels = torch.zeros(batch_size, 1, device=DEVICE)
-
+            # -------------------------
             # Train Discriminator
+            # -------------------------
             z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
             with torch.no_grad():
                 x_fake = model.generator(z)
 
-            disc_out_real = model.discriminator(x_real)
-            disc_out_fake = model.discriminator(x_fake)
+            # anneal instance noise from 0.1 to 0.0 over training - helps prevent D from overpowering G early
+            noise_std = max(0.0, 0.1 * (1.0 - epoch / params['num_epochs']))
+            x_real_noisy = x_real + noise_std * torch.randn_like(x_real)
+            x_fake_noisy = x_fake + noise_std * torch.randn_like(x_fake)
+
+            disc_out_real = model.discriminator(x_real_noisy)
+            disc_out_fake = model.discriminator(x_fake_noisy)
+
+            # real label smoothing at 0.9 — prevents D from becoming overconfident
+            real_labels = torch.full_like(disc_out_real, 0.9, device=DEVICE)
+            fake_labels = torch.zeros_like(disc_out_fake, device=DEVICE)
 
             disc_real_loss = criterion(disc_out_real, real_labels)
             disc_fake_loss = criterion(disc_out_fake, fake_labels)
@@ -321,15 +349,18 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
             disc_loss_sum += disc_loss.item()
             disc_loss_count += 1
 
+            # -------------------------
             # Train Generator
+            # -------------------------
             for p in model.discriminator.parameters():
                 p.requires_grad_(False)
 
             z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
             x_fake = model.generator(z)
             gen_out = model.discriminator(x_fake)
+            gen_labels = torch.ones_like(gen_out, device=DEVICE)
 
-            gen_loss = criterion(gen_out, real_labels)
+            gen_loss = criterion(gen_out, gen_labels)
 
             generator_optimizer.zero_grad()
             gen_loss.backward()
@@ -344,27 +375,12 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
         avg_disc_loss = disc_loss_sum / disc_loss_count if disc_loss_count > 0 else float('inf')
         avg_gen_loss = gen_loss_sum / gen_loss_count if gen_loss_count > 0 else float('inf')
 
-        print(f"Discriminator loss: {avg_disc_loss:.4f} - Generator loss: {avg_gen_loss:.4f}")
+        log(f"Discriminator loss: {avg_disc_loss:.4f} - Generator loss: {avg_gen_loss:.4f}")
 
-        checkpoint = {
-            'epoch': epoch,
-            'generator_state_dict': model.generator.state_dict(),
-            'discriminator_state_dict': model.discriminator.state_dict(),
-            'generator_optimizer_state_dict': generator_optimizer.state_dict(),
-            'discriminator_optimizer_state_dict': discriminator_optimizer.state_dict(),
-            'params': params,
-            'discriminator_loss': avg_disc_loss,
-            'generator_loss': avg_gen_loss,
-        }
+        current_fid = None
+        is_eval_epoch = use_val and ((epoch + 1) % 5 == 0 or epoch + 1 == params['num_epochs'])
 
-        use_val = (val_dir is not None) and (num_val_samples is not None)
-        is_eval_epoch = use_val and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs'])
-
-        if not use_val:
-            # fallback: save latest checkpoint if no validation data is provided
-            torch.save(checkpoint, model_path)
-
-        elif is_eval_epoch:
+        if is_eval_epoch:
             model.eval()
             fake_dir = generate_images(
                 model.generator,
@@ -374,26 +390,51 @@ def train_dcgan(train_loader, model, params, val_dir=None, num_val_samples=None,
                 LATENT_DIM,
                 DEVICE
             )
-            fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
-            checkpoint['fid'] = fid
+            current_fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
 
             if os.path.isdir(fake_dir):
                 shutil.rmtree(fake_dir)
 
-            print(f"Validation FID: {fid:.4f}")
-            if fid < best_fid:
-                best_fid = fid
-                torch.save(checkpoint, model_path)
-                print(f"New best model - {model_path}, with FID: {fid:.4f}")
-            else:
-                print(f"No FID improvement - {fid:.4f} over best {best_fid:.4f}")
-
+            log(f"Validation FID: {current_fid:.4f}")
             model.train()
+
+        history['epoch'].append(epoch + 1)
+        history['critic_loss'].append(avg_disc_loss)
+        history['generator_loss'].append(avg_gen_loss)
+        history['fid'].append(current_fid)
+
+        checkpoint = {
+            'epoch': epoch,
+            'generator_state_dict': model.generator.state_dict(),
+            'discriminator_state_dict': model.discriminator.state_dict(),
+            'generator_optimizer_state_dict': generator_optimizer.state_dict(),
+            'discriminator_optimizer_state_dict': discriminator_optimizer.state_dict(),
+            'params': params,
+            'critic_loss': avg_disc_loss,
+            'generator_loss': avg_gen_loss,
+            'fid': current_fid,
+            'history': copy.deepcopy(history),
+        }
+
+        if not use_val:
+            torch.save(checkpoint, model_path)
+        elif is_eval_epoch:
+            if current_fid < best_fid:
+                best_fid = current_fid
+                torch.save(checkpoint, model_path)
+                log(f"New best model - {model_path}, with FID: {current_fid:.4f}")
+            else:
+                log(f"No FID improvement - {current_fid:.4f} over best {best_fid:.4f}")
+
+    log(f"Training complete. Best validation FID: {best_fid:.4f}")
 
     if os.path.exists(model_path):
         checkpoint = torch.load(model_path, map_location=DEVICE, weights_only=False)
         model.generator.load_state_dict(checkpoint['generator_state_dict'])
         model.discriminator.load_state_dict(checkpoint['discriminator_state_dict'])
+        log(f"Reloaded best checkpoint from {model_path}")
+
+    return history
 
 
 # -------------------------------------------------------------------------------------------------------------------------------------------

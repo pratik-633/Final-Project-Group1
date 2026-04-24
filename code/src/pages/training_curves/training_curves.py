@@ -82,11 +82,11 @@ def training_curves():
     )
     
     wgan_64, wgan_128 = safe_load_model_data('wgan')
-    dcgan_64, dcgan_128 = safe_load_model_data('dcgan')
+    dcgan_64, None = safe_load_model_data('dcgan')
     progan_64, progan_128 = safe_load_model_data('progan')
     
     col1, col2, col3 = st.columns(3)
 
-    render_model_panel(col1, "DCGAN", "dcgan", image_size, dcgan_64, dcgan_128)
+    render_model_panel(col1, "DCGAN", "dcgan", image_size, dcgan_64, None)
     render_model_panel(col2, "WGAN-GP", "wgan", image_size, wgan_64, wgan_128)
     render_model_panel(col3, "ProGAN", "progan", image_size, progan_64, progan_128)

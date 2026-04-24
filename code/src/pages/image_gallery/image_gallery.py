@@ -1,6 +1,8 @@
 import os
 import streamlit as st
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+
+
 
 def image_gallery():
     st.header("Generated Images")
@@ -13,8 +15,20 @@ def image_gallery():
 
     with col2:
         size = st.selectbox("Image Size", [64, 128])
-
-    folder = f"output/{model}_{size}"
+        
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../"))
+    folder = os.path.join(BASE_DIR, f"output/{model}_{size}")
+    
+    try:
+        image_files = sorted(
+            os.path.join(folder, f)
+            for f in os.listdir(folder)
+            if f.lower().endswith(".png")
+        )
+    except FileNotFoundError:
+        st.warning(f"Folder not found: {folder}")
+        return
+    
     image_files = sorted([
         os.path.join(folder, f)
         for f in os.listdir(folder)
@@ -30,4 +44,9 @@ def image_gallery():
     for row in rows:
         cols = st.columns(len(row))
         for col, img_path in zip(cols, row):
-            col.image(Image.open(img_path), caption=os.path.basename(img_path), use_container_width=True)
+            try:
+                img = Image.open(img_path)
+                col.image(img, caption=os.path.basename(img_path), use_container_width=True)
+            except (UnidentifiedImageError, OSError):
+                # Issue with early images, adding this incase there is corruption
+                col.warning(f"Corrupted:\n{os.path.basename(img_path)}")

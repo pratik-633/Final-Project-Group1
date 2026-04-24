@@ -13,8 +13,6 @@ def load_wgan_data():
 def load_dcgan_data():
     with open('logs/dcgan_64_history.json', 'r') as f:
         data_64 = json.load(f)
-    # with open('logs/dcgan_128_history.json', 'r') as f:
-    #     data_128 = json.load(f)
     return pd.DataFrame(data_64['train_history'])
   
 def load_progan_data():

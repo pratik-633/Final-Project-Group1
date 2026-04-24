@@ -1,5 +1,4 @@
 import os
-from numpy.ma import size
 import streamlit as st
 from PIL import Image, UnidentifiedImageError
 

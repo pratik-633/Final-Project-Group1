@@ -82,7 +82,7 @@ def training_curves():
     )
     
     wgan_64, wgan_128 = safe_load_model_data('wgan')
-    dcgan_64 = safe_load_model_data('dcgan')
+    dcgan_64, None = safe_load_model_data('dcgan')
     progan_64, progan_128 = safe_load_model_data('progan')
     
     col1, col2, col3 = st.columns(3)

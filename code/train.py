@@ -81,12 +81,12 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
     # reaches here if tuning is True
     if img_size == 64:
         search_params = {
-            'lr': [1e-4, 2e-4, 5e-5], # we will see about how 5e-5 does, but it is pretty small so I expect to not want to try that out
-            'n_critic': [3, 5, 7], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
-            'feature_maps': [32, 64, 128]
+            'lr': [1e-4, 1.5e-4, 2e-4], # we will see about how 5e-5 does, but it is pretty small so I expect to not want to try that out
+            'n_critic': [3, 5], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
+            'feature_maps': [64, 128]
         }
     else:
-        # for 128 image size, use this: -> 12 configs to try x 40 epochs each -> then take the best one
+        # for 128 image size, use this: -> 12 configs to try x 30 epochs each -> then take the best one
         search_params = {
             'lr': [1e-4, 1.5e-4, 2e-4], # trying out slightly variable lrs
             'n_critic': [3, 5], # 7 isn't given a fair chance, but paper suggests 5, and 7 may be too expensive for our time constraints
@@ -99,7 +99,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         'batch_size': BATCH_SIZE
     }
 
-    tune_epochs = 40  # short runs per config
+    tune_epochs = 30  # short runs per config
 
     param_configs = list(ParameterGrid(search_params))  # 27 combos - too many for now
     # param_configs = list(ParameterSampler(search_params, n_iter=5, random_state=SEED))
@@ -111,7 +111,7 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
         save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
     )
 
-    best_checkpoint_path = ""
+    # best_checkpoint_path = ""
     best_fid = float('inf')
     best_params = None
     best_model = WGAN_GP(
@@ -148,25 +148,25 @@ def tune_wgan_gp(train_loader, val_loader, img_size=IMAGE_SIZE, tuning=True):
             best_fid = fid
             best_params = params
             best_model = model
-            best_checkpoint_path = tune_model_path
+            # best_checkpoint_path = tune_model_path
 
     print(f"\nBest config: {best_params}, FID: {best_fid:.4f}")
 
     # rebuild fresh model with best feature_maps for full training
     if best_params is not None:
-        best_params['num_epochs'] = 200  # set full training epochs
+        best_params['num_epochs'] = 350  # set full training epochs; early stopping can end sooner
         best_model = WGAN_GP(img_size=img_size, latent_dim=LATENT_DIM,
                              channels=CHANNELS, feature_maps=best_params['feature_maps'])
-        checkpoint = torch.load(best_checkpoint_path, map_location=DEVICE)
-        best_model.generator.load_state_dict(checkpoint['generator_state_dict'])
-        best_model.critic.load_state_dict(checkpoint['critic_state_dict'])
-        best_params['critic_optimizer_state'] = checkpoint['critic_optimizer_state_dict']
-        best_params['generator_optimizer_state'] = checkpoint['generator_optimizer_state_dict']
+        # checkpoint = torch.load(best_checkpoint_path, map_location=DEVICE)
+        # best_model.generator.load_state_dict(checkpoint['generator_state_dict'])
+        # best_model.critic.load_state_dict(checkpoint['critic_state_dict'])
+        # best_params['critic_optimizer_state'] = checkpoint['critic_optimizer_state_dict']
+        # best_params['generator_optimizer_state'] = checkpoint['generator_optimizer_state_dict']
 
         # Save best config for future runs without tuning
         save_best_tuned_params(best_params, img_size, file_name="wgan_gp_config.json")
 
-        best_params['start_epoch'] = tune_epochs
+        # best_params['start_epoch'] = tune_epochs
 
     # CLEANUP - remove the directories that were made during training
     if os.path.isdir("checkpoints"):
@@ -898,7 +898,7 @@ def main():
         
         os.makedirs("logs", exist_ok=True)
         with open(f"logs/wgan_gp_{img_size}_history.json", "w") as f:
-            json.dump(history, f)
+            json.dump({"train_history": history}, f, indent=2)
         
         
     elif model_choice == "progan":

@@ -100,3 +100,5 @@ http://localhost:8501
 - https://arxiv.org/abs/1704.00028
 - https://arxiv.org/pdf/1710.10196
 - https://medium.com/@Packt_Pub/inside-the-generative-adversarial-networks-gan-architecture-2435afbd6b3b
+
+WGAN-GP FID: 21.7996

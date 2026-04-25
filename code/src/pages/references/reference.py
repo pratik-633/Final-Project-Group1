@@ -4,7 +4,7 @@ def references():
     st.header("References")
 
     st.write(
-        "References used for the dashboard, model selection, training, and dataset context."
+        "References used for the dashboard, architecture explanations, model selection, training, and dataset context."
     )
 
     st.divider()
@@ -25,11 +25,10 @@ def references():
     - Karras et al. (2017), *Progressive Growing of GANs for Improved Quality, Stability, and Variation*  
       https://arxiv.org/abs/1710.10196
       
-    - Zeiler and Fergus (2010), *Deconvolutional Networks*
+    - Zeiler and Fergus (2010), *Deconvolutional Networks*  
       https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf
     """)
-    
-    
+
     st.divider()
     st.subheader("Code Reference")
     st.markdown("""
@@ -46,16 +45,21 @@ def references():
     """)
 
     st.divider()
-    st.subheader("Image from:")
+    st.subheader("Image Sources")
     st.markdown("""
-    - Packt, *Inside the Generative Adversarial Networks (GAN) architecture*  
-      https://medium.com/@Packt_Pub/inside-the-generative-adversarial-networks-gan-architecture-2435afbd6b3b
+    - `gan_arch_diag.png` — Custom diagram created for this project.
+
+    - `dcgan_deconv.png` — Adapted from concepts in:  
+      Radford et al. (2015), *Unsupervised Representation Learning with Deep Convolutional Generative Adversarial Networks*  
+      https://arxiv.org/pdf/1511.06434  
+      
+      Zeiler and Fergus (2010), *Deconvolutional Networks*  
+      https://www.matthewzeiler.com/mattzeiler/deconvolutionalnetworks.pdf
     """)
-    
+
     st.divider()
     st.subheader("Additional Resources")
     st.markdown("""
     - ApX Machine Learning, *Fréchet Inception Distance (FID)*  
       https://apxml.com/courses/generative-adversarial-networks-gans/chapter-5-evaluation-of-gans/frechet-inception-distance-fid
-    """
-    )
+    """)

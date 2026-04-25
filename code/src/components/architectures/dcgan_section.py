@@ -104,7 +104,7 @@ def dcgan_section():
     fully connected GAN.
     """)
 
-    st.subheader("1. What is a GAN?")
+    st.subheader("What is a GAN?")
     st.write("""
     A **Generative Adversarial Network (GAN)** contains two neural networks trained against each other:
 
@@ -121,34 +121,17 @@ def dcgan_section():
         "Basic GAN architecture showing the generator-discriminator adversarial setup"
     )
 
-    st.subheader("2. Original GAN Objective")
+    st.subheader("Original GAN Objective")
     st.write("""
-    The original GAN formulation is a minimax optimization problem:
+    The original GAN (Goodfellow et al., 2014) was built with two simple neural networks:
+    a generator that maps random noise to an image, and a discriminator that outputs real vs fake.
+    Training alternates between updating the discriminator and generator with a minimax objective,
+    so the generator gradually learns to produce data that matches the training distribution.
     """)
 
-    st.latex(r"""
-    \min_G \max_D V(D, G)
-    =
-    \mathbb{E}_{x \sim p_{data}(x)}[\log D(x)]
-    +
-    \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]
-    """)
-
+    st.subheader("Why DCGAN Improves a Basic GAN")
     st.write("""
-    Here:
-
-    - \(x\) is a real image sampled from the training data
-    - \(z\) is a latent random noise vector
-    - \(G(z)\) is the generated fake image
-    - \(D(x)\) is the discriminator's predicted probability that an input is real
-
-    The discriminator wants to maximize this objective by correctly classifying real and fake images,
-    while the generator wants to minimize it by producing images that fool the discriminator.
-    """)
-
-    st.subheader("3. Why DCGAN Improves a Basic GAN")
-    st.write("""
-    A vanilla GAN often uses **fully connected layers**, which do not preserve image structure well.
+    A vanilla GAN often uses **fully connected layers** (MLP Architecture), which do not preserve image structure well.
     DCGAN improves this by using image-specific design principles:
 
     - **Convolutional layers** in the discriminator
@@ -162,7 +145,7 @@ def dcgan_section():
     explicitly designed to learn spatially meaningful visual features.
     """)
 
-    st.subheader("4. What is a Transposed Convolution?")
+    st.subheader("What is a Transposed Convolution?")
     st.write("""
     A **standard convolution** is usually used to extract features and often reduce spatial resolution.
     For example, it may transform a larger image or feature map into a smaller, denser representation.
@@ -192,7 +175,7 @@ def dcgan_section():
     That is why transposed convolution is central to the DCGAN generator.
     """)
 
-    st.subheader("5. Generator Architecture")
+    st.subheader("Generator Architecture")
     st.write("""
     The generator starts from a random latent vector and transforms it into a **64×64 RGB face image**.
 
@@ -212,7 +195,7 @@ def dcgan_section():
         "DCGAN generator architecture showing learned upsampling with transposed convolutions"
     )
 
-    st.subheader("6. Discriminator Architecture")
+    st.subheader("Discriminator Architecture")
     st.write("""
     The discriminator performs the reverse process. It takes a real or generated **64×64 RGB image**
     and progressively downsamples it through convolutional layers in order to decide whether the image
@@ -229,7 +212,7 @@ def dcgan_section():
     face shape, eyes, hair arrangement, and other image-level patterns.
     """)
 
-    st.subheader("7. DCGAN Loss Functions")
+    st.subheader("DCGAN Loss Functions")
     st.write("""
     In our implementation, DCGAN uses **binary cross-entropy loss (BCELoss)**.
     The discriminator tries to classify real images as real and generated images as fake,
@@ -269,7 +252,7 @@ def dcgan_section():
     because it provides better gradients than the original saturating form.
     """)
 
-    st.subheader("8. Why the Discriminator Loss Matters")
+    st.subheader("Why the Discriminator Loss Matters")
     st.write("""
     The discriminator loss is important because it controls how strongly the model separates
     real data from generated data. If the discriminator becomes too strong too early:
@@ -289,119 +272,119 @@ def dcgan_section():
     probability-based discriminator formulation used in DCGAN.
     """)
 
-    st.subheader("9. Why This Connects to WGAN")
-    st.write("""
-    In DCGAN, the discriminator outputs a **probability** and training is based on a BCE-style real/fake objective.
-    In **WGAN**, this changes in a fundamental way:
+    # st.subheader("9. Why This Connects to WGAN")
+    # st.write("""
+    # In DCGAN, the discriminator outputs a **probability** and training is based on a BCE-style real/fake objective.
+    # In **WGAN**, this changes in a fundamental way:
 
-    - the discriminator becomes a **critic**
-    - the output is no longer interpreted as a probability
-    - the loss becomes based on the **Wasserstein distance** rather than binary classification
+    # - the discriminator becomes a **critic**
+    # - the output is no longer interpreted as a probability
+    # - the loss becomes based on the **Wasserstein distance** rather than binary classification
 
-    The reason this matters is that WGAN often gives smoother and more meaningful gradients,
-    especially when the discriminator in a traditional GAN becomes too confident.
+    # The reason this matters is that WGAN often gives smoother and more meaningful gradients,
+    # especially when the discriminator in a traditional GAN becomes too confident.
 
-    So understanding DCGAN discriminator loss is a direct prerequisite for understanding why WGAN and WGAN-GP
-    are often more stable than vanilla GAN-style training.
-    """)
+    # So understanding DCGAN discriminator loss is a direct prerequisite for understanding why WGAN and WGAN-GP
+    # are often more stable than vanilla GAN-style training.
+    # """)
 
-    st.subheader("10. Training Setup Used in Our Project")
-    st.write("""
-    Our DCGAN baseline was trained using the following settings:
+    # st.subheader("10. Training Setup Used in Our Project")
+    # st.write("""
+    # Our DCGAN baseline was trained using the following settings:
 
-    - Image size: **64×64**
-    - Batch size: **128**
-    - Epochs: **150**
-    - Generator learning rate: **1e-4**
-    - Discriminator learning rate: **5e-5**
-    - Adam betas: **(0.5, 0.999)**
-    - Loss function: **BCELoss**
-    - Feature maps: **128**
-    """)
+    # - Image size: **64×64**
+    # - Batch size: **128**
+    # - Epochs: **150**
+    # - Generator learning rate: **1e-4**
+    # - Discriminator learning rate: **5e-5**
+    # - Adam betas: **(0.5, 0.999)**
+    # - Loss function: **BCELoss**
+    # - Feature maps: **128**
+    # """)
 
-    st.write("""
-    We also added several stabilization choices to make training more reliable:
+    # st.write("""
+    # We also added several stabilization choices to make training more reliable:
 
-    - **real-label smoothing** at 0.9
-    - **annealed instance noise**
-    - **validation FID evaluation every 5 epochs**
-    - **best checkpoint reloading** after training finishes
-    """)
+    # - **real-label smoothing** at 0.9
+    # - **annealed instance noise**
+    # - **validation FID evaluation every 5 epochs**
+    # - **best checkpoint reloading** after training finishes
+    # """)
 
-    st.write("""
-    These choices are useful because GAN training is sensitive to imbalance. Real-label smoothing helps
-    prevent the discriminator from becoming too overconfident, while instance noise can regularize training
-    early on by making the real/fake separation slightly less sharp. FID-based checkpointing lets us keep
-    the best-performing model according to validation image quality rather than only relying on the final epoch.
-    """)
+    # st.write("""
+    # These choices are useful because GAN training is sensitive to imbalance. Real-label smoothing helps
+    # prevent the discriminator from becoming too overconfident, while instance noise can regularize training
+    # early on by making the real/fake separation slightly less sharp. FID-based checkpointing lets us keep
+    # the best-performing model according to validation image quality rather than only relying on the final epoch.
+    # """)
 
-    st.subheader("11. Project Results Summary")
-    history = _load_history()
-    best_epoch, best_fid = _best_fid(history)
+    # st.subheader("11. Project Results Summary")
+    # history = _load_history()
+    # best_epoch, best_fid = _best_fid(history)
 
-    if best_fid is not None:
-        latest_g = _latest_metric(history, ["generator_loss"])
-        latest_d = _latest_metric(history, ["discriminator_loss", "critic_loss"])
+    # if best_fid is not None:
+    #     latest_g = _latest_metric(history, ["generator_loss"])
+    #     latest_d = _latest_metric(history, ["discriminator_loss", "critic_loss"])
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Best Validation FID", f"{best_fid:.4f}")
-        with col2:
-            st.metric("Best FID Epoch", best_epoch)
-        with col3:
-            if latest_g is not None:
-                st.metric("Latest Generator Loss", f"{latest_g:.4f}")
-            else:
-                st.metric("Latest Generator Loss", "N/A")
+    #     col1, col2, col3 = st.columns(3)
+    #     with col1:
+    #         st.metric("Best Validation FID", f"{best_fid:.4f}")
+    #     with col2:
+    #         st.metric("Best FID Epoch", best_epoch)
+    #     with col3:
+    #         if latest_g is not None:
+    #             st.metric("Latest Generator Loss", f"{latest_g:.4f}")
+    #         else:
+    #             st.metric("Latest Generator Loss", "N/A")
 
-        if latest_d is not None:
-            st.write(f"Latest discriminator loss: **{latest_d:.4f}**")
+    #     if latest_d is not None:
+    #         st.write(f"Latest discriminator loss: **{latest_d:.4f}**")
 
-        st.write("""
-        FID (Fréchet Inception Distance) measures how close the generated image distribution
-        is to the real image distribution. Lower FID values indicate more realistic outputs
-        and better alignment with the target data distribution.
-        """)
-    else:
-        st.info("No DCGAN history file found in logs/.")
+    #     st.write("""
+    #     FID (Fréchet Inception Distance) measures how close the generated image distribution
+    #     is to the real image distribution. Lower FID values indicate more realistic outputs
+    #     and better alignment with the target data distribution.
+    #     """)
+    # else:
+    #     st.info("No DCGAN history file found in logs/.")
 
-    st.subheader("12. Example Generated Output")
-    _show_image(
-        sample_img_path,
-        "Example face generated by the 64×64 DCGAN baseline",
-        width=260
-    )
+    # st.subheader("12. Example Generated Output")
+    # _show_image(
+    #     sample_img_path,
+    #     "Example face generated by the 64×64 DCGAN baseline",
+    #     width=260
+    # )
 
-    st.subheader("13. Strengths and Limitations")
-    st.write("""
-    **Strengths**
-    - Simple and interpretable baseline for image generation
-    - Much more appropriate for images than a vanilla fully connected GAN
-    - Strong foundation for understanding adversarial image synthesis
-    - Useful baseline for comparing more advanced models like WGAN-GP and ProGAN
+    # st.subheader("13. Strengths and Limitations")
+    # st.write("""
+    # **Strengths**
+    # - Simple and interpretable baseline for image generation
+    # - Much more appropriate for images than a vanilla fully connected GAN
+    # - Strong foundation for understanding adversarial image synthesis
+    # - Useful baseline for comparing more advanced models like WGAN-GP and ProGAN
 
-    **Limitations**
-    - Less stable than stronger variants such as WGAN-GP
-    - Can suffer from training imbalance between generator and discriminator
-    - Can experience mode collapse or unstable adversarial behavior
-    - More limited in robustness and image quality than stronger GAN variants
+    # **Limitations**
+    # - Less stable than stronger variants such as WGAN-GP
+    # - Can suffer from training imbalance between generator and discriminator
+    # - Can experience mode collapse or unstable adversarial behavior
+    # - More limited in robustness and image quality than stronger GAN variants
 
-    In our project, DCGAN serves as the baseline model, while WGAN-GP and ProGAN provide
-    stronger comparisons in terms of training stability and image quality.
-    """)
+    # In our project, DCGAN serves as the baseline model, while WGAN-GP and ProGAN provide
+    # stronger comparisons in terms of training stability and image quality.
+    # """)
 
-    st.subheader("14. Final Takeaway")
-    st.write("""
-    DCGAN is important in this project not only because it is our baseline image generator,
-    but also because it builds the conceptual foundation for understanding more advanced GAN variants.
+    # st.subheader("14. Final Takeaway")
+    # st.write("""
+    # DCGAN is important in this project not only because it is our baseline image generator,
+    # but also because it builds the conceptual foundation for understanding more advanced GAN variants.
 
-    It shows:
-    - how adversarial training works,
-    - why image-specific convolutional design matters,
-    - why transposed convolution is needed in the generator,
-    - why discriminator loss can create instability,
-    - and why later models such as WGAN-GP were proposed.
+    # It shows:
+    # - how adversarial training works,
+    # - why image-specific convolutional design matters,
+    # - why transposed convolution is needed in the generator,
+    # - why discriminator loss can create instability,
+    # - and why later models such as WGAN-GP were proposed.
 
-    For that reason, DCGAN is both a practical baseline and a conceptual stepping stone
-    for the rest of the project.
-    """)
+    # For that reason, DCGAN is both a practical baseline and a conceptual stepping stone
+    # for the rest of the project.
+    # """)

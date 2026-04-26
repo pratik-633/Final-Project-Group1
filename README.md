@@ -101,4 +101,10 @@ http://localhost:8501
 - https://arxiv.org/pdf/1710.10196
 - https://medium.com/@Packt_Pub/inside-the-generative-adversarial-networks-gan-architecture-2435afbd6b3b
 
-WGAN-GP FID: 21.7996
+## GAN Model FID Scores Tested on 10,000 images
+
+DCGAN-64 FID: 23.1085
+WGAN-GP-64 FID: 21.7996
+WGAN-GP-128 FID: 39.5622
+ProGAN-64 FID: 39.7453
+ProGAN-128 FID: 59.1849

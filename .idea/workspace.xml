@@ -5,8 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f4414c92-938f-47a5-b046-c11914951363" name="Changes" comment="ProGAN best model">
-      <change beforePath="$PROJECT_DIR$/code/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configs/progan_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/configs/progan_config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/src/components/architectures/progan_section.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/src/components/architectures/progan_section.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009990.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009991.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009992.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009993.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009994.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009995.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009996.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009997.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009998.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_128/009999.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009990.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009991.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009992.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009993.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009994.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009995.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009996.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009997.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009998.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/progan_64/009999.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,31 +75,32 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.train.executor": "Run",
-    "Python.utils.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
-    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
-    "WebServerToolWindowPanel.toolwindow.show.date": "false",
-    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
-    "WebServerToolWindowPanel.toolwindow.show.size": "false",
-    "ai.playground.ignore.import.keys.banner.in.settings": "true",
-    "git-widget-placeholder": "ProGAN__final",
-    "last_opened_file_path": "/Users/jeongwonyoo/Desktop/2026_Spring/Final-Project-Group1/code/notebooks",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.generate.executor&quot;: &quot;Run&quot;,
+    &quot;Python.train.executor&quot;: &quot;Run&quot;,
+    &quot;Python.utils.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.mappings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.highlight.symlinks&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.date&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.permissions&quot;: &quot;false&quot;,
+    &quot;WebServerToolWindowPanel.toolwindow.show.size&quot;: &quot;false&quot;,
+    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;#74 on ProGAN__final&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/jeongwonyoo/Desktop/2026_Spring/Final-Project-Group1/code/notebooks&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/code/notebooks" />
@@ -120,7 +141,10 @@
       <workItem from="1776910446165" duration="32551000" />
       <workItem from="1777159483081" duration="579000" />
       <workItem from="1777160245834" duration="1294000" />
-      <workItem from="1777161570366" duration="631000" />
+      <workItem from="1777161570366" duration="2199000" />
+      <workItem from="1777163835829" duration="994000" />
+      <workItem from="1777165276085" duration="536000" />
+      <workItem from="1777174385111" duration="1010000" />
     </task>
     <task id="LOCAL-00001" summary="added Config dataclass for easier multi-model training (DCGAN/WGAN-GP/ProGAN)&#10;&#10;added flatten_noise to generate_images (DCGAN uses 4D noise, ProGAN uses 2D noise)&#10;&#10;added Linear layer init in weights_init for ProGAN support">
       <option name="closed" value="true" />
@@ -218,7 +242,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777161313830</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="ProGAN best model">
+      <option name="closed" value="true" />
+      <created>1777162370891</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1777162370891</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

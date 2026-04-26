@@ -89,7 +89,6 @@ def overview():
         - **DCGAN remained an important baseline** and was kept in the final comparison as the clearest reference model.
         - **ProGAN trained more slowly** than the other models, and within the allotted time we could not fully tune it for larger resolutions.
         - In theory, **ProGAN has strong potential at higher resolutions**, because it is designed to learn coarse structure first and then progressively refine detail.
-        - Across the project, one of the biggest lessons was that **training stability mattered just as much as raw image quality**.
         """
     )
 

@@ -5,7 +5,16 @@ def sidebar():
 
     page = st.sidebar.selectbox(
         "Go to",
-        ["Overview", "Architectures", "Training Curves", "Model Summary", "Image Gallery", "Conclusions and Findings", "References"],
+        [
+            "Overview",
+            "Architectures",
+            "Training Curves",
+            "Model Summary",
+            "Image Gallery",
+            "Live Generation",
+            "Conclusions and Findings",
+            "References",
+        ],
     )
 
     return page

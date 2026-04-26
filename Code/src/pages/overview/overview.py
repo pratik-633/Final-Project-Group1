@@ -24,6 +24,7 @@ def overview():
         - **Training Curves** — Shows loss, FID, and convergence behavior over training.
         - **Model Summary** — Summarizes each model’s purpose, setup, and role in the project.
         - **Image Gallery** — Displays generated samples from each trained model.
+        - **Live Demo** — Allows you to generate new images live using the trained GAN models.
         - **Conclusions and Findings** — Highlights the major takeaways from comparing the three GANs.
         - **References** — Lists the papers, dataset sources, and supporting materials used in the project.
         """

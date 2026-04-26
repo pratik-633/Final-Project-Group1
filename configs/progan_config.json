@@ -2,19 +2,21 @@
     "img_size_64": {
         "beta1": 0.0,
         "beta2": 0.99,
-        "batch_size": 128,
+        "batch_size": 64,
         "feature_maps": 512,
-        "learning_rate": 0.001,
-        "num_epochs_per_step": 10,
-        "fade_in_epochs": 4
+        "learning_rate": 0.0005,
+        "num_epochs_per_step": 300,
+        "fade_in_epochs": 25,
+        "n_critic": 1
     },
     "img_size_128": {
         "beta1": 0.0,
         "beta2": 0.99,
         "batch_size": 128,
         "feature_maps": 512,
-        "learning_rate": 0.001,
-        "num_epochs_per_step": 10,
-        "fade_in_epochs": 4
+        "learning_rate": 0.0005,
+        "num_epochs_per_step": 300,
+        "fade_in_epochs": 10,
+        "n_critic": 2
     }
 }

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f4414c92-938f-47a5-b046-c11914951363" name="Changes" comment="ProGAN best model">
+      <change beforePath="$PROJECT_DIR$/code/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/code/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configs/progan_config.json" beforeDir="false" afterPath="$PROJECT_DIR$/configs/progan_config.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;jeongwondata&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/pratik-633/Final-Project-Group1.git&quot;,
+    &quot;accountId&quot;: &quot;bbe1a30c-00a4-4ee9-af2b-a2a821f37f66&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;pratik-633&quot;,
+    &quot;repository&quot;: &quot;Final-Project-Group1&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="3C8blm3hrFv7C138U241dl8rXqx" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.train.executor": "Run",
+    "Python.utils.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.mappings": "true",
+    "WebServerToolWindowPanel.toolwindow.highlight.symlinks": "true",
+    "WebServerToolWindowPanel.toolwindow.show.date": "false",
+    "WebServerToolWindowPanel.toolwindow.show.permissions": "false",
+    "WebServerToolWindowPanel.toolwindow.show.size": "false",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "git-widget-placeholder": "ProGAN__final",
+    "last_opened_file_path": "/Users/jeongwonyoo/Desktop/2026_Spring/Final-Project-Group1/code/notebooks",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/code/notebooks" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/" />
+      <recent name="$PROJECT_DIR$/code" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PY-253.29346.308" />
+        <option value="bundled-python-sdk-ca5e2b39c7df-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.308" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f4414c92-938f-47a5-b046-c11914951363" name="Changes" comment="" />
+      <created>1775770297411</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775770297411</updated>
+      <workItem from="1775770298532" duration="19485000" />
+      <workItem from="1775945923277" duration="141000" />
+      <workItem from="1775946572538" duration="6433000" />
+      <workItem from="1775953111169" duration="1598000" />
+      <workItem from="1775954944837" duration="2496000" />
+      <workItem from="1776376963967" duration="9290000" />
+      <workItem from="1776475299359" duration="901000" />
+      <workItem from="1776528675638" duration="16938000" />
+      <workItem from="1776619902951" duration="5791000" />
+      <workItem from="1776702326909" duration="155000" />
+      <workItem from="1776702935760" duration="660000" />
+      <workItem from="1776703623028" duration="12579000" />
+      <workItem from="1776812976817" duration="11581000" />
+      <workItem from="1776910446165" duration="32551000" />
+      <workItem from="1777159483081" duration="579000" />
+      <workItem from="1777160245834" duration="1294000" />
+      <workItem from="1777161570366" duration="631000" />
+    </task>
+    <task id="LOCAL-00001" summary="added Config dataclass for easier multi-model training (DCGAN/WGAN-GP/ProGAN)&#10;&#10;added flatten_noise to generate_images (DCGAN uses 4D noise, ProGAN uses 2D noise)&#10;&#10;added Linear layer init in weights_init for ProGAN support">
+      <option name="closed" value="true" />
+      <created>1775772535602</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1775772535602</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty">
+      <option name="closed" value="true" />
+      <created>1775789005891</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775789005891</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty">
+      <option name="closed" value="true" />
+      <created>1775945969060</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1775945969060</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution&#10;- Backward compatible: DCGAN/WGAN-GP unchanged">
+      <option name="closed" value="true" />
+      <created>1775951858207</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1775951858207</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution&#10;- Backward compatible: DCGAN/WGAN-GP unchanged">
+      <option name="closed" value="true" />
+      <created>1775953291971</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1775953291971</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution&#10;- Backward compatible: DCGAN/WGAN-GP unchanged">
+      <option name="closed" value="true" />
+      <created>1775954259057</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1775954259057</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution">
+      <option name="closed" value="true" />
+      <created>1775956935927</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1775956935927</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fix: add train_loader param to train_progan, track best_gen_loss per step instead of globally&#10;&#10;run 4 epoch working fine">
+      <option name="closed" value="true" />
+      <created>1776381509120</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1776381509120</updated>
+    </task>
+    <task id="LOCAL-00009" summary="fix: correct use_fid condition and best_fid initialization in train_progan&#10;&#10;- fix typo: float('int') → float('inf') for best_fid initialization&#10;- fix syntax: (num_val_samples if not None) → (num_val_samples is not None)">
+      <option name="closed" value="true" />
+      <created>1776546826598</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1776546826598</updated>
+    </task>
+    <task id="LOCAL-00010" summary="checkpoint = torch.load(f&quot;models/progan_model_{img_size}.pt&quot;, map_location=DEVICE, weights_only=False)">
+      <option name="closed" value="true" />
+      <created>1776553575839</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1776553575839</updated>
+    </task>
+    <task id="LOCAL-00011" summary="save fid every epoch">
+      <option name="closed" value="true" />
+      <created>1776822832426</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1776822832426</updated>
+    </task>
+    <task id="LOCAL-00012" summary="ProGAN best model">
+      <option name="closed" value="true" />
+      <created>1777161313830</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1777161313830</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added Config dataclass for easier multi-model training (DCGAN/WGAN-GP/ProGAN)&#10;&#10;added flatten_noise to generate_images (DCGAN uses 4D noise, ProGAN uses 2D noise)&#10;&#10;added Linear layer init in weights_init for ProGAN support" />
+    <MESSAGE value="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty" />
+    <MESSAGE value="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution&#10;- Backward compatible: DCGAN/WGAN-GP unchanged" />
+    <MESSAGE value="Implemented ProGAN architecture (Generator, Discriminator, ProGAN wrapper)&#10;- Progressive growing from 4x4 to 128x128 with fade-in (alpha blending)&#10;- Added tune_progan and train_progan functions&#10;- Uses WGAN-GP style loss with gradient penalty&#10;- Added step/alpha support to generate_images for ProGAN evaluation&#10;- ProGAN uses progressive generation, needs step and alpha unlike DCGAN/WGAN-GP&#10;- Updated ProGAN test section to load checkpoint and generate at final resolution" />
+    <MESSAGE value="fix: add train_loader param to train_progan, track best_gen_loss per step instead of globally&#10;&#10;run 4 epoch working fine" />
+    <MESSAGE value="fix: correct use_fid condition and best_fid initialization in train_progan&#10;&#10;- fix typo: float('int') → float('inf') for best_fid initialization&#10;- fix syntax: (num_val_samples if not None) → (num_val_samples is not None)" />
+    <MESSAGE value="checkpoint = torch.load(f&quot;models/progan_model_{img_size}.pt&quot;, map_location=DEVICE, weights_only=False)" />
+    <MESSAGE value="save fid every epoch" />
+    <MESSAGE value="ProGAN best model" />
+    <option name="LAST_COMMIT_MESSAGE" value="ProGAN best model" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Final_Project_Group1$utils.coverage" NAME="utils Coverage Results" MODIFIED="1775771981858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/code" />
+    <SUITE FILE_PATH="coverage/Final_Project_Group1$train.coverage" NAME="train Coverage Results" MODIFIED="1775781226099" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/code" />
+  </component>
+</project>

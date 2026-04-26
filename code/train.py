@@ -663,6 +663,9 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
 
     use_fid = (val_dir is not None) and (num_val_samples is not None)
     best_fid = float('inf')
+    best_gen_loss = float('inf')
+    no_improve_count = 0
+    history = {'gen_loss':[], 'disc_loss':[], 'fid':[], 'fid_epochs':[]}
     model_path = f'models/progan_model_{img_size}.pt'
     os.makedirs('models', exist_ok=True)
 
@@ -685,6 +688,9 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
     max_step = resolutions.index(img_size) + 1
 
     base_dataset = train_loader.dataset
+
+    patience = params.get('patience', 3)
+    no_improve_count = 0
 
     for step in range(max_step):
         res = resolutions[step]
@@ -730,7 +736,7 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
                     grad_outputs=torch.ones_like(disc_interp),
                     create_graph=True
                 )[0]
-                gp = 10 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
+                gp = 5 * ((gradients.reshape(batch_size, -1).norm(2, dim=1) - 1) ** 2).mean()
                 disc_loss = disc_loss + gp
 
                 disc_optimizer.zero_grad()
@@ -738,15 +744,17 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
                 disc_optimizer.step()
 
                 # ---- Train Generator ----
-                z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
-                x_fake = model.gen(z, step=step, alpha=alpha)
-                gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
+                if (i + 1) % params.get('n_critic', 1) == 0:
+                    z = torch.randn(batch_size, LATENT_DIM, 1, 1, device=DEVICE)
+                    x_fake = model.gen(z, step=step, alpha=alpha)
+                    gen_loss = -torch.mean(model.disc(x_fake, step=step, alpha=alpha))
 
-                gen_optimizer.zero_grad()
-                gen_loss.backward()
-                gen_optimizer.step()
+                    gen_optimizer.zero_grad()
+                    gen_loss.backward()
+                    gen_optimizer.step()
 
-                gen_loss_sum += gen_loss.item()
+                    gen_loss_sum += gen_loss.item()
+
                 disc_loss_sum += disc_loss.item()
                 num_batches += 1
 
@@ -754,6 +762,9 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
             avg_disc = disc_loss_sum / num_batches
             print(
                 f"  Step {step + 1}/{max_step} | Epoch {epoch + 1}/{params['num_epochs_per_step']} | alpha: {alpha:.2f} | D loss: {avg_disc:.4f} | G loss: {avg_gen:.4f}")
+
+            history['gen_loss'].append(avg_gen)
+            history['disc_loss'].append(avg_disc)
 
             is_eval_epoch = use_fid and ((epoch + 1) % 10 == 0 or epoch + 1 == params['num_epochs_per_step'])
             is_final_step = (step == max_step - 1)
@@ -778,6 +789,8 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
                                            BATCH_SIZE, LATENT_DIM, DEVICE,
                                            step=step, alpha=alpha)
                 fid = compute_fid(val_dir, fake_dir, BATCH_SIZE, DEVICE)
+                history['fid'].append(fid)
+                history['fid_epochs'].append(len(history['gen_loss']))
                 checkpoint['fid'] = fid
 
                 if os.path.isdir(fake_dir):
@@ -786,16 +799,26 @@ def train_progan(progan, train_loader, params, val_dir=None, num_val_samples=Non
                 print(f"  Validation FID: {fid:.4f}")
                 if fid < best_fid:
                     best_fid = fid
+                    best_gen_loss = avg_gen
+                    no_improve_count = 0
                     torch.save(checkpoint, model_path)
                     print(f"  New best model saved - FID: {fid:.4f}")
                 else:
+                    no_improve_count += 1
                     print(f"  No FID improvement ({fid:.4f} vs best {best_fid:.4f})")
+                    if no_improve_count >= patience:
+                        print(f'Early stopping at step{step + 1}, epoch{epoch + 1}')
+                        model.train()
                 model.train()
 
             elif not use_fid:
                 torch.save(checkpoint, model_path)
 
-        print(f"\nTraining complete! Best FID: {best_fid:.4f}" if use_fid else "\nTraining complete!")
+        os.makedirs('output', exist_ok=True)
+        with open(f'output/progan_{img_size}_history.json','w') as f:
+            json.dump(history, f)
+        print(
+            f"\nTraining complete! Best FID: {best_fid:.4f} | G loss at best FID: {best_gen_loss:.4f}" if use_fid else "\nTraining complete!")
 
 
 # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -899,10 +922,15 @@ def main():
         os.makedirs("logs", exist_ok=True)
         with open(f"logs/wgan_gp_{img_size}_history.json", "w") as f:
             json.dump({"train_history": history}, f, indent=2)
-        
-        
+
+
     elif model_choice == "progan":
-        real_val_dir = os.path.join(DATA_ROOT, "valid", "real")
+        real_val_dir = export_real_images_for_fid(
+            split="valid",
+            data_root=DATA_ROOT,
+            image_size=img_size,
+            save_dir=os.path.join("output", "fid_cache", f"valid_real_{img_size}")
+        )
 
         progan_params, progan = tune_progan(
             train_loader,

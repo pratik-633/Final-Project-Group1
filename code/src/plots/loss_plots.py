@@ -3,9 +3,9 @@ import pandas as pd
 
 def plot_fid(train_history):
     fid_df = (
-        train_history[['epoch', 'fid']]
+        train_history[['fid']]
         .dropna(subset=['fid'])
-        .set_index('epoch')
+        .reset_index(drop=True)
     )
     st.line_chart(fid_df)
 

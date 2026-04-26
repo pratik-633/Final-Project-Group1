@@ -12,9 +12,10 @@ def conclusions():
     st.subheader("1) Key Results")
     st.markdown(
         """
-        - WGAN-GP showed the most consistent convergence behavior across runs.
-        - ProGAN produced strong structure at larger resolutions, but required more careful tuning.
-        - DCGAN trained faster to initial results, but was more prone to instability and mode collapse.
+        - WGAN-GP delivered the best overall model performance in this project. It also gave the most stable training behavior across runs.
+        - DCGAN remains a useful baseline and is kept in our final comparison.
+        - ProGAN was slower to train, and with our allotted time we could not fully tune it for larger resolutions. In theory, it has the potential
+        to outperform WGAN-GP on higher resolution images, as it is designed to find the details first and work its way up.
         """
     )
 
@@ -24,7 +25,6 @@ def conclusions():
     st.markdown(
         """
         - Generator and discriminator balance was critical; imbalance led to unstable learning.
-        - Lower FID generally aligned with visually better sample quality.
         - Training became harder as image resolution increased, requiring stronger regularization and tuning.
         """
     )
@@ -35,14 +35,15 @@ def conclusions():
     st.markdown(
         """
         - DCGAN:
-          - Good baseline architecture and easiest to explain.
-          - Struggled with stability and diversity in some runs.
+                    - Good baseline architecture and easiest to compare against.
+                    - Kept in the project as a reference model.
         - WGAN-GP:
-          - Most reliable optimization behavior and smoother progress.
-          - Gradient penalty improved robustness during training.
+                    - Best overall performer for this dataset and setup.
+                    - Most reliable optimization behavior and smoothest training progression.
         - ProGAN:
-          - Best framework for progressive quality gains at higher resolution.
-          - Highest implementation and tuning complexity.
+                    - Training was noticeably slower than our other models.
+                    - Needed more fine tuning time than we had, especially for larger resolutions.
+                    - The benefits of ProGAN are best seen at higher resolutions, which require more time.
         """
     )
 
@@ -52,8 +53,8 @@ def conclusions():
     st.markdown(
         """
         - Limited training budget and time constrained model tuning.
-        - Not all architectures were explored with equal depth at all resolutions.
         - Evaluation focused on a narrow set of metrics and visual checks.
+        - Results are specific to our dataset, however we encourage applying this methodology to other datasets and domains.
         """
     )
 
@@ -62,7 +63,8 @@ def conclusions():
     st.subheader("5) Future Work")
     st.markdown(
         """
-        - Explore additional architectures (e.g., StyleGAN, BigGAN).
+        - Apply methodology to other datasets that are more complex or diverse.
+        - Explore additional architectures (e.g., StyleGAN).
         - Conduct more extensive hyperparameter tuning, especially for ProGAN (need weeks to fully optimize).
         - Evaluate on more diverse datasets, try training on higher resolutions and different domains.
         """
@@ -73,8 +75,10 @@ def conclusions():
     st.subheader("Final Summary")
     st.markdown(
         """
-        Overall, WGAN-GP was the strongest choice for stable training in this project,
-        while ProGAN offered the best path for high-resolution generation when computational
-        cost and tuning effort were acceptable.
+        Overall, WGAN-GP was the strongest model in this project and the most stable during training.
+        DCGAN was our baseline, while ProGAN showed potential but moved too slowly for the
+        allotted timeline needed to properly tune larger-resolution results. Overall, we learned a lot about
+        the GAN architectures and training dynamics, and look forward to applying these insights to 
+        real world problems and more complex datasets in the future!
         """
     )

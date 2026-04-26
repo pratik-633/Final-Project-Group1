@@ -71,10 +71,9 @@ def _parse_fid(log_text: str):
         return match.group(1), float(match.group(2))
     return None
 
-
 def live_demo():
     st.header("Live Generation Demo")
-    st.write("Generate new face images live using the trained GAN checkpoints.")
+    st.write("Generate new face images live using the trained GAN models.")
 
     available = _available_models()
     if not available:
@@ -87,7 +86,7 @@ def live_demo():
         "progan": "ProGAN",
     }
 
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2 = st.columns([1, 1])
 
     with col1:
         model_name = st.selectbox(
@@ -99,13 +98,6 @@ def live_demo():
     with col2:
         img_size = st.selectbox("Image Size", available[model_name])
 
-    with col3:
-        seed_text = st.text_input(
-            "Optional Random Seed",
-            value="",
-            help="Leave blank for a fresh random result each time.",
-        )
-
     output_dir = _output_dir(model_name, img_size)
 
     if st.button("Generate 10 New Faces", type="primary"):
@@ -116,20 +108,13 @@ def live_demo():
             str(_code_root() / "generate.py"),
             "--model", model_name,
             "--size", str(img_size),
-            "--num_images", "10",
+            "--num_images", "10000", # generating 10,000 images -> we only keep the last 10 for demo visualizations
             "--output_dir", str(output_dir),
             "--keep_n", "10",
         ]
 
-        if seed_text.strip():
-            try:
-                int(seed_text.strip())
-                cmd.extend(["--seed", seed_text.strip()])
-            except ValueError:
-                st.error("Seed must be an integer if provided.")
-                return
-
         with st.spinner("Generating 10 images and computing FID..."):
+            # running generate.py with specified args and capturing output
             result = subprocess.run(
                 cmd,
                 cwd=_repo_root(),
@@ -138,6 +123,7 @@ def live_demo():
             )
 
         if result.returncode != 0:
+            # error handling
             st.error("Generation failed.")
             st.code(result.stderr or result.stdout)
             return
@@ -155,11 +141,12 @@ def live_demo():
         else:
             st.session_state["live_demo_fid_model"] = None
             st.session_state["live_demo_fid_value"] = None
-
+            
         st.success("Generation complete.")
 
     st.divider()
     st.subheader("FID Score")
+    st.write('Note: FID is computed on 10,000 generated images, only the last 10 are shown below for visualization.')
 
     fid_value = st.session_state.get("live_demo_fid_value")
     fid_model = st.session_state.get("live_demo_fid_model")
@@ -190,7 +177,3 @@ def live_demo():
     for i, image_path in enumerate(images):
         with cols[i % 5]:
             st.image(str(image_path), caption=image_path.name, use_container_width=True)
-
-    if st.session_state.get("live_demo_log"):
-        with st.expander("Generation Log"):
-            st.code(st.session_state["live_demo_log"])

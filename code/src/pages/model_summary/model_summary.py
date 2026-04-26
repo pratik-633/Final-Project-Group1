@@ -57,6 +57,18 @@ def load_history(model_key, image_size):
     if not history:
         return None
 
+    # ProGAN stores train_history as a dict of unequal-length lists
+    if isinstance(history, dict) and "gen_loss" in history:
+        n = len(history["gen_loss"])
+        df = pd.DataFrame({
+            "epoch": range(1, n + 1),
+            "generator_loss": history["gen_loss"],
+            "discriminator_loss": history["disc_loss"],
+        })
+        fid_dict = dict(zip(history["fid_epochs"], history["fid"]))
+        df["fid"] = df["epoch"].map(fid_dict)
+        return df
+
     return pd.DataFrame(history)
 
 

@@ -71,8 +71,6 @@ streamlit run Code/src/app.py --server.address 127.0.0.1 --server.port 8501
 
 <!-- Them from new terminal in local machine: -->
 
-ssh -N -L 8501:127.0.0.1:8501 -i /path/to/key.pem ubuntu@13.221.167.40
-
 ```bash
 ssh -i /path/to/your-key.pem -L 8501:127.0.0.1:8501 ubuntu@<ec2-public-ip>
 ```

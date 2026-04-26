@@ -45,14 +45,14 @@ python3 pull_data.py
 Run train script from root directory
 
 ```bash
-python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128>
+python3 Code/train.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```
 
 ### Training Long Jobs with log outputs:
 
 ```bash
 tmux new -s train
-python3 code/train.py --model <dcgan|wgan_gp|progan> --size <64|128> 2>&1 | tee <train_modelName_size.log>
+python3 Code/train.py --model <dcgan|wgan_gp|progan> --size <64|128> 2>&1 | tee <train_modelName_size.log>
 # Ctrl+b then d
 tmux attach -t train # reattach later if you want
 ```
@@ -60,16 +60,18 @@ tmux attach -t train # reattach later if you want
 ### Generating Images
 
 ```bash
-python3 code/generate.py --model <dcgan|wgan_gp|progan> --size <64|128>
+python3 Code/generate.py --model <dcgan|wgan_gp|progan> --size <64|128>
 ```
 
 ### Starting Streamlit Dashboard
 
 ```bash
-streamlit run code/src/app.py --server.address 127.0.0.1 --server.port 8501
+streamlit run Code/src/app.py --server.address 127.0.0.1 --server.port 8501
 ```
 
 <!-- Them from new terminal in local machine: -->
+
+ssh -N -L 8501:127.0.0.1:8501 -i /path/to/key.pem ubuntu@13.221.167.40
 
 ```bash
 ssh -i /path/to/your-key.pem -L 8501:127.0.0.1:8501 ubuntu@<ec2-public-ip>

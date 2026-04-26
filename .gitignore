@@ -1,0 +1,33 @@
+/data/
+/models/
+
+# Python bytecode and caches
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+**/.ipynb_checkpoints/
+
+# IDE/editor settings
+.idea/
+.vscode/
+
+# Project-specific generated artifacts
+/saved_128/
+/saved_logs/
+/notes/
+**/fid_cache/
+**/wgan_gp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+

@@ -72,7 +72,7 @@ streamlit run Code/src/app.py --server.address 127.0.0.1 --server.port 8501
 <!-- Them from new terminal in local machine: -->
 
 ```bash
-ssh -i /path/to/your-key.pem -L 8501:127.0.0.1:8501 ubuntu@<ec2-public-ip>
+ssh -i /path/to/your-key.pem -L 8501:127.0.0.1:8501 ubuntu@<ec2-public-ip>.compute.amazonaws.com
 ```
 
 Now in open browser, open:
@@ -80,6 +80,10 @@ Now in open browser, open:
 ```
 http://localhost:8501
 ```
+
+### Using the Dashboard
+
+Before doing anything, make sure to install all models. Click the button on the welcome page to install any missing models
 
 ## Requirements
 

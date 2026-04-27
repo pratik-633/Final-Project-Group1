@@ -7,3 +7,4 @@ torchvision==0.21.0
 kagglehub
 pytorch-fid
 streamlit
+gdown

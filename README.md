@@ -108,7 +108,11 @@ Before doing anything, make sure to install all models. Click the button on the 
 ## GAN Model FID Scores Tested on 10,000 images
 
 DCGAN-64 FID: 23.1085
+
 WGAN-GP-64 FID: 21.7996
+
 WGAN-GP-128 FID: 39.5622
+
 ProGAN-64 FID: 39.7453
+
 ProGAN-128 FID: 59.1849

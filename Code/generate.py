@@ -10,6 +10,7 @@ from model_definitions.progan_model import ProGAN
 from train import LATENT_DIM, DATA_ROOT, BATCH_SIZE, CHANNELS
 
 
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -104,6 +105,13 @@ def load_progan(img_size: int):
     checkpoint_path = f"models/progan_model_{img_size}.pt"
     if not os.path.exists(checkpoint_path):
         raise FileNotFoundError(f"Missing checkpoint: {checkpoint_path}")
+    
+    # TODO: WGET FROM HERE TO GET THE CHECKPOINTS
+    # file_id = 'YOUR_FILE_ID'
+    # url = f'https://drive.google.com/uc?export=download&id={file_id}'
+
+    # # Run wget command
+    # subprocess.run(["wget", "--no-check-certificate", url, "-O", "filename.ext"])
 
     checkpoint = torch.load(checkpoint_path, map_location=DEVICE, weights_only=False)
 
